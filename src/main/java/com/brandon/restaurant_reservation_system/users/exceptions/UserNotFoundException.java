@@ -1,0 +1,13 @@
+package com.brandon.restaurant_reservation_system.users.exceptions;
+
+public class UserNotFoundException extends RuntimeException {
+
+	public UserNotFoundException(long id) {
+		super(String.format("User id not found: %d", id));
+	}
+
+	public UserNotFoundException(String message) {
+		super(message);
+	}
+
+}
