@@ -4,12 +4,12 @@ import java.time.Duration;
 
 public class RestaurantConfig {
 
-	// true == booking times, false == bookingSlotIntervals
 	private int capacity;
 	private boolean limitPeoplePerInterval;
 	private int peoplePerInterval;
 	private boolean canABookingOccupyALargerTable;
 	private Duration standardBookingDuration;
+
 
 	// Constructor
 	public RestaurantConfig() {
@@ -36,6 +36,11 @@ public class RestaurantConfig {
 
 	public int getPeoplePerInterval() {
 		return peoplePerInterval;
+	}
+
+	public void setPeoplePerInterval(int peoplePerInterval) {
+		this.limitPeoplePerInterval = peoplePerInterval != 0;
+		this.peoplePerInterval = peoplePerInterval;
 	}
 
 	public boolean canABookingOccupyALargerTable() {
@@ -65,5 +70,6 @@ public class RestaurantConfig {
 	public void setCanABookingOccupyALargerTable(boolean bool) {
 		this.canABookingOccupyALargerTable = bool;
 	}
+
 
 }

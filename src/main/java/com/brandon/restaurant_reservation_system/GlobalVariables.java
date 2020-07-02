@@ -10,8 +10,8 @@ public final class GlobalVariables {
 			DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 	private final static DateTimeFormatter dateFormat =
 			DateTimeFormatter.ISO_LOCAL_DATE;
-
 	private GlobalVariables() {}
+
 
 	public static DateTimeFormatter getTimeFormat() {
 		return timeFormat;

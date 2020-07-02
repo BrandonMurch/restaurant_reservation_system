@@ -2,7 +2,6 @@ package com.brandon.restaurant_reservation_system.restaurants.model;
 
 import javax.persistence.Entity;
 import java.time.DayOfWeek;
-import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,37 +11,23 @@ import java.util.Optional;
 @Entity
 public class Day {
 
-	// todo redo this so it can also hold dates
-
+	// instance variables
 	private final DayOfWeek dayOfWeek;
 	private boolean isOpen;
-	private List<OpeningClosingPair> hoursOfOperation;
-	private List<LocalTime> bookingTimes;
-	private boolean bookingsAtCertainTimes;
-	private Duration bookingSlotIntervals;
+	private final List<OpeningClosingPair> hoursOfOperation;
 
+	//constructors
 	public Day(DayOfWeek dayOfWeek, boolean isOpen) {
 		this.dayOfWeek = dayOfWeek;
 		hoursOfOperation = new ArrayList<>();
-		bookingTimes = new ArrayList<>();
 		this.isOpen = isOpen;
-		bookingsAtCertainTimes = false;
-		bookingTimes = new ArrayList<>();
-		bookingSlotIntervals = Duration.ZERO;
-
 	}
-
 
 	public Day(DayOfWeek dayOfWeek,
 	           List<OpeningClosingPair> hoursOfOperation) {
 		this.dayOfWeek = dayOfWeek;
 		this.hoursOfOperation = hoursOfOperation;
 		this.isOpen = true;
-		bookingTimes = new ArrayList<>();
-		bookingsAtCertainTimes = false;
-		bookingTimes = new ArrayList<>();
-		bookingSlotIntervals = Duration.ZERO;
-
 	}
 
 	public DayOfWeek getDayOfWeek() {
@@ -79,29 +64,6 @@ public class Day {
 				break;
 			}
 		}
-	}
-
-	public boolean areBookingsOnlyAtCertainTimes() {
-		return bookingsAtCertainTimes;
-	}
-
-	public Duration getBookingSlotIntervals() {
-		return bookingSlotIntervals;
-	}
-
-	public void allowBookingsOnlyAtCertainTimes(List<LocalTime> bookingTimes) {
-		this.bookingsAtCertainTimes = true;
-		this.bookingTimes = bookingTimes;
-	}
-
-	public void allowBookingPerTimeInterval(int bookingIntervalInMinutes) {
-		bookingsAtCertainTimes = false;
-		this.bookingSlotIntervals =
-				Duration.ofMinutes(bookingIntervalInMinutes);
-	}
-
-	public List<LocalTime> getBookingTimes() {
-		return bookingTimes;
 	}
 
 	public Optional<OpeningClosingPair> getPairThatContainsTime(LocalTime time) {

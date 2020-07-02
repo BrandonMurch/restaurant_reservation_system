@@ -1,42 +1,54 @@
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
+import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantCache;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class Restaurant {
 	@Id
 	@GeneratedValue
 	private long id;
 	private String name;
-	private Map<DayOfWeek, Day> openingHours;
+	private BookingTimes bookingTimes;
+	private BookingDateRange bookingDateRange;
 	private List<Table> tableList;
 	private List<CombinationOfTables> combinationsOfTablesList;
-	// todo hashSet for dates, if they are in the set, they are full.
-	private RestaurantConfig restaurantConfig;
+	private RestaurantConfig config;
+	private RestaurantCache cache;
 
 	public Restaurant() {
 	}
 
 	public Restaurant(String name,
-	                  RestaurantConfig restaurantConfig) {
-		this.name = name;
-		initOpeningHours();
-		this.tableList = new ArrayList<>();
-		this.restaurantConfig = restaurantConfig;
+	                  RestaurantConfig restaurantConfig,
+	                  int minutesBetweenBookingSlots) {
+		this(name, restaurantConfig);
+		this.bookingTimes = new BookingTimes(minutesBetweenBookingSlots);
 	}
 
-	private void initOpeningHours() {
-		this.openingHours = new HashMap<>();
-		for (DayOfWeek day : DayOfWeek.values()) {
-			this.openingHours.put(day, new Day(day, false));
-		}
+	public Restaurant(String name,
+	                  RestaurantConfig restaurantConfig) {
+		this.name = name;
+		this.tableList = new ArrayList<>();
+		this.config = restaurantConfig;
+		bookingDateRange = new BookingDateRange(120);
 	}
+
+	public Restaurant(String name,
+	                  RestaurantConfig restaurantConfig,
+	                  List<LocalTime> bookingTimes) {
+		this(name, restaurantConfig);
+		this.bookingTimes = new BookingTimes(bookingTimes);
+	}
+
 
 	public String getName() {
 		return name;
@@ -46,26 +58,12 @@ public class Restaurant {
 		this.name = name;
 	}
 
-	public Map<DayOfWeek, Day> getOpeningHours() {
-		return openingHours;
-	}
-
-	public Day getOpeningHours(DayOfWeek dayOfWeek) {
-		return openingHours.get(dayOfWeek);
-	}
-
-
-	public void setOpeningHours(
-			Map<DayOfWeek, Day> openingHours) {
-		this.openingHours = openingHours;
-	}
-
 	public int getCapacity() {
-		return restaurantConfig.getCapacity();
+		return config.getCapacity();
 	}
 
 	public void setCapacity(int capacity) {
-		restaurantConfig.setCapacity(capacity);
+		config.setCapacity(capacity);
 	}
 
 	public List<Table> getTableList() {
@@ -95,30 +93,60 @@ public class Restaurant {
 		combinationsOfTablesList.add(combinationOfTables);
 	}
 
-	public void removeTableCombination(CombinationOfTables combinationOfTables) {
-		combinationsOfTablesList.remove (combinationOfTables);
+	public void removeTableCombination(
+			CombinationOfTables combinationOfTables) {
+		combinationsOfTablesList.remove(combinationOfTables);
 	}
 
-	public void setTableCombinations(List<CombinationOfTables> combinationsOfTablesList) {
+	public void setTableCombinations(
+			List<CombinationOfTables> combinationsOfTablesList) {
 		this.combinationsOfTablesList = combinationsOfTablesList;
 	}
 
+	// TODO: Split this up, so that you don't need to get config, then a prop
 	public RestaurantConfig getRestaurantConfig() {
-		return restaurantConfig;
+		return config;
 	}
 
 	public void setRestaurantConfig(
 			RestaurantConfig restaurantConfig) {
-		this.restaurantConfig = restaurantConfig;
+		this.config = restaurantConfig;
 	}
 
 	public boolean canABookingOccupyALargerTable() {
-		return restaurantConfig.canABookingOccupyALargerTable();
+		return config.canABookingOccupyALargerTable();
 	}
 
 	public Duration getStandardBookingDuration() {
-		return restaurantConfig.getStandardBookingDuration();
+		return config.getStandardBookingDuration();
 	}
 
+	public Set<LocalDate> getFullDates() {
+		return cache.getFullDates();
+	}
+
+	public boolean isDateFull(LocalDate date) {
+		return cache.isDateFull(date);
+	}
+
+	public List<LocalTime> getBookingTimes() {
+		return getBookingTimes(LocalDate.now());
+	}
+
+	public List<LocalTime> getBookingTimes(LocalDate date) {
+		return bookingTimes.getBookingTimes(date);
+	}
+
+	public DateRange getBookingDateRange() {
+		return bookingDateRange.getBookingRange();
+	}
+
+	public void setBookingDateRange(int bookingHorizonInDays) {
+		bookingDateRange.setBookingRange(bookingHorizonInDays);
+	}
+
+	public void setBookingDateRange(LocalDate start, LocalDate end) {
+		bookingDateRange.setBookingRange(new DateRange(start, end));
+	}
 
 }
