@@ -26,11 +26,13 @@ public class RestaurantStub {
 		restaurant = new Restaurant("Restaurant", config);
 		restaurant.setTableList(getTables());
 		restaurant.setTableCombinations(getCombinations());
-		restaurant.setBookingDateRange(range.getReservationStartDate(),
-				range.getReservationEndDate());
+		restaurant.setBookingDateRange(range.getStart(),
+				range.getEnd());
 		// TODO: this needs to be set in BookingTimes
-//		restaurant.setOpeningHours(
-//				setOpeningHours(restaurant.getOpeningHours()));
+
+		restaurant.setOpeningHours(
+				modifyOpeningHours(restaurant.getOpeningHours()));
+		restaurant.allowBookingPerTimeInterval(15);
 	}
 
 	private DateRange getDateRange() {
@@ -42,27 +44,27 @@ public class RestaurantStub {
 
 	private List<Table> getTables() {
 		return Arrays.asList(
-				new Table("k1", 2, false, restaurant),
-				new Table("k2", 2, false, restaurant),
-				new Table("b1", 2, false, restaurant),
-				new Table("b2", 2, false, restaurant),
-				new Table("1", 4, false, restaurant),
-				new Table("5", 4, false, restaurant),
-				new Table("20", 2, false, restaurant),
-				new Table("21", 2, false, restaurant),
-				new Table("22", 2, false, restaurant),
-				new Table("23", 2, false, restaurant),
-				new Table("24", 2, false, restaurant),
-				new Table("25", 2, false, restaurant)
+				new Table("k1", 2),
+				new Table("k2", 2),
+				new Table("b1", 2),
+				new Table("b2", 2),
+				new Table("1", 4),
+				new Table("5", 4),
+				new Table("20", 2),
+				new Table("21", 2),
+				new Table("22", 2),
+				new Table("23", 2),
+				new Table("24", 2),
+				new Table("25", 2)
 		);
 	}
 
 	private List<CombinationOfTables> getCombinations() {
-		Table table1 = new Table("20", 2, false, restaurant);
-		Table table2 = new Table("21", 2, false, restaurant);
-		Table table3 = new Table("22", 2, false, restaurant);
-		Table table4 = new Table("1", 2, false, restaurant);
-		Table table5 = new Table("5", 2, false, restaurant);
+		Table table1 = new Table("20", 2);
+		Table table2 = new Table("21", 2);
+		Table table3 = new Table("22", 2);
+		Table table4 = new Table("1", 2);
+		Table table5 = new Table("5", 2);
 
 		return Arrays.asList(
 				new CombinationOfTables(Arrays.asList(
@@ -86,7 +88,7 @@ public class RestaurantStub {
 				LocalTime.of(23, 15));
 	}
 
-	private Map<DayOfWeek, Day> setOpeningHours(Map<DayOfWeek, Day> map) {
+	private Map<DayOfWeek, Day> modifyOpeningHours(Map<DayOfWeek, Day> map) {
 		Map<DayOfWeek, Day> newMap = new HashMap<>(map);
 
 		DayOfWeek[] days = {

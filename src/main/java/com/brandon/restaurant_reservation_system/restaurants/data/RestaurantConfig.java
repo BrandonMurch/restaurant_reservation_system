@@ -9,6 +9,7 @@ public class RestaurantConfig {
 	private int peoplePerInterval;
 	private boolean canABookingOccupyALargerTable;
 	private Duration standardBookingDuration;
+	private int largestTableSize;
 
 
 	// Constructor
@@ -18,6 +19,7 @@ public class RestaurantConfig {
 		peoplePerInterval = 0;
 		canABookingOccupyALargerTable = false;
 		standardBookingDuration = Duration.ZERO;
+		largestTableSize = 0;
 	}
 
 	// getters
@@ -71,5 +73,11 @@ public class RestaurantConfig {
 		this.canABookingOccupyALargerTable = bool;
 	}
 
+	public int getLargestTableSize() {
+		return largestTableSize;
+	}
 
+	public void setLargestTableSize(int largestTableSize) {
+		this.largestTableSize = largestTableSize;
+	}
 }

@@ -79,7 +79,6 @@ public class DateTimeHandler {
 		}
 	}
 
-
 	public static LocalDate parseDate(String date, DateTimeFormatter dateFormat) {
 			try {
 				return LocalDate.parse(date, dateFormat);

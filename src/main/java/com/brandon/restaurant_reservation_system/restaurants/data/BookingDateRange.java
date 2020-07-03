@@ -1,4 +1,6 @@
-package com.brandon.restaurant_reservation_system.restaurants.model;
+package com.brandon.restaurant_reservation_system.restaurants.data;
+
+import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 
 import java.time.LocalDate;
 

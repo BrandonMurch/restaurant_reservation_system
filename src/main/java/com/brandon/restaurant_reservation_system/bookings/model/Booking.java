@@ -1,7 +1,7 @@
 package com.brandon.restaurant_reservation_system.bookings.model;
 
-import com.brandon.restaurant_reservation_system.helpers.date_time.services.LocalDateTimeDeserializer;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.CustomDateTimeFormatter;
+import com.brandon.restaurant_reservation_system.helpers.date_time.services.LocalDateTimeDeserializer;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.LocalDateTimeSerializer;
 import com.brandon.restaurant_reservation_system.restaurants.model.Table;
 import com.brandon.restaurant_reservation_system.users.model.User;
@@ -30,13 +30,9 @@ public class Booking {
 	private LocalDateTime endTime;
 	@ManyToOne(fetch = FetchType.LAZY)
 	private User user;
+	// FIXME: Spring doesn't like this, might need a table join
 	@ManyToMany(mappedBy = "booking")
 	private List<Table> table;
-
-
-	//TODO add in restaurant
-	// private Restaurant restaurant
-
 
 	public Booking(int partySize, LocalDateTime startTime,
 	               LocalDateTime endTime, User user) {
@@ -47,7 +43,6 @@ public class Booking {
 	}
 
 	public Booking() {}
-
 
 	public long getId() {
 		return id;
@@ -137,14 +132,10 @@ public class Booking {
 
 		public boolean isTheBookingDuringThisTime(LocalDateTime startTime,
 		                                      LocalDateTime endTime) {
-		if (this.getStartTime().isAfter(endTime)) {
-			return true;
-		} else if (this.getEndTime().isBefore(startTime)) {
-			return true;
-		} else {
-			return false;
+			if (this.getStartTime().isAfter(endTime)) {
+				return true;
+			} else return this.getEndTime().isBefore(startTime);
 		}
-	}
 
 	@Override
 	public int hashCode() {

@@ -1,6 +1,8 @@
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -12,6 +14,9 @@ import java.util.Optional;
 public class Day {
 
 	// instance variables
+	@Id
+	@GeneratedValue
+	private long id;
 	private final DayOfWeek dayOfWeek;
 	private boolean isOpen;
 	private final List<OpeningClosingPair> hoursOfOperation;

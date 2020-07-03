@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 public class BookingController {
@@ -124,8 +123,6 @@ public class BookingController {
 		return ResponseEntity.noContent().build();
 	}
 
-	// todo check here if the user already has a booking during the
-	//  requested time
 	// todo check that end time is allocated. If not, add the standard
 	//  duration to start time
 	@PostMapping("/users/{id}/bookings")
@@ -134,6 +131,17 @@ public class BookingController {
 
 		User user = getUser(id);
 		booking.setUser(user);
+
+		// todo move this to a private function??
+		List<Booking> bookings = user.getBookings();
+		LocalDate bookingDate = booking.getStartTime().toLocalDate();
+
+		for (Booking storedBooking : bookings) {
+			if (storedBooking.getStartTime().toLocalDate().equals(
+					bookingDate)) {
+				return ResponseEntity.status(HttpStatus.CONFLICT).build();
+			}
+		}
 
 		Optional<ResponseEntity<ApiError>> bookingValidationException =
 				BookingValidationService.validateBooking(booking);
@@ -155,7 +163,7 @@ public class BookingController {
 	}
 
 	@DeleteMapping("/bookings/{bookingId")
-	public ResponseEntity deleteBooking(@PathVariable long bookingId) {
+	public ResponseEntity<Booking> deleteBooking(@PathVariable long bookingId) {
 		bookingRepository.deleteById(bookingId);
 		return getNoContentResponse();
 	}

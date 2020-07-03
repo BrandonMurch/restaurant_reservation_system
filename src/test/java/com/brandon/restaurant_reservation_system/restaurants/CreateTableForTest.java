@@ -14,24 +14,19 @@ public class CreateTableForTest {
 		this.restaurant = restaurant;
 	}
 	public Table getTable1() {
-		return new Table("21", 2, true,
-		restaurant);
+		return new Table("21", 2);
 	}
 	public Table getTable2() {
-		return new Table("22", 2, true,
-				restaurant);
+		return new Table("22", 2);
 	}
 	public Table getTable3() {
-		return new Table("23", 2, true,
-				restaurant);
+		return new Table("23", 2);
 	}
 	public Table getTable4() {
-		return new Table("5", 8, false,
-				restaurant);
+		return new Table("5", 8);
 	}
 	public Table getTable5() {
-		return new Table("k1", 2, false,
-				restaurant);
+		return new Table("k1", 2);
 	}
 	public List<Table> getTableList() {
 		List<Table> tableList = new ArrayList<>();

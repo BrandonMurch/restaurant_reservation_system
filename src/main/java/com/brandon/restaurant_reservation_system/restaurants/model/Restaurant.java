@@ -1,16 +1,15 @@
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
-import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantCache;
+import com.brandon.restaurant_reservation_system.restaurants.data.BookingDateRange;
+import com.brandon.restaurant_reservation_system.restaurants.data.BookingTimes;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
+import java.time.*;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.Optional;
 
 public class Restaurant {
 	@Id
@@ -19,10 +18,8 @@ public class Restaurant {
 	private String name;
 	private BookingTimes bookingTimes;
 	private BookingDateRange bookingDateRange;
-	private List<Table> tableList;
-	private List<CombinationOfTables> combinationsOfTablesList;
+	private RestaurantTables tables;
 	private RestaurantConfig config;
-	private RestaurantCache cache;
 
 	public Restaurant() {
 	}
@@ -37,7 +34,6 @@ public class Restaurant {
 	public Restaurant(String name,
 	                  RestaurantConfig restaurantConfig) {
 		this.name = name;
-		this.tableList = new ArrayList<>();
 		this.config = restaurantConfig;
 		bookingDateRange = new BookingDateRange(120);
 	}
@@ -49,6 +45,7 @@ public class Restaurant {
 		this.bookingTimes = new BookingTimes(bookingTimes);
 	}
 
+	// Name --------------------------------------------------------------------
 
 	public String getName() {
 		return name;
@@ -58,6 +55,8 @@ public class Restaurant {
 		this.name = name;
 	}
 
+	// Capacity ----------------------------------------------------------------
+
 	public int getCapacity() {
 		return config.getCapacity();
 	}
@@ -66,52 +65,57 @@ public class Restaurant {
 		config.setCapacity(capacity);
 	}
 
+	// Tables ------------------------------------------------------------------
+
+
 	public List<Table> getTableList() {
-		return tableList;
+		return tables.getAll();
 	}
 
-	public void setTableList(List<Table> tableList) {this.tableList = tableList;}
-
-	public Table getTable(int i) {
-		return tableList.get(i);
+	public void setTableList(List<Table> tableList) {
+		tables.setAll(tableList);
 	}
 
-	public void addTable(String name, int seats, boolean isJoinable){
-		tableList.add(new Table(name, seats, isJoinable, this));
+	public Optional<Table> getTable(String name) {
+		return tables.get(name);
+	}
+
+	public void addTable(String name, int seats) {
+		tables.add(name, seats);
 	}
 
 	public void removeTable(String name) {
-		tableList.removeIf(
-				restaurantTable -> restaurantTable.getName().equals(name));
+		tables.remove(name);
 	}
 
-	public List<CombinationOfTables> getCombinationsOfTables() {
-		return combinationsOfTablesList;
-	}
-
-	public void addTableCombination(CombinationOfTables combinationOfTables){
-		combinationsOfTablesList.add(combinationOfTables);
+	public void addTableCombination(CombinationOfTables combinationOfTables) {
+		tables.add(combinationOfTables);
 	}
 
 	public void removeTableCombination(
 			CombinationOfTables combinationOfTables) {
-		combinationsOfTablesList.remove(combinationOfTables);
+		tables.remove(combinationOfTables);
 	}
 
 	public void setTableCombinations(
 			List<CombinationOfTables> combinationsOfTablesList) {
-		this.combinationsOfTablesList = combinationsOfTablesList;
+		tables.setAllCombinations(combinationsOfTablesList);
 	}
 
-	// TODO: Split this up, so that you don't need to get config, then a prop
-	public RestaurantConfig getRestaurantConfig() {
-		return config;
+	public boolean hasCombinationsOfTables() {
+		List<CombinationOfTables> combinations = getCombinationsOfTables();
+		return combinations != null && !combinations.isEmpty();
 	}
 
-	public void setRestaurantConfig(
-			RestaurantConfig restaurantConfig) {
-		this.config = restaurantConfig;
+	public List<CombinationOfTables> getCombinationsOfTables() {
+		return tables.getAllCombinations();
 	}
+
+	public int getLargestTableSize() {
+		return tables.getLargestTableSize();
+	}
+
+	// Config ------------------------------------------------------------------
 
 	public boolean canABookingOccupyALargerTable() {
 		return config.canABookingOccupyALargerTable();
@@ -121,12 +125,18 @@ public class Restaurant {
 		return config.getStandardBookingDuration();
 	}
 
-	public Set<LocalDate> getFullDates() {
-		return cache.getFullDates();
+	// Booking times -----------------------------------------------------------
+
+	public boolean isOpenOnDate(LocalDate date) {
+		return bookingTimes.isOpenOnDate(date);
 	}
 
-	public boolean isDateFull(LocalDate date) {
-		return cache.isDateFull(date);
+	public Map<DayOfWeek, Day> getOpeningHours() {
+		return bookingTimes.getOpeningHours();
+	}
+
+	public void setOpeningHours(Map<DayOfWeek, Day> openingHours) {
+		bookingTimes.setOpeningHours(openingHours);
 	}
 
 	public List<LocalTime> getBookingTimes() {
@@ -136,6 +146,22 @@ public class Restaurant {
 	public List<LocalTime> getBookingTimes(LocalDate date) {
 		return bookingTimes.getBookingTimes(date);
 	}
+
+	public boolean isBookingTime(LocalDateTime dateTime) {
+		return bookingTimes.isBookingTime(dateTime);
+	}
+
+	public void allowBookingsOnlyAtCertainTimes(List<LocalTime> times) {
+		bookingTimes.allowBookingsOnlyAtCertainTimes(times);
+	}
+
+	public void allowBookingPerTimeInterval(int bookingIntervalInMinutes) {
+		bookingTimes.allowBookingPerTimeInterval(bookingIntervalInMinutes);
+	}
+
+
+	// Date Range    -----------------------------------------------------------
+
 
 	public DateRange getBookingDateRange() {
 		return bookingDateRange.getBookingRange();

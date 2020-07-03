@@ -4,27 +4,27 @@ import java.time.LocalDate;
 
 public class DateRange {
 
-	private LocalDate reservationStartDate;
-	private LocalDate reservationEndDate;
+	private LocalDate start;
+	private LocalDate end;
 
 	public DateRange(LocalDate start, LocalDate end) {
-		this.reservationStartDate = start;
-		this.reservationEndDate = end;
+		this.start = start;
+		this.end = end;
 	}
 
-	public LocalDate getReservationStartDate() {
-		return reservationStartDate;
+	public LocalDate getStart() {
+		return start;
 	}
 
-	public void setReservationStartDate(LocalDate reservationStartDate) {
-		this.reservationStartDate = reservationStartDate;
+	public void setStartDate(LocalDate reservationStartDate) {
+		this.start = reservationStartDate;
 	}
 
-	public LocalDate getReservationEndDate() {
-		return reservationEndDate;
+	public LocalDate getEnd() {
+		return end;
 	}
 
-	public void setReservationEndDate(LocalDate reservationEndDate) {
-		this.reservationEndDate = reservationEndDate;
+	public void setEndDate(LocalDate reservationEndDate) {
+		this.end = reservationEndDate;
 	}
 }

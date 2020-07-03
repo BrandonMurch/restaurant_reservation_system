@@ -1,17 +1,17 @@
 package com.brandon.restaurant_reservation_system.restaurants;
 
 import com.brandon.restaurant_reservation_system.GlobalVariables;
-import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
 import com.brandon.restaurant_reservation_system.restaurants.model.Day;
-import com.brandon.restaurant_reservation_system.restaurants.model.OpeningClosingPair;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.Table;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public  class CreateRestaurantForTest {
@@ -33,6 +33,7 @@ public  class CreateRestaurantForTest {
 
 		Map<DayOfWeek, Day> openingHours = restaurant.getOpeningHours();
 		restaurant.setOpeningHours(getOpeningHours(openingHours));
+		restaurant.allowBookingPerTimeInterval(15);
 		return restaurant;
 	}
 
@@ -48,16 +49,24 @@ public  class CreateRestaurantForTest {
 
 	private static Map<DayOfWeek, Day> getOpeningHours(Map<DayOfWeek, Day> openingHours) {
 
-		LocalTime opening = DateTimeHandler.parseTime("18:00", timeFormat);
-		LocalTime closing = DateTimeHandler.parseTime("23:00", timeFormat);
-		List<OpeningClosingPair> openingClosingPairs =
-				Collections.singletonList(new OpeningClosingPair(opening,
-						closing));
+		Map<DayOfWeek, Day> newMap = new HashMap<>(openingHours);
 
+		DayOfWeek[] days = {
+				DayOfWeek.WEDNESDAY,
+				DayOfWeek.THURSDAY,
+				DayOfWeek.FRIDAY,
+				DayOfWeek.SATURDAY
+		};
 
-		Day day = new Day(DayOfWeek.SUNDAY, openingClosingPairs);
-		day.allowBookingPerTimeInterval(15);
-		openingHours.put(DayOfWeek.SUNDAY, day);
-		return openingHours;
+		for (DayOfWeek day : days) {
+			LocalTime opening = LocalTime.of(18, 0);
+			LocalTime closing = LocalTime.of(23, 20);
+			newMap.computeIfPresent(day, (key, val) -> {
+				val.setOpen(true);
+				val.addOpeningAndClosing(opening, closing);
+				return val;
+			});
+		}
+		return newMap;
 	}
 }
