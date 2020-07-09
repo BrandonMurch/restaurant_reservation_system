@@ -1,52 +1,55 @@
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CombinationOfTables {
+public class CombinationOfTables implements Serializable {
+
+	private static final long serialVersionUID = 6133316649925582023L;
 	private String name;
 	private int totalSeats;
-	private List<Table> tables;
+	private final List<RestaurantTable> restaurantTables;
+
+	public CombinationOfTables(RestaurantTable restaurantTable) {
+		this();
+		restaurantTables.add(restaurantTable);
+		calculateName();
+	}
 
 	public CombinationOfTables() {
 		totalSeats = 0;
 		name = "";
-		tables = new ArrayList<>();
+		restaurantTables = new ArrayList<>();
 	}
 
-	public CombinationOfTables(Table table) {
-		this();
-		tables.add(table);
-		calculateName();
-	}
-
-	public CombinationOfTables(List<Table> tables) {
-		this();
-		totalSeats = 0;
-		for (Table table : tables) {
-			this.tables.add(table);
-			totalSeats += table.getSeats();
-		}
-		name = calculateName();
+	private String calculateName() {
+		return restaurantTables.stream().map(RestaurantTable::getName)
+				.collect(Collectors.joining(", "));
 	}
 
 	public String getName() {
 		return this.name;
 	}
 
-	private String calculateName() {
-		return tables.stream().map(Table::getName)
-				.collect(Collectors.joining(", "));
+	public CombinationOfTables(List<RestaurantTable> restaurantTables) {
+		this();
+		totalSeats = 0;
+		for (RestaurantTable restaurantTable : restaurantTables) {
+			this.restaurantTables.add(restaurantTable);
+			totalSeats += restaurantTable.getSeats();
+		}
+		name = calculateName();
 	}
 
-	public void addTable(Table table) {
-		totalSeats += table.getSeats();
-		name += ", " + table.getName();
+	public void addTable(RestaurantTable restaurantTable) {
+		totalSeats += restaurantTable.getSeats();
+		name += ", " + restaurantTable.getName();
 	}
 
-	public List<Table> getTables() {
-		return this.tables;
+	public List<RestaurantTable> getRestaurantTables() {
+		return this.restaurantTables;
 	}
 
 	public int getTotalSeats() {
