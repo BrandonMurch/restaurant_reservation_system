@@ -31,6 +31,8 @@ public class BookingController {
 
 	private final DateTimeFormatter timeFormat = GlobalVariables.getDateTimeFormat();
 	private final DateTimeFormatter dateFormat = GlobalVariables.getDateFormat();
+	private final DateTimeFormatter dateTimeFormat =
+			GlobalVariables.getDateTimeFormat();
 	@Autowired
 	private BookingRepository bookingRepository;
 	@Autowired
@@ -44,28 +46,29 @@ public class BookingController {
 		return bookingRepository.findAll();
 	}
 
-	@GetMapping("/bookings/time={startTime}-{endTime}")
-	public List<Booking> getBookingsDuringTime(@PathVariable String startTime,
-	                                           @PathVariable String endTime) {
+	@GetMapping(value = "/bookings", params = {"startTime", "endTime"})
+	public List<Booking> getBookingsDuringTime(@RequestParam String startTime,
+	                                           @RequestParam String endTime) {
 		LocalDateTime parsedStartTime = DateTimeHandler.parseDateTime(startTime,
-				timeFormat);
+				dateTimeFormat);
 		LocalDateTime parsedEndTime = DateTimeHandler.parseDateTime(endTime,
-				timeFormat);
+				dateTimeFormat);
 		return bookingRepository.getBookingsDuringTime(parsedStartTime,
 				parsedEndTime);
 	}
 
-	@GetMapping("/bookings/start-time={time}")
-	public List<Booking> getBookingsByStartTime(@PathVariable String time) {
-		LocalDateTime parsedStartTime = DateTimeHandler.parseDateTime(time,
-				timeFormat);
+	@GetMapping(value = "/bookings", params = {"startTime"})
+	public List<Booking> getBookingsByStartTime(
+			@RequestParam String startTime) {
+		LocalDateTime parsedStartTime = DateTimeHandler.parseDateTime(startTime,
+				dateTimeFormat);
 		return bookingRepository.getBookingsByStartTime(parsedStartTime);
 	}
 
-	@GetMapping("/bookings/date={date}")
-	public List<Booking> getBookingsByDate(@PathVariable String date) {
-		LocalDate parsedDate;
-		parsedDate = DateTimeHandler.parseDate(date,
+	@GetMapping(value = "/bookings", params = "date")
+	public List<Booking> getBookingsByDate(@RequestParam String date) {
+		System.out.println(date);
+		LocalDate parsedDate = DateTimeHandler.parseDate(date,
 				dateFormat);
 		LocalDate nextDay = parsedDate.plusDays(1);
 
@@ -123,16 +126,13 @@ public class BookingController {
 		return ResponseEntity.noContent().build();
 	}
 
-	// todo check that end time is allocated. If not, add the standard
-	//  duration to start time
 	@PostMapping("/users/{id}/bookings")
 	public HttpEntity<?> createBooking(
-			@Valid @RequestBody Booking booking, @PathVariable long id) {
+			@RequestBody Booking booking, @PathVariable long id) {
 
 		User user = getUser(id);
-		booking.setUser(user);
+//		booking.setUser(user);
 
-		// todo move this to a private function??
 		List<Booking> bookings = user.getBookings();
 		LocalDate bookingDate = booking.getStartTime().toLocalDate();
 
