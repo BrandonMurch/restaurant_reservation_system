@@ -20,13 +20,13 @@ public class User {
 	private String hash;
 	private String phoneNumber;
 	private String email;
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private final List<Booking> bookings;
 	private boolean termsAndConditions;
 
 
 	public User() {
-		this.bookings = new ArrayList<Booking>();
+		this.bookings = new ArrayList<>();
 	}
 
 	public User(String firstName, String lastName, String hash,
