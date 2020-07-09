@@ -3,11 +3,15 @@ package com.brandon.restaurant_reservation_system.restaurants.data;
 import com.brandon.restaurant_reservation_system.restaurants.model.Day;
 import com.brandon.restaurant_reservation_system.restaurants.model.OpeningClosingPair;
 
+import java.io.Serializable;
 import java.time.*;
 import java.util.*;
 
-public class BookingTimes {
 
+public class BookingTimes implements Serializable {
+
+	private static final long serialVersionUID = -3114210963113290649L;
+	private long id;
 	// false = bookingTimesByDay, true = bookingTimes;
 	private boolean bookingsAtCertainTimes;
 	private List<LocalTime> bookingTimes;
@@ -16,6 +20,7 @@ public class BookingTimes {
 	private Map<DayOfWeek, Day> openingHours;
 
 	public BookingTimes() {
+		initOpeningHours();
 	}
 
 	public BookingTimes(List<LocalTime> bookingTimes) {
@@ -77,7 +82,7 @@ public class BookingTimes {
 					LocalTime closing = pair.getClosing();
 					while (time.isBefore(closing)) {
 						bookingTimes.add(time);
-						time.plus(bookingSlotIntervals);
+						time = time.plus(bookingSlotIntervals);
 					}
 				}
 

@@ -2,9 +2,12 @@ package com.brandon.restaurant_reservation_system.restaurants.data;
 
 import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class BookingDateRange {
+public class BookingDateRange implements Serializable {
+
+	private static final long serialVersionUID = -1107217770045487030L;
 	private boolean fixedBookingWindow;
 	private int bookingHorizonInDays;
 	private DateRange dateRange;

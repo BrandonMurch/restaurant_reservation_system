@@ -1,20 +1,18 @@
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
-import com.brandon.restaurant_reservation_system.restaurants.data.BookingDateRange;
-import com.brandon.restaurant_reservation_system.restaurants.data.BookingTimes;
-import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
+import com.brandon.restaurant_reservation_system.restaurants.data.*;
+import org.springframework.stereotype.Component;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import java.io.*;
 import java.time.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class Restaurant {
-	@Id
-	@GeneratedValue
-	private long id;
+@Component
+public class Restaurant implements Serializable {
+
+	private static final long serialVersionUID = 2993992281945949085L;
 	private String name;
 	private BookingTimes bookingTimes;
 	private BookingDateRange bookingDateRange;
@@ -22,6 +20,28 @@ public class Restaurant {
 	private RestaurantConfig config;
 
 	public Restaurant() {
+		deserialize();
+		if (name == null) {
+			RestaurantStub.populateRestaurant(this);
+		}
+	}
+
+	public void deserialize() {
+		try {
+			FileInputStream fileIn = new FileInputStream("restaurant.ser");
+			ObjectInputStream in = new ObjectInputStream(fileIn);
+			Restaurant restaurant = (Restaurant) in.readObject();
+
+			this.name = restaurant.name;
+			this.bookingTimes = restaurant.bookingTimes;
+			this.bookingDateRange = restaurant.bookingDateRange;
+			this.tables = restaurant.tables;
+			this.config = restaurant.config;
+			in.close();
+			fileIn.close();
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public Restaurant(String name,
@@ -29,6 +49,7 @@ public class Restaurant {
 	                  int minutesBetweenBookingSlots) {
 		this(name, restaurantConfig);
 		this.bookingTimes = new BookingTimes(minutesBetweenBookingSlots);
+		serialize();
 	}
 
 	public Restaurant(String name,
@@ -36,6 +57,24 @@ public class Restaurant {
 		this.name = name;
 		this.config = restaurantConfig;
 		bookingDateRange = new BookingDateRange(120);
+		tables = new RestaurantTables();
+		bookingTimes = new BookingTimes();
+		serialize();
+	}
+
+	// Name --------------------------------------------------------------------
+
+	public void serialize() {
+
+		try {
+			FileOutputStream fileOut = new FileOutputStream("restaurant.ser");
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(this);
+			out.close();
+			fileOut.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public Restaurant(String name,
@@ -43,9 +82,10 @@ public class Restaurant {
 	                  List<LocalTime> bookingTimes) {
 		this(name, restaurantConfig);
 		this.bookingTimes = new BookingTimes(bookingTimes);
+		serialize();
 	}
 
-	// Name --------------------------------------------------------------------
+	// Capacity ----------------------------------------------------------------
 
 	public String getName() {
 		return name;
@@ -53,9 +93,10 @@ public class Restaurant {
 
 	public void setName(String name) {
 		this.name = name;
+		serialize();
 	}
 
-	// Capacity ----------------------------------------------------------------
+	// Tables ------------------------------------------------------------------
 
 	public int getCapacity() {
 		return config.getCapacity();
@@ -63,43 +104,35 @@ public class Restaurant {
 
 	public void setCapacity(int capacity) {
 		config.setCapacity(capacity);
+		serialize();
 	}
 
-	// Tables ------------------------------------------------------------------
-
-
-	public List<Table> getTableList() {
+	public List<RestaurantTable> getTableList() {
 		return tables.getAll();
 	}
 
-	public void setTableList(List<Table> tableList) {
-		tables.setAll(tableList);
+	public void setTableList(List<RestaurantTable> restaurantTableList) {
+		tables.setAll(restaurantTableList);
+		serialize();
 	}
 
-	public Optional<Table> getTable(String name) {
+	public Optional<RestaurantTable> getTable(String name) {
 		return tables.get(name);
 	}
 
 	public void addTable(String name, int seats) {
 		tables.add(name, seats);
+		serialize();
 	}
 
 	public void removeTable(String name) {
 		tables.remove(name);
+		serialize();
 	}
 
 	public void addTableCombination(CombinationOfTables combinationOfTables) {
 		tables.add(combinationOfTables);
-	}
-
-	public void removeTableCombination(
-			CombinationOfTables combinationOfTables) {
-		tables.remove(combinationOfTables);
-	}
-
-	public void setTableCombinations(
-			List<CombinationOfTables> combinationsOfTablesList) {
-		tables.setAllCombinations(combinationsOfTablesList);
+		serialize();
 	}
 
 	public boolean hasCombinationsOfTables() {
@@ -125,6 +158,12 @@ public class Restaurant {
 		return config.getStandardBookingDuration();
 	}
 
+	public void removeTableCombination(
+			CombinationOfTables combinationOfTables) {
+		tables.remove(combinationOfTables);
+		serialize();
+	}
+
 	// Booking times -----------------------------------------------------------
 
 	public boolean isOpenOnDate(LocalDate date) {
@@ -135,8 +174,10 @@ public class Restaurant {
 		return bookingTimes.getOpeningHours();
 	}
 
-	public void setOpeningHours(Map<DayOfWeek, Day> openingHours) {
-		bookingTimes.setOpeningHours(openingHours);
+	public void setTableCombinations(
+			List<CombinationOfTables> combinationsOfTablesList) {
+		tables.setAllCombinations(combinationsOfTablesList);
+		serialize();
 	}
 
 	public List<LocalTime> getBookingTimes() {
@@ -151,12 +192,13 @@ public class Restaurant {
 		return bookingTimes.isBookingTime(dateTime);
 	}
 
-	public void allowBookingsOnlyAtCertainTimes(List<LocalTime> times) {
-		bookingTimes.allowBookingsOnlyAtCertainTimes(times);
+	public void setConfig(RestaurantConfig config) {
+		this.config = config;
 	}
 
-	public void allowBookingPerTimeInterval(int bookingIntervalInMinutes) {
-		bookingTimes.allowBookingPerTimeInterval(bookingIntervalInMinutes);
+	public void setOpeningHours(Map<DayOfWeek, Day> openingHours) {
+		bookingTimes.setOpeningHours(openingHours);
+		serialize();
 	}
 
 
@@ -169,10 +211,25 @@ public class Restaurant {
 
 	public void setBookingDateRange(int bookingHorizonInDays) {
 		bookingDateRange.setBookingRange(bookingHorizonInDays);
+		serialize();
+	}
+
+	public void allowBookingsOnlyAtCertainTimes(List<LocalTime> times) {
+		bookingTimes.allowBookingsOnlyAtCertainTimes(times);
+		serialize();
+	}
+
+	// Serialization & Deserialization ----------------------------------------
+
+	public void allowBookingPerTimeInterval(int bookingIntervalInMinutes) {
+		bookingTimes.allowBookingPerTimeInterval(bookingIntervalInMinutes);
+		serialize();
 	}
 
 	public void setBookingDateRange(LocalDate start, LocalDate end) {
 		bookingDateRange.setBookingRange(new DateRange(start, end));
+		serialize();
 	}
+
 
 }

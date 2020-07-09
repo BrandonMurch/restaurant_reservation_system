@@ -1,8 +1,6 @@
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -10,13 +8,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-@Entity
-public class Day {
+public class Day implements Serializable {
 
+	private static final long serialVersionUID = -1607064466422474736L;
 	// instance variables
-	@Id
-	@GeneratedValue
-	private long id;
 	private final DayOfWeek dayOfWeek;
 	private boolean isOpen;
 	private final List<OpeningClosingPair> hoursOfOperation;

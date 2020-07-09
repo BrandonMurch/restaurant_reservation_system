@@ -1,16 +1,17 @@
 package com.brandon.restaurant_reservation_system.restaurants.data;
 
+import java.io.Serializable;
 import java.time.Duration;
 
-public class RestaurantConfig {
+public class RestaurantConfig implements Serializable {
 
+	private static final long serialVersionUID = 7979825971594010456L;
 	private int capacity;
 	private boolean limitPeoplePerInterval;
 	private int peoplePerInterval;
 	private boolean canABookingOccupyALargerTable;
 	private Duration standardBookingDuration;
 	private int largestTableSize;
-
 
 	// Constructor
 	public RestaurantConfig() {
