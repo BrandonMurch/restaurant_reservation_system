@@ -1,46 +1,49 @@
 package com.brandon.restaurant_reservation_system.restaurants;
 
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
-import com.brandon.restaurant_reservation_system.restaurants.model.Table;
+import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class CreateCombinationsForTest {
-	List<Table> tableList;
+	List<RestaurantTable> restaurantTableList;
 
-	public CreateCombinationsForTest(List<Table> tableList) {
-		this.tableList = tableList;
+	public CreateCombinationsForTest(
+			List<RestaurantTable> restaurantTableList) {
+		this.restaurantTableList = restaurantTableList;
 	}
 
 	public List<CombinationOfTables> getCombinationList() {
-		List<CombinationOfTables> combinationOfTablesList = new ArrayList<>();
-		combinationOfTablesList.add(getCombination1());
-		combinationOfTablesList.add(getCombination2());
-		combinationOfTablesList.add(getCombination3());
-		return combinationOfTablesList;
+		return Arrays.asList(
+				getCombination1(),
+				getCombination2(),
+				getCombination3());
 	}
 
 	public CombinationOfTables getCombination1() {
-		List<Table> tableList = new ArrayList<>();
-		tableList.add(this.tableList.get(0));
-		tableList.add(this.tableList.get(1));
-		tableList.add(this.tableList.get(2));
-		return new CombinationOfTables(tableList);
+		return new CombinationOfTables(
+				Arrays.asList(
+						this.restaurantTableList.get(0),
+						this.restaurantTableList.get(1),
+						this.restaurantTableList.get(2)
+				));
 	}
 
 	public CombinationOfTables getCombination2() {
-		List<Table> tableList = new ArrayList<>();
-		tableList.add(this.tableList.get(0));
-		tableList.add(this.tableList.get(1));
-		return new CombinationOfTables(tableList);
+		return new CombinationOfTables(
+				Arrays.asList(
+						this.restaurantTableList.get(0),
+						this.restaurantTableList.get(1)
+				));
 	}
 
 	public CombinationOfTables getCombination3() {
-		List<Table> tableList = new ArrayList<>();
-		tableList.add(this.tableList.get(1));
-		tableList.add(this.tableList.get(2));
-		return new CombinationOfTables(tableList);
+		return new CombinationOfTables(
+				Arrays.asList(
+						this.restaurantTableList.get(1),
+						this.restaurantTableList.get(2)
+				));
 	}
 
 

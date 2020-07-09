@@ -6,87 +6,119 @@ import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.restaurants.CreateRestaurantForTest;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
-import com.brandon.restaurant_reservation_system.restaurants.model.Table;
+import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {BookingRepository.class})
-class TableAllocatorServiceTest {
-
-	private final BookingRepository bookingRepository =
-			Mockito.mock(BookingRepository.class);
-
+class RestaurantTableAllocatorServiceTest {
+	@MockBean
+	private BookingRepository bookingRepository;
 
 	private TableAllocatorService tableAllocator;
 	private Booking booking;
 	private final DateTimeFormatter dateTimeFormat = GlobalVariables.getDateTimeFormat();
 	private Restaurant restaurant;
-	private List<Table> restaurantTableList;
+	private List<RestaurantTable> restaurantRestaurantTableList;
 	private final CreateBookingsForTest createBooking = new CreateBookingsForTest();
+	private List<Booking> bookingList;
 
 
-	// have to use BeforeEach due to SpringBootTest not playing nice
 	@BeforeEach
 	public void setUp() {
 
-		Mockito.reset(bookingRepository);
+		bookingRepository = Mockito.mock(BookingRepository.class);
+
 		booking = createBooking.createBookingForFourAt20();
 		restaurant = CreateRestaurantForTest.create();
-		restaurantTableList = restaurant.getTableList();
+		restaurantRestaurantTableList = restaurant.getTableList();
 
 		// create a list of bookings
 		Booking booking = createBooking.createBookingForTwoAt19();
-		booking.setTable(restaurant.getTableList().get(2));
-		List<Booking> bookingList = new ArrayList<>();
+		RestaurantTable table = restaurant.getTableList().get(2);
+		booking.setTable(Collections.singletonList(table));
+		bookingList = new ArrayList<>();
 		bookingList.add(booking);
 		Mockito.when(bookingRepository.findAll()).thenReturn(bookingList);
+		Mockito.when(bookingRepository
+				.getBookingsDuringTime(
+						any(LocalDateTime.class), any(LocalDateTime.class)))
+				.thenReturn(bookingList);
+
 
 		tableAllocator = new TableAllocatorService(restaurant, this.booking,
 				bookingRepository);
 	}
-}
 
-//	@Test
-//	void isTheRestaurantOpen() {
-//		LocalDateTime openTime =
-//				parseDateTime("2020-10-11T19:00:00.00", dateTimeFormat);
-//		LocalDateTime closedTime =
-//				parseDateTime("2020-08-11T19:00:00.00", dateTimeFormat);
-//		assertTrue(tableAllocator.isTheRestaurantOpen(openTime));
-//		assertFalse(tableAllocator.isTheRestaurantOpen(closedTime));
-//	}
-//
+	@BeforeEach
+	public void setUpBeforeEach() {
+		Mockito.reset(bookingRepository);
+	}
+
+
+	@Test
+	public void getBookings() {
+
+		List<Booking> bookings =
+				tableAllocator.getBookings(
+						booking.getStartTime(),
+						booking.getEndTime());
+		assertEquals(bookingList, bookings);
+	}
+
+	@Test
+	public void getOccupiedTables() {
+		Map<RestaurantTable, Booking> occupiedTables =
+				tableAllocator.getOccupiedTables(bookingList);
+
+		assertEquals(1, occupiedTables.size());
+	}
+
+	@Test
+	public void bookTable() {
+		assertTrue(tableAllocator.bookTable(booking));
+	}
+
+	@Test
+	public void getAvailableTable() {
+		List<RestaurantTable> results =
+				tableAllocator.getAvailableTable(booking.getStartTime(),
+						booking.getPartySize(), true);
+
+		assertFalse(results.isEmpty());
+	}
+}
 //	@Test
 //	void getAFreeTable() {
-//		List<Table> freeTables = Arrays.asList(restaurantTableList.get(0),
-//				restaurantTableList.get(1));
+//		List<RestaurantTable> freeTables = Arrays.asList(restaurantRestaurantTableList.get(0),
+//				restaurantRestaurantTableList.get(1));
 //
 //		assertEquals(freeTables, tableAllocator.getAFreeTable());
 //	}
 //
 //	@Test
-//	void findOccupiedTables() {
-//		tableAllocator.getBookings();
-//		Map<Table, Booking> occupiedTables =
-//				tableAllocator.findOccupiedTables();
-//		assertEquals(1, occupiedTables.size());
-//	}
-//
-//	@Test
 //	void findAvailableTables() {
-//		Map<Integer, List<Table>> availableTables = new HashMap<>();
+//		Map<Integer, List<RestaurantTable>> availableTables = new HashMap<>();
 //
 //		// populate map of tables, skipping 2 which should be occupied
-//		for (int i = 0; i < restaurantTableList.size() && i != 2; i++) {
-//			Table table = restaurantTableList.get(0);
+//		for (int i = 0; i < restaurantRestaurantTableList.size() && i != 2; i++) {
+//			RestaurantTable table = restaurantRestaurantTableList.get(0);
 //			availableTables.computeIfAbsent(table.getSeats(),
 //					k -> new ArrayList<>()).add(table);
 //		}
@@ -105,7 +137,7 @@ class TableAllocatorServiceTest {
 //
 //	@Test
 //	void findCombinationsEqualToPartySize() {
-//		List<Table> tables = Arrays.asList(restaurant.getTableList().get(0),
+//		List<RestaurantTable> tables = Arrays.asList(restaurant.getTableList().get(0),
 //		restaurant.getTableList().get(1));
 //		assertEquals(tables, tableAllocator.findCombinations(booking.getPartySize()));
 //	}
@@ -120,7 +152,7 @@ class TableAllocatorServiceTest {
 //		bookingList.add(booking);
 //
 //		booking = createBooking.createBookingForFourAt19();
-//		List<Table> tables =
+//		List<RestaurantTable> tables =
 //				Arrays.asList(restaurant.getTableList().get(1),
 //						restaurant.getTableList().get(2));
 //		booking.setTable(tables);
@@ -142,7 +174,7 @@ class TableAllocatorServiceTest {
 //	@Test
 //	void isCombinationFullyBooked() {
 //		// add bookings to fully book a combination of tables.
-//		List<Table> tables = Arrays.asList(restaurant.getTableList().get(1),
+//		List<RestaurantTable> tables = Arrays.asList(restaurant.getTableList().get(1),
 //				restaurant.getTableList().get(2));
 //		booking = createBooking.createBookingForFourAt19();
 //		booking.setTable(tables);
@@ -158,14 +190,14 @@ class TableAllocatorServiceTest {
 //	@Test
 //	void rearrangeCombination() {
 //		Booking booking = createBooking.createBookingForTwoAt19();
-//		booking.setTable(restaurantTableList.get(1));
+//		booking.setTable(restaurantRestaurantTableList.get(1));
 //		List<Booking> bookingList = Collections.singletonList(booking);
 //
 //		Mockito.when(bookingRepository.findAll()).thenReturn(bookingList);
 //		tableAllocator.testRefresh();
 //
-//		List<Table> expectedTables = Arrays.asList(restaurantTableList.get(0),
-//				restaurantTableList.get(1));
+//		List<RestaurantTable> expectedTables = Arrays.asList(restaurantRestaurantTableList.get(0),
+//				restaurantRestaurantTableList.get(1));
 //
 //		assertEquals(expectedTables,
 //				tableAllocator.findTableSwapsInAllCombinations(this.booking.getPartySize()));
@@ -174,7 +206,7 @@ class TableAllocatorServiceTest {
 //	@Test
 //	void swapTables() {
 //		Booking booking = createBooking.createBookingForTwoAt19();
-//		booking.setTable(restaurantTableList.get(1));
+//		booking.setTable(restaurantRestaurantTableList.get(1));
 //
 //		List<Booking> bookingList = Collections.singletonList(booking);
 //		Mockito.when(bookingRepository.findAll()).thenReturn(bookingList);
@@ -188,21 +220,21 @@ class TableAllocatorServiceTest {
 //	@Test
 //	void swapTablesInBookings() {
 //		Booking booking = createBooking.createBookingForTwoAt19();
-//		booking.setTable(restaurantTableList.get(1));
+//		booking.setTable(restaurantRestaurantTableList.get(1));
 //
 //		List<Booking> bookingList = Collections.singletonList(booking);
 //		Mockito.when(bookingRepository
 //				.findAll()).thenReturn(bookingList);
 //		tableAllocator.testRefresh();
 //
-//		Map<List<Table>, List<Table>> swapsToPerform = new HashMap<>();
-//		swapsToPerform.put(Collections.singletonList(restaurantTableList.get(1)),
-//				Collections.singletonList(restaurantTableList.get(2)));
+//		Map<List<RestaurantTable>, List<RestaurantTable>> swapsToPerform = new HashMap<>();
+//		swapsToPerform.put(Collections.singletonList(restaurantRestaurantTableList.get(1)),
+//				Collections.singletonList(restaurantRestaurantTableList.get(2)));
 //		tableAllocator.swapTablesInBookings(swapsToPerform);
 //
 //
 //
-//		assertEquals(Collections.singletonList(restaurantTableList.get(2)),
+//		assertEquals(Collections.singletonList(restaurantRestaurantTableList.get(2)),
 //					 booking.getTable());
 //	}
 //

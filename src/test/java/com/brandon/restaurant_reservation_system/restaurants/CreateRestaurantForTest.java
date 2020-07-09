@@ -4,7 +4,7 @@ import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
 import com.brandon.restaurant_reservation_system.restaurants.model.Day;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
-import com.brandon.restaurant_reservation_system.restaurants.model.Table;
+import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -25,10 +25,10 @@ public  class CreateRestaurantForTest {
 		RestaurantConfig config = createRestaurantConfigForTest();
 		Restaurant restaurant = new Restaurant(name, config);
 		CreateTableForTest createTable = new CreateTableForTest(restaurant);
-		List<Table> tableList = createTable.getTableList();
-		restaurant.setTableList(tableList);
+		List<RestaurantTable> restaurantTableList = createTable.getTableList();
+		restaurant.setTableList(restaurantTableList);
 		CreateCombinationsForTest createCombo =
-				new CreateCombinationsForTest(tableList);
+				new CreateCombinationsForTest(restaurantTableList);
 		restaurant.setTableCombinations(createCombo.getCombinationList());
 
 		Map<DayOfWeek, Day> openingHours = restaurant.getOpeningHours();
@@ -55,7 +55,8 @@ public  class CreateRestaurantForTest {
 				DayOfWeek.WEDNESDAY,
 				DayOfWeek.THURSDAY,
 				DayOfWeek.FRIDAY,
-				DayOfWeek.SATURDAY
+				DayOfWeek.SATURDAY,
+				DayOfWeek.SUNDAY
 		};
 
 		for (DayOfWeek day : days) {

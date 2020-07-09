@@ -34,9 +34,26 @@ public class CreateUsersForTesting {
 		user.setId(2);
 		return user;
 	}
+
 	public User createUser3() {
 		User user = new User("John", "Smith",
 				"alkjelkjfeffe", "+22 1234567890",
+				"John.Smith@email.com", true);
+		user.setId(3);
+		return user;
+	}
+
+	public User invalidEmail() {
+		User user = new User("John", "Smith",
+				"alkjelkjfeffe", "+22 1234567890",
+				"this is not an email.com", true);
+		user.setId(3);
+		return user;
+	}
+
+	public User invalidPhone() {
+		User user = new User("John", "Smith",
+				"alkjelkjfeffe", "2334349",
 				"John.Smith@email.com", true);
 		user.setId(3);
 		return user;
