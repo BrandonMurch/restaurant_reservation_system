@@ -114,10 +114,11 @@ public class Booking {
 		this.restaurantTables = restaurantTables;
 	}
 
-	public void setTable(RestaurantTable restaurantTable) {
-		List<RestaurantTable> list = new ArrayList<>();
-		list.add(restaurantTable);
-		this.restaurantTables = list;
+	public void addTable(RestaurantTable restaurantTable) {
+		if (this.restaurantTables == null) {
+			this.restaurantTables = new ArrayList<>();
+		}
+		this.restaurantTables.add(restaurantTable);
 	}
 
 	@Override

@@ -5,7 +5,7 @@ import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
-import com.brandon.restaurant_reservation_system.restaurants.model.Table;
+import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,17 +21,19 @@ public class TableAllocatorService {
 	@Autowired
 	BookingRepository bookingRepository;
 
+	@Autowired
 	private Restaurant restaurant;
-	private List<Table> tableList;
+
+	private List<RestaurantTable> restaurantTableList;
 	//	private Map<Integer, List<CombinationOfTables>> movableTableCombinations;
 	private Booking booking;
-	private Map<Integer, Table> availableTables;
+	private Map<Integer, RestaurantTable> availableTables;
 	private Map<Integer, CombinationOfTables> availableCombinations;
 
 	public TableAllocatorService() {
 	}
 
-	//	 This constructor is for testing purposes
+	//		 This constructor is for testing purposes
 	protected TableAllocatorService(Restaurant restaurant, Booking booking,
 	                                BookingRepository bookingRepository) {
 		this(restaurant, booking);
@@ -39,44 +41,54 @@ public class TableAllocatorService {
 	}
 
 	public TableAllocatorService(Restaurant restaurant, Booking booking) {
-		tableList = restaurant.getTableList();
+		restaurantTableList = restaurant.getTableList();
 		this.restaurant = restaurant;
 		this.booking = booking;
 	}
 
 	public TableAllocatorService(Restaurant restaurant) {
-		tableList = restaurant.getTableList();
+		restaurantTableList = restaurant.getTableList();
 		this.restaurant = restaurant;
 	}
 
 	public boolean bookTable(Booking booking) {
-		List<Table> tableList = getAvailableTable(booking.getStartTime(),
-				booking.getPartySize(),
-				restaurant.canABookingOccupyALargerTable());
+		if (booking.getEndTime() == null) {
+			booking.setEndTime(
+					booking.getStartTime()
+							.plus(restaurant.getStandardBookingDuration())
+			);
+		}
 
-		if (tableList.isEmpty()) {
+		List<RestaurantTable> restaurantTableList =
+				getAvailableTable(
+						booking.getStartTime(),
+						booking.getPartySize(),
+						restaurant.canABookingOccupyALargerTable());
+
+		if (restaurantTableList.isEmpty()) {
 			return false;
 		}
 
-		booking.setTable(tableList);
+		booking.setTable(restaurantTableList);
 		bookingRepository.save(booking);
 		return true;
 	}
 
-	public List<Table> getAvailableTable(LocalDateTime startTime,
-	                                     int partySize,
-	                                     boolean searchGreaterSizes) {
+	public List<RestaurantTable> getAvailableTable(LocalDateTime startTime,
+	                                               int partySize,
+	                                               boolean searchGreaterSizes) {
 		LocalDateTime endTime =
 				startTime.plus(restaurant.getStandardBookingDuration());
 		return getAvailableTable(startTime, endTime, partySize,
 				searchGreaterSizes);
 	}
 
-	public List<Table> getAvailableTable(LocalDateTime startTime,
-	                                     LocalDateTime endTime,
-	                                     int partySize,
-	                                     boolean searchGreaterSizes) {
-		if (tableList == null || tableList.isEmpty()) {
+	public List<RestaurantTable> getAvailableTable(LocalDateTime startTime,
+	                                               LocalDateTime endTime,
+	                                               int partySize,
+	                                               boolean searchGreaterSizes) {
+		restaurantTableList = restaurant.getTableList();
+		if (restaurantTableList == null || restaurantTableList.isEmpty()) {
 			throw new IllegalStateException("Please ensure the restaurant is " +
 					"set up with tables before trying to make a booking.");
 		} else if (!restaurant.isBookingTime(startTime)) {
@@ -84,25 +96,26 @@ public class TableAllocatorService {
 		}
 
 		List<Booking> bookings = getBookings(startTime, endTime);
-		Map<Table, Booking> occupiedTables = getOccupiedTables(bookings);
-		List<Table> foundTables;
-		foundTables = getAvailableTablesBySize(occupiedTables,
+		Map<RestaurantTable, Booking> occupiedTables = getOccupiedTables(
+				bookings);
+		List<RestaurantTable> foundRestaurantTables;
+		foundRestaurantTables = getTableBySizeAndUpdateMap(occupiedTables,
 				partySize);
-		if (!foundTables.isEmpty()) {
-			return foundTables;
+		if (!foundRestaurantTables.isEmpty()) {
+			return foundRestaurantTables;
 		}
 
-		foundTables = getAvailableTableCombinationsBySize(occupiedTables,
+		foundRestaurantTables = getCombinationBySizeAndUpdateMap(occupiedTables,
 				partySize);
-		if (!foundTables.isEmpty()) {
-			return foundTables;
+		if (!foundRestaurantTables.isEmpty()) {
+			return foundRestaurantTables;
 		}
 
 		return getATableRecursively(partySize + 1, searchGreaterSizes);
 	}
 
-	private List<Table> getATableRecursively(int partySize,
-	                                         boolean searchGreaterSizes) {
+	private List<RestaurantTable> getATableRecursively(int partySize,
+	                                                   boolean searchGreaterSizes) {
 		if (availableTables.containsKey(partySize)) {
 			return Collections.singletonList(
 					availableTables.get(partySize)
@@ -111,7 +124,8 @@ public class TableAllocatorService {
 
 		if (restaurant.hasCombinationsOfTables()) {
 			if (availableCombinations.containsKey(partySize)) {
-				return availableCombinations.get(partySize).getTables();
+				return availableCombinations.get(
+						partySize).getRestaurantTables();
 			}
 		}
 
@@ -134,8 +148,8 @@ public class TableAllocatorService {
 	protected List<Booking> getBookings(LocalDateTime startTime,
 	                                    LocalDateTime endTime) {
 		List<Booking> bookings =
-				bookingRepository.getBookingsDuringTime(booking.getStartTime(),
-						booking.getEndTime());
+				bookingRepository.getBookingsDuringTime(startTime,
+						endTime);
 		if (bookings == null) {
 			throw new IllegalStateException("Connection to the booking " +
 					"database failed.");
@@ -145,8 +159,9 @@ public class TableAllocatorService {
 	}
 
 
-	protected Map<Table, Booking> getOccupiedTables(List<Booking> bookings) {
-		Map<Table, Booking> occupiedTables = new HashMap<>();
+	protected Map<RestaurantTable, Booking> getOccupiedTables(
+			List<Booking> bookings) {
+		Map<RestaurantTable, Booking> occupiedTables = new HashMap<>();
 
 		int capacityCount = 0;
 		for (Booking booking : bookings) {
@@ -163,30 +178,34 @@ public class TableAllocatorService {
 		return occupiedTables;
 	}
 
-	protected List<Table> getAvailableTablesBySize(Map<Table,
-			Booking> occupiedTables, int size) {
+	protected List<RestaurantTable> getTableBySizeAndUpdateMap(
+			Map<RestaurantTable,
+					Booking> occupiedTables, int size) {
 		availableTables = new HashMap<>();
-		for (Table table : tableList) {
-			if (!occupiedTables.containsKey(table)
-					|| !availableTables.containsKey(table.getSeats())) {
-				if (table.getSeats() == size) {
-					return Collections.singletonList(table);
+		for (RestaurantTable restaurantTable : restaurantTableList) {
+			if (!occupiedTables.containsKey(restaurantTable)
+					|| !availableTables.containsKey(
+					restaurantTable.getSeats())) {
+				if (restaurantTable.getSeats() == size) {
+					return Collections.singletonList(restaurantTable);
 				}
-				availableTables.put(table.getSeats(), table);
+				availableTables.put(restaurantTable.getSeats(),
+						restaurantTable);
 			}
 		}
 		return Collections.emptyList();
 	}
 
-	protected List<Table> getAvailableTableCombinationsBySize(Map<Table,
-			Booking> occupiedTables, int size) {
+	protected List<RestaurantTable> getCombinationBySizeAndUpdateMap(
+			Map<RestaurantTable,
+					Booking> occupiedTables, int size) {
 		availableCombinations = new HashMap<>();
 		for (CombinationOfTables combination :
 				restaurant.getCombinationsOfTables()) {
 			boolean foundAOccupiedTable = false;
 
-			for (Table table : combination.getTables()) {
-				if (occupiedTables.containsKey(table)) {
+			for (RestaurantTable restaurantTable : combination.getRestaurantTables()) {
+				if (occupiedTables.containsKey(restaurantTable)) {
 					foundAOccupiedTable = true;
 					break;
 				}
@@ -196,7 +215,7 @@ public class TableAllocatorService {
 				if (!availableCombinations.containsKey(
 						combination.getTotalSeats())) {
 					if (combination.getTotalSeats() == size) {
-						return combination.getTables();
+						return combination.getRestaurantTables();
 					}
 					availableCombinations.put(combination.getTotalSeats(),
 							combination);
@@ -222,6 +241,7 @@ public class TableAllocatorService {
 		return availableTimes;
 	}
 
+	// TODO: place this in a cache, only update after a booking is made
 	public SortedSet<LocalDate> getAvailableDates() {
 		DateRange dates = restaurant.getBookingDateRange();
 		LocalDate current = dates.getStart();
@@ -234,6 +254,7 @@ public class TableAllocatorService {
 					&& isDateAvailable(current)) {
 				availableDates.add(current);
 			}
+			current = current.plusDays(1);
 		}
 
 		return availableDates;

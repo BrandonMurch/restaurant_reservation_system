@@ -13,7 +13,6 @@ import java.util.List;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-	// todo test these Queries
 	@Query("SELECT b FROM Booking b " +
 			"WHERE  b.startTime < :endTime " +
 			"AND b.endTime > :startTime")
@@ -21,13 +20,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 			@Param("startTime") LocalDateTime startTime,
 			@Param("endTime") LocalDateTime endTime);
 
-	@Query("SELECT b FROM Booking b WHERE  b.startTime = startTime")
+	@Query("SELECT b FROM Booking b WHERE  b.startTime = :startTime")
 	List<Booking> getBookingsByStartTime(
 			@Param("startTime") LocalDateTime startTime);
 
 
-	@Query("SELECT b FROM Booking b WHERE  b.startTime >= date " +
-			"and b.startTime < date2")
+	@Query("SELECT b FROM Booking b WHERE  b.startTime >= :date " +
+			"and b.startTime < :date2")
 	List<Booking> getBookingsBetweenDates(@Param("date") LocalDate date,
 	                                      @Param("date2") LocalDate date2);
 

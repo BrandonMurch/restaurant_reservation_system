@@ -9,10 +9,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -23,6 +20,7 @@ import static com.brandon.restaurant_reservation_system.helpers.date_time.servic
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
+@RequestMapping("/availability")
 public class RestaurantController {
 	@Autowired
 	private Restaurant restaurant;
@@ -34,11 +32,8 @@ public class RestaurantController {
 
 	public RestaurantController() {
 	}
-	//TEMPORARY STUBS
 
-	//GET /restaurant/dates
-	@CrossOrigin
-	@GetMapping("/bookings/free-dates")
+	@GetMapping("")
 	public ResponseEntity<String> getDate() {
 		JSONObject json = new JSONObject();
 		DateRange range =
@@ -56,16 +51,13 @@ public class RestaurantController {
 		return response;
 	}
 
-	@GetMapping("/bookings/date/{date}/size/{size}")
+	@GetMapping(value = "", params = {"date", "size"})
 	public Set<LocalTime> getAvailableBookingTimes(
-			@PathVariable String dateString,
-			@PathVariable int size) {
-		LocalDate date = parseDate(dateString, dateFormat);
-		return tableAllocator.getAvailableTimes(size, date);
+			@RequestParam String date,
+			@RequestParam int size) {
+		LocalDate parsedDate = parseDate(date, dateFormat);
+		return tableAllocator.getAvailableTimes(size, parsedDate);
 	}
-
-	//GET /restaurant/freeSizes
-
 
 	// admin only controller options
 	// GET /RESTAURANTS/{RESTAURANT} - get a restaurant

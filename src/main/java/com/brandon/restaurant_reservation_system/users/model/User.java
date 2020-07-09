@@ -11,15 +11,16 @@ import java.util.List;
 @Table(name = "users")
 public class User {
 
-	private @Id
+	@Id
 	@GeneratedValue
-	long id;
+	private long id;
+	@Column(unique = true)
+	private String email;
 	private String firstName;
 	private String lastName;
 	@JsonIgnore
 	private String hash;
 	private String phoneNumber;
-	private String email;
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 	private final List<Booking> bookings;
 	private boolean termsAndConditions;
@@ -78,11 +79,6 @@ public class User {
 	}
 
 	public void updateWith(User updatedUser) {
-		String email = updatedUser.getEmail();
-		if (email != null) {
-			this.setEmail(email);
-		}
-
 		String phone = updatedUser.getPhoneNumber();
 		if (phone != null) {
 			this.setPhoneNumber(phone);
@@ -102,10 +98,6 @@ public class User {
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
 	}
 
 	@Override
