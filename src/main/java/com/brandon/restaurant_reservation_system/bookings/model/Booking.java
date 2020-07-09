@@ -3,8 +3,9 @@ package com.brandon.restaurant_reservation_system.bookings.model;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.CustomDateTimeFormatter;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.LocalDateTimeDeserializer;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.LocalDateTimeSerializer;
-import com.brandon.restaurant_reservation_system.restaurants.model.Table;
+import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.users.model.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -29,10 +30,14 @@ public class Booking {
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	private LocalDateTime endTime;
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JsonIgnore
 	private User user;
-	// FIXME: Spring doesn't like this, might need a table join
-	@ManyToMany(mappedBy = "booking")
-	private List<Table> table;
+
+	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@JoinTable(name = "bookings_table",
+			joinColumns = @JoinColumn(name = "bookings_id"),
+			inverseJoinColumns = @JoinColumn(name = "restaurantTable_id"))
+	private List<RestaurantTable> restaurantTables;
 
 	public Booking(int partySize, LocalDateTime startTime,
 	               LocalDateTime endTime, User user) {
@@ -42,7 +47,8 @@ public class Booking {
 		this.user = user;
 	}
 
-	public Booking() {}
+	public Booking() {
+	}
 
 	public long getId() {
 		return id;
@@ -100,18 +106,18 @@ public class Booking {
 		}
 	}
 
-	public List<Table> getTable() {
-		return table;
+	public List<RestaurantTable> getTable() {
+		return restaurantTables;
 	}
 
-	public void setTable(List<Table> table) {
-		this.table = table;
+	public void setTable(List<RestaurantTable> restaurantTables) {
+		this.restaurantTables = restaurantTables;
 	}
 
-	public void setTable(Table table) {
-		List<Table> list = new ArrayList<>();
-		list.add(table);
-		this.table = list;
+	public void setTable(RestaurantTable restaurantTable) {
+		List<RestaurantTable> list = new ArrayList<>();
+		list.add(restaurantTable);
+		this.restaurantTables = list;
 	}
 
 	@Override
