@@ -40,15 +40,10 @@ public class RestaurantController {
 				restaurant.getBookingDateRange();
 		json.put("start", range.getStart());
 		json.put("end", range.getEnd());
-		json.put("availableDates", tableAllocator.getAvailableDates());
+		json.put("availableDates", restaurant.getAvailableDates());
 
-		System.out.println(json);
-
-		ResponseEntity<String> response = new ResponseEntity<>(json.toString(),
+		return new ResponseEntity<>(json.toString(),
 				HttpStatus.OK);
-
-		System.out.println(response);
-		return response;
 	}
 
 	@GetMapping(value = "", params = {"date", "size"})

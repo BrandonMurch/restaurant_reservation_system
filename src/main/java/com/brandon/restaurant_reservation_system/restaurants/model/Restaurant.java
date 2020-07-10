@@ -1,6 +1,7 @@
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
 import com.brandon.restaurant_reservation_system.restaurants.data.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -8,6 +9,7 @@ import java.time.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SortedSet;
 
 @Component
 public class Restaurant implements Serializable {
@@ -18,29 +20,13 @@ public class Restaurant implements Serializable {
 	private BookingDateRange bookingDateRange;
 	private RestaurantTables tables;
 	private RestaurantConfig config;
+	@Autowired
+	private transient RestaurantCache cache;
 
 	public Restaurant() {
 		deserialize();
 		if (name == null) {
 			RestaurantStub.populateRestaurant(this);
-		}
-	}
-
-	public void deserialize() {
-		try {
-			FileInputStream fileIn = new FileInputStream("restaurant.ser");
-			ObjectInputStream in = new ObjectInputStream(fileIn);
-			Restaurant restaurant = (Restaurant) in.readObject();
-
-			this.name = restaurant.name;
-			this.bookingTimes = restaurant.bookingTimes;
-			this.bookingDateRange = restaurant.bookingDateRange;
-			this.tables = restaurant.tables;
-			this.config = restaurant.config;
-			in.close();
-			fileIn.close();
-		} catch (IOException | ClassNotFoundException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -51,6 +37,8 @@ public class Restaurant implements Serializable {
 		this.bookingTimes = new BookingTimes(minutesBetweenBookingSlots);
 		serialize();
 	}
+
+	// TODO: set constructor for pre-set booking times.
 
 	public Restaurant(String name,
 	                  RestaurantConfig restaurantConfig) {
@@ -63,19 +51,6 @@ public class Restaurant implements Serializable {
 	}
 
 	// Name --------------------------------------------------------------------
-
-	public void serialize() {
-
-		try {
-			FileOutputStream fileOut = new FileOutputStream("restaurant.ser");
-			ObjectOutputStream out = new ObjectOutputStream(fileOut);
-			out.writeObject(this);
-			out.close();
-			fileOut.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public Restaurant(String name,
 	                  RestaurantConfig restaurantConfig,
@@ -201,6 +176,24 @@ public class Restaurant implements Serializable {
 		serialize();
 	}
 
+	public void allowBookingPerTimeInterval(int bookingIntervalInMinutes) {
+		bookingTimes.allowBookingPerTimeInterval(bookingIntervalInMinutes);
+		serialize();
+	}
+
+	public void serialize() {
+
+		try {
+			FileOutputStream fileOut = new FileOutputStream("restaurant.ser");
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(this);
+			out.close();
+			fileOut.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	// Date Range    -----------------------------------------------------------
 
@@ -221,15 +214,34 @@ public class Restaurant implements Serializable {
 
 	// Serialization & Deserialization ----------------------------------------
 
-	public void allowBookingPerTimeInterval(int bookingIntervalInMinutes) {
-		bookingTimes.allowBookingPerTimeInterval(bookingIntervalInMinutes);
-		serialize();
-	}
-
 	public void setBookingDateRange(LocalDate start, LocalDate end) {
 		bookingDateRange.setBookingRange(new DateRange(start, end));
 		serialize();
 	}
 
+	public void deserialize() {
+		try {
+			FileInputStream fileIn = new FileInputStream("restaurant.ser");
+			ObjectInputStream in = new ObjectInputStream(fileIn);
+			Restaurant restaurant = (Restaurant) in.readObject();
+
+			this.name = restaurant.name;
+			this.bookingTimes = restaurant.bookingTimes;
+			this.bookingDateRange = restaurant.bookingDateRange;
+			this.tables = restaurant.tables;
+			this.config = restaurant.config;
+			in.close();
+			fileIn.close();
+		} catch (IOException | ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	// Cache -------------------------------------------------------------------
+
+	public SortedSet<LocalDate> getAvailableDates() {
+		return cache.getAvailableDates();
+	}
 
 }

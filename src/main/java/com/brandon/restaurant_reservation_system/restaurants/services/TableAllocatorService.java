@@ -26,7 +26,7 @@ public class TableAllocatorService {
 
 	private List<RestaurantTable> restaurantTableList;
 	//	private Map<Integer, List<CombinationOfTables>> movableTableCombinations;
-	private Booking booking;
+//	private Booking booking;
 	private Map<Integer, RestaurantTable> availableTables;
 	private Map<Integer, CombinationOfTables> availableCombinations;
 
@@ -34,16 +34,10 @@ public class TableAllocatorService {
 	}
 
 	//		 This constructor is for testing purposes
-	protected TableAllocatorService(Restaurant restaurant, Booking booking,
+	protected TableAllocatorService(Restaurant restaurant,
 	                                BookingRepository bookingRepository) {
-		this(restaurant, booking);
+		this(restaurant);
 		this.bookingRepository = bookingRepository;
-	}
-
-	public TableAllocatorService(Restaurant restaurant, Booking booking) {
-		restaurantTableList = restaurant.getTableList();
-		this.restaurant = restaurant;
-		this.booking = booking;
 	}
 
 	public TableAllocatorService(Restaurant restaurant) {
@@ -71,12 +65,15 @@ public class TableAllocatorService {
 
 		booking.setTable(restaurantTableList);
 		bookingRepository.save(booking);
+		// TODO: Update cache after booking table
 		return true;
 	}
 
 	public List<RestaurantTable> getAvailableTable(LocalDateTime startTime,
 	                                               int partySize,
 	                                               boolean searchGreaterSizes) {
+		// TODO: Check current time, tables before previous time shouldn't be
+		//  able to book
 		LocalDateTime endTime =
 				startTime.plus(restaurant.getStandardBookingDuration());
 		return getAvailableTable(startTime, endTime, partySize,
@@ -226,7 +223,7 @@ public class TableAllocatorService {
 	}
 
 
-	public Set<LocalTime> getAvailableTimes(int size, LocalDate date) {
+	public SortedSet<LocalTime> getAvailableTimes(int size, LocalDate date) {
 		List<LocalTime> times = restaurant.getBookingTimes(date);
 		SortedSet<LocalTime> availableTimes = new TreeSet<>();
 
@@ -241,7 +238,7 @@ public class TableAllocatorService {
 		return availableTimes;
 	}
 
-	// TODO: place this in a cache, only update after a booking is made
+
 	public SortedSet<LocalDate> getAvailableDates() {
 		DateRange dates = restaurant.getBookingDateRange();
 		LocalDate current = dates.getStart();
@@ -267,7 +264,7 @@ public class TableAllocatorService {
 			LocalDateTime dateTime = date.atTime(time);
 
 			if (!getAvailableTable(dateTime, 2,
-					true).isEmpty()) {
+					restaurant.canABookingOccupyALargerTable()).isEmpty()) {
 				return true;
 			}
 		}
