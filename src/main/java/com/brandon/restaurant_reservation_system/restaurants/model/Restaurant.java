@@ -43,32 +43,29 @@ public class Restaurant implements Serializable {
 	}
 
 	private Restaurant(String name,
-	                   RestaurantConfig restaurantConfig) {
+					   RestaurantConfig restaurantConfig) {
 		this.name = name;
 		this.config = restaurantConfig;
 		bookingDateRange = new BookingDateRange(120);
 		bookingTimes = new BookingTimes();
 	}
 
-	public void serialize() {
-
-		try {
-			FileOutputStream fileOut = new FileOutputStream("restaurant.ser");
-			ObjectOutputStream out = new ObjectOutputStream(fileOut);
-			out.writeObject(this);
-			out.close();
-			fileOut.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public Restaurant(String name,
-	                  RestaurantConfig restaurantConfig,
-	                  List<LocalTime> bookingTimes) {
+					  RestaurantConfig restaurantConfig,
+					  List<LocalTime> bookingTimes) {
 		this(name, restaurantConfig);
 		this.bookingTimes = new BookingTimes(bookingTimes);
 		serialize();
+	}
+
+	@PostConstruct
+	private void postConstruct() {
+		boolean isDeserializeSuccess = deserialize();
+		if (!isDeserializeSuccess) {
+			PopulateRestaurantService.populateRestaurant(this);
+		}
+		// TODO: Remove this when database is created.
+		PopulateRestaurantService.populateRestaurantTables(this);
 	}
 
 	// Name --------------------------------------------------------------------
@@ -115,15 +112,6 @@ public class Restaurant implements Serializable {
 		tables.remove(name);
 	}
 
-	@PostConstruct
-	private void postConstruct() {
-		boolean isDeserializedSuccess = deserialize();
-		if (!isDeserializedSuccess) {
-			PopulateRestaurantService.populateRestaurant(this);
-		}
-		// TODO: Remove this when database is created.
-		PopulateRestaurantService.populateRestaurantTables(this);
-	}
 
 	public boolean hasCombinationsOfTables() {
 		List<CombinationOfTables> combinations = getCombinationsOfTables();
@@ -132,6 +120,10 @@ public class Restaurant implements Serializable {
 
 	public List<CombinationOfTables> getCombinationsOfTables() {
 		return tables.getAllCombinations();
+	}
+
+	public void addTableCombination(List<RestaurantTable> tables) {
+		this.tables.createCombination(tables);
 	}
 
 	public int getLargestTableSize() {
@@ -197,9 +189,30 @@ public class Restaurant implements Serializable {
 		serialize();
 	}
 
+	public void setBookingDateRange(LocalDate start, LocalDate end) {
+		bookingDateRange = new BookingDateRange(new DateRange(start, end));
+		serialize();
+	}
+
 	public void allowBookingsOnlyAtCertainTimes(List<LocalTime> times) {
 		bookingTimes.allowBookingsOnlyAtCertainTimes(times);
 		serialize();
+	}
+
+	// Serialization & Deserialization ----------------------------------------
+
+
+	public void serialize() {
+
+		try {
+			FileOutputStream fileOut = new FileOutputStream("restaurant.ser");
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(this);
+			out.close();
+			fileOut.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public boolean deserialize() {
@@ -219,18 +232,6 @@ public class Restaurant implements Serializable {
 			return false;
 		}
 	}
-
-	// Serialization & Deserialization ----------------------------------------
-
-	public void addTableCombination(List<RestaurantTable> tables) {
-		this.tables.createCombination(tables);
-	}
-
-	public void setBookingDateRange(LocalDate start, LocalDate end) {
-		bookingDateRange = new BookingDateRange(new DateRange(start, end));
-		serialize();
-	}
-
 
 	// Cache -------------------------------------------------------------------
 
