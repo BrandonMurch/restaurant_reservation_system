@@ -19,14 +19,14 @@ import java.util.*;
 public class TableAllocatorService {
 
 	@Autowired
-	BookingRepository bookingRepository;
-
+	private BookingRepository bookingRepository;
 	@Autowired
 	private Restaurant restaurant;
+	@Autowired
+	private BookingHandlerService bookingService;
 
 	private List<RestaurantTable> restaurantTableList;
 	//	private Map<Integer, List<CombinationOfTables>> movableTableCombinations;
-//	private Booking booking;
 	private Map<Integer, RestaurantTable> availableTables;
 	private Map<Integer, CombinationOfTables> availableCombinations;
 
@@ -45,35 +45,24 @@ public class TableAllocatorService {
 		this.restaurant = restaurant;
 	}
 
-	public boolean bookTable(Booking booking) {
+	public List<RestaurantTable> getAvailableTable(Booking booking) {
 		if (booking.getEndTime() == null) {
 			booking.setEndTime(
 					booking.getStartTime()
 							.plus(restaurant.getStandardBookingDuration())
 			);
 		}
-
-		List<RestaurantTable> restaurantTableList =
-				getAvailableTable(
-						booking.getStartTime(),
-						booking.getPartySize(),
-						restaurant.canABookingOccupyALargerTable());
-
-		if (restaurantTableList.isEmpty()) {
-			return false;
-		}
-
-		booking.setTable(restaurantTableList);
-		bookingRepository.save(booking);
-		// TODO: Update cache after booking table
-		return true;
+		return getAvailableTable(
+				booking.getStartTime(),
+				booking.getEndTime(),
+				booking.getPartySize(),
+				restaurant.canABookingOccupyALargerTable());
 	}
+
 
 	public List<RestaurantTable> getAvailableTable(LocalDateTime startTime,
 	                                               int partySize,
 	                                               boolean searchGreaterSizes) {
-		// TODO: Check current time, tables before previous time shouldn't be
-		//  able to book
 		LocalDateTime endTime =
 				startTime.plus(restaurant.getStandardBookingDuration());
 		return getAvailableTable(startTime, endTime, partySize,
@@ -222,12 +211,15 @@ public class TableAllocatorService {
 		return Collections.emptyList();
 	}
 
-
 	public SortedSet<LocalTime> getAvailableTimes(int size, LocalDate date) {
 		List<LocalTime> times = restaurant.getBookingTimes(date);
 		SortedSet<LocalTime> availableTimes = new TreeSet<>();
 
 		for (LocalTime time : times) {
+			if (date.isEqual(LocalDate.now()) && time.isBefore(
+					LocalTime.now())) {
+				continue;
+			}
 			LocalDateTime dateTime = date.atTime(time);
 
 			if (!getAvailableTable(dateTime, size,
@@ -269,6 +261,12 @@ public class TableAllocatorService {
 			}
 		}
 		return false;
+	}
+
+	public void removeDateIfUnavailable(LocalDate date) {
+		if (!isDateAvailable(date)) {
+			restaurant.removeAvailableDate(date);
+		}
 	}
 
 

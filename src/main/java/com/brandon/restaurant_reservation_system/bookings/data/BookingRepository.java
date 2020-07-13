@@ -30,4 +30,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	List<Booking> getBookingsBetweenDates(@Param("date") LocalDate date,
 	                                      @Param("date2") LocalDate date2);
 
+	@Query("SELECT b FROM Booking b INNER JOIN b.user u WHERE email = :email")
+	List<Booking> getBookingsByUser(@Param("email") String email);
+
 }

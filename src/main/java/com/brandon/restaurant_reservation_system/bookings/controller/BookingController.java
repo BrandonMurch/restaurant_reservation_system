@@ -4,21 +4,18 @@ import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotFoundException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
+import com.brandon.restaurant_reservation_system.bookings.model.RequestBodyUserBooking;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingValidationService;
 import com.brandon.restaurant_reservation_system.errors.ApiError;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
-import com.brandon.restaurant_reservation_system.helpers.http.HttpRequestBuilder;
-import com.brandon.restaurant_reservation_system.users.exceptions.UserNotFoundException;
+import com.brandon.restaurant_reservation_system.restaurants.services.BookingHandlerService;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,132 +24,107 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/bookings")
 public class BookingController {
 
-	private final DateTimeFormatter timeFormat = GlobalVariables.getDateTimeFormat();
 	private final DateTimeFormatter dateFormat = GlobalVariables.getDateFormat();
 	private final DateTimeFormatter dateTimeFormat =
 			GlobalVariables.getDateTimeFormat();
 	@Autowired
 	private BookingRepository bookingRepository;
 	@Autowired
-	private HttpRequestBuilder httpRequestBuilder;
+	private BookingHandlerService bookingHandler;
 
 	public BookingController() {
 	}
 
-	@GetMapping("/bookings")
-	public List<Booking> getBookings() {
-		return bookingRepository.findAll();
-	}
+	@GetMapping(value = "")
+	public List<Booking> getBookingsDuringTime(
+			@RequestParam(required = false) String startTime,
+			@RequestParam(required = false) String endTime,
+			@RequestParam(required = false) String date) {
+		if (startTime != null && endTime != null) {
+			LocalDateTime parsedStartTime =
+					DateTimeHandler.parseDateTime(startTime,
+							dateTimeFormat);
+			LocalDateTime parsedEndTime = DateTimeHandler.parseDateTime(endTime,
+					dateTimeFormat);
+			return bookingRepository.getBookingsDuringTime(parsedStartTime,
+					parsedEndTime);
+		} else if (startTime != null) {
+			LocalDateTime parsedStartTime = DateTimeHandler.parseDateTime(
+					startTime,
+					dateTimeFormat);
+			return bookingRepository.getBookingsByStartTime(parsedStartTime);
+		} else if (date != null) {
+			LocalDate parsedDate = DateTimeHandler.parseDate(date,
+					dateFormat);
+			LocalDate nextDay = parsedDate.plusDays(1);
 
-	@GetMapping(value = "/bookings", params = {"startTime", "endTime"})
-	public List<Booking> getBookingsDuringTime(@RequestParam String startTime,
-	                                           @RequestParam String endTime) {
-		LocalDateTime parsedStartTime = DateTimeHandler.parseDateTime(startTime,
-				dateTimeFormat);
-		LocalDateTime parsedEndTime = DateTimeHandler.parseDateTime(endTime,
-				dateTimeFormat);
-		return bookingRepository.getBookingsDuringTime(parsedStartTime,
-				parsedEndTime);
-	}
-
-	@GetMapping(value = "/bookings", params = {"startTime"})
-	public List<Booking> getBookingsByStartTime(
-			@RequestParam String startTime) {
-		LocalDateTime parsedStartTime = DateTimeHandler.parseDateTime(startTime,
-				dateTimeFormat);
-		return bookingRepository.getBookingsByStartTime(parsedStartTime);
-	}
-
-	@GetMapping(value = "/bookings", params = "date")
-	public List<Booking> getBookingsByDate(@RequestParam String date) {
-		System.out.println(date);
-		LocalDate parsedDate = DateTimeHandler.parseDate(date,
-				dateFormat);
-		LocalDate nextDay = parsedDate.plusDays(1);
-
-		return bookingRepository.getBookingsBetweenDates(parsedDate, nextDay);
-	}
-
-	@GetMapping("/users/{id}/bookings")
-	public List<Booking> getBookingsByUser(@PathVariable long id) {
-		// Calls to /users/{id} to get a user
-		User user = getUser(id);
-		return user.getBookings();
-	}
-
-	private User getUser(long id) {
-		try {
-			return httpRequestBuilder
-					.httpGetUsers("/users/" + id).get(0);
-		} catch (HttpClientErrorException ex) {
-			throw new UserNotFoundException(ex.getResponseBodyAsString());
+			return bookingRepository.getBookingsBetweenDates(parsedDate,
+					nextDay);
+		} else {
+			return bookingRepository.findAll();
 		}
 	}
 
-	@GetMapping("/bookings/{bookingId}")
+	@GetMapping("/{bookingId}")
 	public Booking getBookingById(@PathVariable long bookingId) {
 		return bookingRepository.findById(bookingId)
 				.orElseThrow(() -> new BookingNotFoundException(bookingId));
 	}
 
-	@PutMapping("/users/{userId}/bookings/{bookingId}")
+	@PutMapping("")
 	public ResponseEntity<?> updateBooking(
-			@Valid @RequestBody Booking newBooking,
-			@PathVariable long userId,
-			@PathVariable long bookingId) {
+			@RequestBody Booking newBooking) {
+		User user = newBooking.getUser();
 
-		return bookingRepository.findById(bookingId)
-				.map(booking -> {
-					booking.updateBooking(newBooking);
-					bookingRepository.save(booking);
-					return getNoContentResponse();
-				})
-				.orElseGet(() -> {
-					ResponseEntity<Booking> response =
-							(ResponseEntity<Booking>) this.createBooking(newBooking, userId);
-					if (response.getStatusCode() == HttpStatus.CREATED) {
-						return ResponseEntity.created(
-								ServletUriComponentsBuilder
-										.fromCurrentRequest().build().toUri())
-								.build();
-					}
-					return response;
-				});
-	}
+		Optional<Booking> result =
+				bookingRepository.findById(newBooking.getId());
 
-	private ResponseEntity<Booking> getNoContentResponse() {
-		return ResponseEntity.noContent().build();
-	}
-
-	@PostMapping("/users/{id}/bookings")
-	public HttpEntity<?> createBooking(
-			@RequestBody Booking booking, @PathVariable long id) {
-
-		User user = getUser(id);
-//		booking.setUser(user);
-
-		List<Booking> bookings = user.getBookings();
-		LocalDate bookingDate = booking.getStartTime().toLocalDate();
-
-		for (Booking storedBooking : bookings) {
-			if (storedBooking.getStartTime().toLocalDate().equals(
-					bookingDate)) {
-				return ResponseEntity.status(HttpStatus.CONFLICT).build();
+		if (result.isPresent()) {
+			Booking booking = result.get();
+			booking.updateBooking(newBooking);
+			return ResponseEntity.noContent().build();
+		} else {
+			ResponseEntity<?> response =
+					this.createBooking(
+							new RequestBodyUserBooking(newBooking.getUser(),
+									newBooking));
+			if (response.getStatusCode() == HttpStatus.CREATED) {
+				return ResponseEntity.created(
+						ServletUriComponentsBuilder
+								.fromCurrentRequest().build().toUri())
+						.build();
 			}
+			return response;
 		}
+	}
 
+	@PostMapping("")
+	public ResponseEntity<?> createBooking(
+			@RequestBody RequestBodyUserBooking body) {
+
+		Booking booking = body.getBooking();
 		Optional<ResponseEntity<ApiError>> bookingValidationException =
 				BookingValidationService.validateBooking(booking);
 		if (bookingValidationException.isPresent()) {
 			return bookingValidationException.get();
 		}
-		booking = bookingRepository.save(booking);
-		return buildUriFromBooking(booking);
+
+		User user = body.getUser();
+		if (user.getEmail() == null) {
+			return ResponseEntity.badRequest().body("Email must be present");
+		}
+		Optional<Booking> result = bookingHandler.createBooking(booking, user);
+		if (result.isPresent()) {
+			return buildUriFromBooking(booking);
+		} else {
+			return ResponseEntity.status(HttpStatus.CONFLICT).build();
+		}
 	}
 
-	private ResponseEntity<Booking> buildUriFromBooking(Booking booking) {
+	private ResponseEntity<String> buildUriFromBooking(Booking booking) {
 		URI location = ServletUriComponentsBuilder
 				.fromCurrentRequest()
 				.path("/{id}")
@@ -162,9 +134,9 @@ public class BookingController {
 
 	}
 
-	@DeleteMapping("/bookings/{bookingId")
-	public ResponseEntity<Booking> deleteBooking(@PathVariable long bookingId) {
+	@DeleteMapping("/{bookingId")
+	public ResponseEntity<String> deleteBooking(@PathVariable long bookingId) {
 		bookingRepository.deleteById(bookingId);
-		return getNoContentResponse();
+		return ResponseEntity.noContent().build();
 	}
 }
