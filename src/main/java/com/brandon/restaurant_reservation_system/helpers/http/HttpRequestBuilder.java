@@ -42,7 +42,7 @@ public class HttpRequestBuilder {
 		if (userArray == null) {
 			return Collections.emptyList();
 		} else {
-			return new ArrayList(Arrays.asList(userArray));
+			return new ArrayList<>(Arrays.asList(userArray));
 		}
 	}
 
@@ -57,7 +57,7 @@ public class HttpRequestBuilder {
 		if (bookingArray == null) {
 			return Collections.emptyList();
 		} else {
-			return new ArrayList(Arrays.asList(bookingArray));
+			return Arrays.asList(bookingArray);
 		}
 	}
 

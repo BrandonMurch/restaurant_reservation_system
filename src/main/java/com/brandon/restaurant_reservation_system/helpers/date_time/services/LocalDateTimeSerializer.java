@@ -19,7 +19,6 @@ public class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {
 			String s = localDateTime.format(GlobalVariables.getDateTimeFormat());
 			generator.writeString(s);
 		} catch (DateTimeParseException ex) {
-//			System.err.println(ex);
 			generator.writeString("");
 		}
 	}

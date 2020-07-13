@@ -34,7 +34,7 @@ public class BookingValidationService {
 				apiError.addSubError(validationError);
 
 			}
-			return Optional.of(new ResponseEntity(apiError,
+			return Optional.of(new ResponseEntity<>(apiError,
 					apiError.getStatus()));
 		}
 		return Optional.empty();

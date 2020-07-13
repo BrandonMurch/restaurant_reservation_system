@@ -30,6 +30,9 @@ build/
 ### VS Code ###
 .vscode/
 
+## application.properties
+/src/main/resources/application.properties
+
 ### TEXT FILES ###
 /Text Files
 /src/main/java/com/brandon/restaurant_reservation_system/restaurants/services/MethodsToImplementLater.java

@@ -1,6 +1,7 @@
 package com.brandon.restaurant_reservation_system.restaurants.controller;
 
 import com.brandon.restaurant_reservation_system.GlobalVariables;
+import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
 import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
@@ -20,12 +21,14 @@ import static com.brandon.restaurant_reservation_system.helpers.date_time.servic
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/availability")
+@RequestMapping("/restaurant")
 public class RestaurantController {
 	@Autowired
 	private Restaurant restaurant;
 	@Autowired
 	private TableAllocatorService tableAllocator;
+	@Autowired
+	private BookingRepository bookingRepository;
 	DateTimeFormatter dateFormat =
 			GlobalVariables.getDateFormat();
 	private DateTimeHandler dateTimeHandler;
@@ -33,7 +36,7 @@ public class RestaurantController {
 	public RestaurantController() {
 	}
 
-	@GetMapping("")
+	@GetMapping("/availability")
 	public ResponseEntity<String> getDate() {
 		JSONObject json = new JSONObject();
 		DateRange range =
@@ -46,7 +49,7 @@ public class RestaurantController {
 				HttpStatus.OK);
 	}
 
-	@GetMapping(value = "", params = {"date", "size"})
+	@GetMapping(value = "/availability", params = {"date", "size"})
 	public Set<LocalTime> getAvailableBookingTimes(
 			@RequestParam String date,
 			@RequestParam int size) {

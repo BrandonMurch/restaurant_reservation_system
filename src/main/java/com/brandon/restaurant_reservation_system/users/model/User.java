@@ -1,11 +1,8 @@
 package com.brandon.restaurant_reservation_system.users.model;
 
-import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -21,13 +18,10 @@ public class User {
 	@JsonIgnore
 	private String hash;
 	private String phoneNumber;
-	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-	private final List<Booking> bookings;
 	private boolean termsAndConditions;
 
 
 	public User() {
-		this.bookings = new ArrayList<>();
 	}
 
 	public User(String firstName, String lastName, String hash,
@@ -38,7 +32,6 @@ public class User {
 		this.phoneNumber = phoneNumber;
 		this.email = email;
 		this.termsAndConditions = termsAndConditions;
-		this.bookings = new ArrayList<>();
 	}
 
 
@@ -67,17 +60,6 @@ public class User {
 		this.id = id;
 	}
 
-	public List<Booking> getBookings() {
-		return this.bookings;
-	}
-
-	public boolean addBooking(Booking booking) {
-		if (bookings.contains(booking))
-			return false;
-		bookings.add(booking);
-		return true;
-	}
-
 	public void updateWith(User updatedUser) {
 		String phone = updatedUser.getPhoneNumber();
 		if (phone != null) {
@@ -98,6 +80,10 @@ public class User {
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 
+	}
+
+	public boolean getTermsAndConditions() {
+		return termsAndConditions;
 	}
 
 	@Override
