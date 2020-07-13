@@ -1,30 +1,39 @@
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
+import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-public class RestaurantTable implements Serializable {
+public class RestaurantTable {
 
-	private static final long serialVersionUID = -7171246555952936342L;
 	@Id
-	@GeneratedValue
-	private long id;
 	private String name;
 	private int seats;
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "restaurantTables")
 	@JsonIgnore
-	private Set<RestaurantTable> tables;
+	private final Set<Booking> bookings;
 
-	public RestaurantTable() {
-	}
+	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "restaurantTables")
+	@JsonIgnore
+	private final Set<CombinationOfTables> combinations;
+
 
 	public RestaurantTable(String name, int seats) {
+		this();
 		this.name = name;
 		this.seats = seats;
+	}
+
+	public RestaurantTable() {
+		bookings = new HashSet<>();
+		combinations = new HashSet<>();
 	}
 
 	public String getName() {
@@ -33,6 +42,22 @@ public class RestaurantTable implements Serializable {
 
 	public int getSeats() {
 		return seats;
+	}
+
+	public void addBooking(Booking booking) {
+		bookings.add(booking);
+	}
+
+	public void removeBooking(Booking booking) {
+		bookings.remove(booking);
+	}
+
+	public void addCombination(CombinationOfTables combination) {
+		combinations.add(combination);
+	}
+
+	public void removeCombination(CombinationOfTables combination) {
+		combinations.remove(combination);
 	}
 
 	@Override

@@ -1,27 +1,37 @@
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
-import java.io.Serializable;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CombinationOfTables implements Serializable {
+@Entity
+public class CombinationOfTables {
 
-	private static final long serialVersionUID = 6133316649925582023L;
-	private String name;
-	private int totalSeats;
+	@ManyToMany(targetEntity = RestaurantTable.class, cascade =
+			CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinTable(name = "combination_table",
+			joinColumns = @JoinColumn(name = "combination_id"),
+			inverseJoinColumns = @JoinColumn(name = "table_id"))
 	private final List<RestaurantTable> restaurantTables;
-
-	public CombinationOfTables(RestaurantTable restaurantTable) {
-		this();
-		restaurantTables.add(restaurantTable);
-		calculateName();
-	}
+	private int totalSeats;
+	@Id
+	private String name;
 
 	public CombinationOfTables() {
 		totalSeats = 0;
 		name = "";
 		restaurantTables = new ArrayList<>();
+	}
+
+	public CombinationOfTables(List<RestaurantTable> restaurantTables) {
+		this();
+		totalSeats = 0;
+		for (RestaurantTable table : restaurantTables) {
+			this.restaurantTables.add(table);
+			totalSeats += table.getSeats();
+		}
+		name = calculateName();
 	}
 
 	private String calculateName() {
@@ -31,21 +41,6 @@ public class CombinationOfTables implements Serializable {
 
 	public String getName() {
 		return this.name;
-	}
-
-	public CombinationOfTables(List<RestaurantTable> restaurantTables) {
-		this();
-		totalSeats = 0;
-		for (RestaurantTable restaurantTable : restaurantTables) {
-			this.restaurantTables.add(restaurantTable);
-			totalSeats += restaurantTable.getSeats();
-		}
-		name = calculateName();
-	}
-
-	public void addTable(RestaurantTable restaurantTable) {
-		totalSeats += restaurantTable.getSeats();
-		name += ", " + restaurantTable.getName();
 	}
 
 	public List<RestaurantTable> getRestaurantTables() {

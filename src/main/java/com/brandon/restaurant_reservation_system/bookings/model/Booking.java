@@ -20,7 +20,7 @@ import static com.brandon.restaurant_reservation_system.helpers.date_time.servic
 @Entity
 public class Booking {
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	private Integer partySize;
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -30,10 +30,11 @@ public class Booking {
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	private LocalDateTime endTime;
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
 	@JsonIgnore
 	private User user;
 
-	@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
 	@JoinTable(name = "bookings_table",
 			joinColumns = @JoinColumn(name = "bookings_id"),
 			inverseJoinColumns = @JoinColumn(name = "restaurantTable_id"))
@@ -110,7 +111,7 @@ public class Booking {
 		return restaurantTables;
 	}
 
-	public void setTable(List<RestaurantTable> restaurantTables) {
+	public void setTables(List<RestaurantTable> restaurantTables) {
 		this.restaurantTables = restaurantTables;
 	}
 
@@ -122,14 +123,8 @@ public class Booking {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof Booking)) return false;
-		Booking booking = (Booking) o;
-		return getId() == booking.getId() &&
-				Objects.equals(getStartTime(), booking.getStartTime()) &&
-				Objects.equals(getEndTime(), booking.getEndTime()) &&
-				Objects.equals(getUser(), booking.getUser());
+	public int hashCode() {
+		return Objects.hash(getId(), getStartTime(), getEndTime());
 	}
 
 	public boolean doTheseBookingsOverlap(Booking otherBooking) {
@@ -145,8 +140,14 @@ public class Booking {
 		}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(getId(), getStartTime(), getEndTime(), getUser());
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof Booking)) return false;
+		Booking booking = (Booking) o;
+		return getId() == booking.getId() &&
+				Objects.equals(getStartTime(), booking.getStartTime()) &&
+				Objects.equals(getEndTime(), booking.getEndTime()) &&
+				Objects.equals(getPartySize(), booking.getPartySize());
 	}
 
 	@Override
