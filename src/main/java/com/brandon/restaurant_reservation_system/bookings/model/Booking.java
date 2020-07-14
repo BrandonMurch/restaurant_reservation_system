@@ -5,7 +5,6 @@ import com.brandon.restaurant_reservation_system.helpers.date_time.services.Loca
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.LocalDateTimeSerializer;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.users.model.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -31,7 +30,6 @@ public class Booking {
 	private LocalDateTime endTime;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
-	@JsonIgnore
 	private User user;
 
 	@ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
@@ -107,7 +105,7 @@ public class Booking {
 		}
 	}
 
-	public List<RestaurantTable> getTable() {
+	public List<RestaurantTable> getTables() {
 		return restaurantTables;
 	}
 

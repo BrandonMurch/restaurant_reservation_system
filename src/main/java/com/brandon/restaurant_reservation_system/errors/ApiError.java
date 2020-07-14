@@ -1,6 +1,5 @@
 package com.brandon.restaurant_reservation_system.errors;
 
-import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.http.HttpStatus;
 
@@ -16,11 +15,10 @@ public class ApiError {
 			":ss")
 	private LocalDateTime timestamp;
 	private String message;
-	private List<ApiSubError> subErrors;
+	private List<ApiSubError> subErrors = new LinkedList<>();
 
 	public ApiError() {
 		timestamp = LocalDateTime.now();
-		this.subErrors = new LinkedList<>();
 	}
 
 	public ApiError(HttpStatus status) {

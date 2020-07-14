@@ -2,9 +2,9 @@ package com.brandon.restaurant_reservation_system.bookings;
 
 import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
-import com.brandon.restaurant_reservation_system.restaurants.CreateRestaurantForTest;
 import com.brandon.restaurant_reservation_system.restaurants.CreateTableForTest;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
+import com.brandon.restaurant_reservation_system.restaurants.services.PopulateRestaurantService;
 import com.brandon.restaurant_reservation_system.users.CreateUsersForTesting;
 import com.brandon.restaurant_reservation_system.users.model.User;
 
@@ -19,11 +19,12 @@ public class CreateBookingsForTest {
 	private final User user2 = createUser.createUser2();
 	private final DateTimeFormatter dateTimeFormat =
 			GlobalVariables.getDateTimeFormat();
-	private final Restaurant restaurant = CreateRestaurantForTest.create();
-	private final CreateTableForTest createTableForTest =
-			new CreateTableForTest(restaurant);
+	private final Restaurant restaurant = new Restaurant();
+	private final CreateTableForTest createTableForTest;
 
 	public CreateBookingsForTest() {
+		PopulateRestaurantService.populateRestaurant(restaurant);
+		createTableForTest = new CreateTableForTest(restaurant);
 	}
 
 	public Booking createBookingForTwoAt19() {
@@ -51,7 +52,8 @@ public class CreateBookingsForTest {
 	public Booking createUpdatedBookingForFour() {
 		Booking booking = new Booking(4,
 				parseDateTime("2020-10-11T20:00:00.00", dateTimeFormat),
-				parseDateTime("2020-10-11T18:00:00.00", dateTimeFormat), user);
+				parseDateTime("2020-10-11T18:00:00.00", dateTimeFormat),
+				user);
 		booking.setId(2);
 		booking.addTable(createTableForTest.getTable1());
 		return booking;

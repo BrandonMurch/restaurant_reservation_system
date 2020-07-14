@@ -158,7 +158,7 @@ public class TableAllocatorService {
 				return Collections.emptyMap();
 			}
 
-			booking.getTable()
+			booking.getTables()
 					.forEach(table -> occupiedTables.put(table, booking));
 		}
 		return occupiedTables;

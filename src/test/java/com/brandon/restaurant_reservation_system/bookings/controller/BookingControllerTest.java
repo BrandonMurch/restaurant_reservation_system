@@ -5,6 +5,8 @@ import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.helpers.http.HttpRequestBuilder;
+import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
+import com.brandon.restaurant_reservation_system.restaurants.services.BookingHandlerService;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -23,7 +24,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,11 +38,16 @@ import static org.mockito.ArgumentMatchers.any;
 class BookingControllerTest {
 
 	@MockBean
-	BookingRepository bookingRepository;
+	private BookingRepository bookingRepository;
 	@MockBean
-	HttpRequestBuilder httpRequestBuilder;
+	private HttpRequestBuilder httpRequestBuilder;
+	@MockBean
+	private BookingHandlerService bookingHandler;
+	@MockBean
+	private Restaurant restaurant;
 	@Autowired
 	private MockMvc mvc;
+
 	@Value("${server.host}")
 	private String ipAddress;
 	@Value("${server.port}")
@@ -50,7 +55,6 @@ class BookingControllerTest {
 	private final DateTimeFormatter timeFormat = GlobalVariables.getDateTimeFormat();
 
 	private List<Booking> bookings;
-	private User user;
 	private Booking booking1;
 	private Booking updatedBooking2;
 
@@ -63,12 +67,11 @@ class BookingControllerTest {
 	private List<Booking> initBookings() {
 		CreateBookingsForTest createBooking = new CreateBookingsForTest();
 		booking1 = createBooking.createBookingForTwoAt19();
-		user = booking1.getUser();
+		User user = booking1.getUser();
 		Booking booking2 = createBooking.createBookingForFourAt20();
 		updatedBooking2 = createBooking.createUpdatedBookingForFour();
 
 		return Arrays.asList(booking1, booking2);
-
 	}
 
 	@Test
@@ -101,7 +104,7 @@ class BookingControllerTest {
 				.getBookingsDuringTime(startTime, endTime))
 				.thenReturn(this.bookings);
 
-		String uri = "/bookings/?startTime=" + start + "&endTime=" + end;
+		String uri = "/bookings?startTime=" + start + "&endTime=" + end;
 		System.out.println(uri);
 		MvcResult result =
 				mvc.perform(MockMvcRequestBuilders.get(uri).contentType(
@@ -126,7 +129,7 @@ class BookingControllerTest {
 								startTime))
 						.collect(Collectors.toList()));
 
-		String uri = "/bookings/?startTime=" + start;
+		String uri = "/bookings?startTime=" + start;
 		MvcResult result =
 				mvc.perform(MockMvcRequestBuilders.get(uri).contentType(
 						MediaType.APPLICATION_JSON)).andReturn();
@@ -147,7 +150,7 @@ class BookingControllerTest {
 				.getBookingsBetweenDates(startDate, endDate))
 				.thenReturn(this.bookings);
 
-		String uri = "/bookings/?date=" + date;
+		String uri = "/bookings?date=" + date;
 		MvcResult result =
 				mvc.perform(MockMvcRequestBuilders.get(uri).contentType(
 						MediaType.APPLICATION_JSON)).andReturn();
@@ -183,13 +186,12 @@ class BookingControllerTest {
 	void updateBookingNotPresent() throws Exception {
 		Mockito.when(bookingRepository.findById((long) 1))
 				.thenReturn(Optional.empty());
-		Mockito.when(bookingRepository.save(any(Booking.class)))
-				.thenReturn(updatedBooking2);
-		Mockito.when(httpRequestBuilder.httpGetUsers("/users/1"))
-				.thenReturn(Collections.singletonList(user));
+		Mockito.when(bookingHandler.createBooking(any(Booking.class), any(User.class)))
+				.thenReturn(Optional.of(updatedBooking2));
 
-		String uri = "/users/1/bookings/1";
+		String uri = "/bookings";
 		String bookingJson = objectToJson(updatedBooking2);
+		System.out.println(bookingJson);
 		MvcResult result =
 				mvc.perform(MockMvcRequestBuilders.put(uri)
 						.accept(MediaType.APPLICATION_JSON)
@@ -198,22 +200,14 @@ class BookingControllerTest {
 						.andReturn();
 
 		assertEquals(201, result.getResponse().getStatus());
-
-		assertEquals("http://localhost/users/1/bookings/1",
-				result.getResponse().getHeader(HttpHeaders.LOCATION));
 	}
 
 	@Test
 	void updateBookingAlreadyPresent() throws Exception {
-		Mockito.when(bookingRepository.findById((long) 1))
+		Mockito.when(bookingRepository.findById(any(Long.class)))
 				.thenReturn(Optional.of(this.updatedBooking2));
 
-		Mockito.when(bookingRepository.save(updatedBooking2))
-				.thenReturn(updatedBooking2);
-		Mockito.when(httpRequestBuilder.httpGetUsers("/users/1"))
-				.thenReturn(Collections.singletonList(user));
-
-		String uri = "/users/1/bookings/1";
+		String uri = "/bookings";
 		String bookingJson = objectToJson(updatedBooking2);
 		MvcResult result =
 				mvc.perform(MockMvcRequestBuilders.put(uri)

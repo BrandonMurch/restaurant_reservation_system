@@ -77,10 +77,11 @@ public class BookingController {
 	@PutMapping("")
 	public ResponseEntity<?> updateBooking(
 			@RequestBody Booking newBooking) {
-		User user = newBooking.getUser();
 
 		Optional<Booking> result =
 				bookingRepository.findById(newBooking.getId());
+
+		System.out.println(result);
 
 		if (result.isPresent()) {
 			Booking booking = result.get();
