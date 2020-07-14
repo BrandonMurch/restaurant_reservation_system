@@ -85,7 +85,7 @@ public class BookingController {
 		if (result.isPresent()) {
 			Booking booking = result.get();
 			booking.updateBooking(newBooking);
-			return ResponseEntity.noContent().build();
+			return new ResponseEntity<>("Booking sucessfully updated.", HttpStatus.NO_CONTENT);
 		} else {
 			ResponseEntity<?> response =
 					this.createBooking(
@@ -114,13 +114,13 @@ public class BookingController {
 
 		User user = body.getUser();
 		if (user.getEmail() == null) {
-			return ResponseEntity.badRequest().body("Email must be present");
+			return new ResponseEntity<>("Email is required.", HttpStatus.BAD_REQUEST);
 		}
 		Optional<Booking> result = bookingHandler.createBooking(booking, user);
 		if (result.isPresent()) {
 			return buildUriFromBooking(booking);
 		} else {
-			return ResponseEntity.status(HttpStatus.CONFLICT).build();
+			return new ResponseEntity<>("User has already made a booking on this date", HttpStatus.CONFLICT);
 		}
 	}
 
@@ -137,6 +137,6 @@ public class BookingController {
 	@DeleteMapping("/{bookingId")
 	public ResponseEntity<String> deleteBooking(@PathVariable long bookingId) {
 		bookingRepository.deleteById(bookingId);
-		return ResponseEntity.noContent().build();
+		return new ResponseEntity<>("Booking was successfully deleted", HttpStatus.NO_CONTENT);
 	}
 }
