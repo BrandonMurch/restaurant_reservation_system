@@ -17,7 +17,7 @@ import static com.brandon.restaurant_reservation_system.helpers.date_time.servic
 import static org.junit.jupiter.api.Assertions.*;
 
 class BookingValidationServiceTest {
-	private DateTimeFormatter timeFormat = GlobalVariables.getDateTimeFormat();
+	private final DateTimeFormatter timeFormat = GlobalVariables.getDateTimeFormat();
 
 	@Test
 	public void validateBookingTest() throws JsonProcessingException {
@@ -38,9 +38,15 @@ class BookingValidationServiceTest {
 				validateBooking(incorrectBooking);
 		assertTrue(bookingValidationResponse.isPresent());
 
-		assertEquals(3,
-				bookingValidationResponse.get()
-						.getBody().getSubErrors().size());
+		if (bookingValidationResponse.get().getBody() != null) {
+			assertEquals(2,
+					bookingValidationResponse.get()
+							.getBody().getSubErrors().size());
+		} else {
+			fail("The validation response should have a body");
+		}
+
+
 	}
 
 }
