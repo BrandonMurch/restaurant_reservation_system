@@ -24,8 +24,12 @@ public class BookingTimes implements Serializable {
 	}
 
 	public BookingTimes(List<LocalTime> bookingTimes) {
-		bookingsAtCertainTimes = true;
-		this.bookingTimes = bookingTimes;
+		allowBookingsOnlyAtCertainTimes(bookingTimes);
+		initOpeningHours();
+	}
+
+	public BookingTimes(int minutesBetweenBookingSlots) {
+		allowBookingPerTimeInterval(minutesBetweenBookingSlots);
 		initOpeningHours();
 	}
 
@@ -36,9 +40,7 @@ public class BookingTimes implements Serializable {
 		}
 	}
 
-	public BookingTimes(int minutesBetweenBookingSlots) {
-		bookingSlotIntervals = Duration.ofMinutes(minutesBetweenBookingSlots);
-	}
+
 
 	public Map<DayOfWeek, Day> getOpeningHours() {
 		return openingHours;

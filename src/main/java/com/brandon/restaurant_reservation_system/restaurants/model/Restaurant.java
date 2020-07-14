@@ -4,6 +4,7 @@ import com.brandon.restaurant_reservation_system.restaurants.data.BookingDateRan
 import com.brandon.restaurant_reservation_system.restaurants.data.BookingTimes;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantCache;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
+import com.brandon.restaurant_reservation_system.restaurants.exceptions.RestaurantConfigurationException;
 import com.brandon.restaurant_reservation_system.restaurants.services.PopulateRestaurantService;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableHandlerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,6 @@ public class Restaurant implements Serializable {
 		this.name = name;
 		this.config = restaurantConfig;
 		bookingDateRange = new BookingDateRange(120);
-		bookingTimes = new BookingTimes();
 	}
 
 	public Restaurant(String name,
@@ -159,6 +159,9 @@ public class Restaurant implements Serializable {
 	}
 
 	public boolean isBookingTime(LocalDateTime dateTime) {
+		if (bookingTimes == null) {
+			throw new RestaurantConfigurationException("booking times");
+		}
 		return bookingTimes.isBookingTime(dateTime);
 	}
 
