@@ -70,8 +70,8 @@ class BookingControllerTest {
 		User user = booking1.getUser();
 		Booking booking2 = createBooking.createBookingForFourAt20();
 		updatedBooking2 = createBooking.createUpdatedBookingForFour();
-
 		return Arrays.asList(booking1, booking2);
+
 	}
 
 	@Test
@@ -105,11 +105,9 @@ class BookingControllerTest {
 				.thenReturn(this.bookings);
 
 		String uri = "/bookings?startTime=" + start + "&endTime=" + end;
-		System.out.println(uri);
 		MvcResult result =
 				mvc.perform(MockMvcRequestBuilders.get(uri).contentType(
 						MediaType.APPLICATION_JSON)).andReturn();
-		System.out.println(result);
 		int status = result.getResponse().getStatus();
 		assertEquals(200, status);
 
@@ -191,7 +189,6 @@ class BookingControllerTest {
 
 		String uri = "/bookings";
 		String bookingJson = objectToJson(updatedBooking2);
-		System.out.println(bookingJson);
 		MvcResult result =
 				mvc.perform(MockMvcRequestBuilders.put(uri)
 						.accept(MediaType.APPLICATION_JSON)

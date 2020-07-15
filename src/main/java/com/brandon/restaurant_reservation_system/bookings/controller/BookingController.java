@@ -80,8 +80,6 @@ public class BookingController {
 		Optional<Booking> result =
 				bookingRepository.findById(newBooking.getId());
 
-		System.out.println(result);
-
 		if (result.isPresent()) {
 			Booking booking = result.get();
 			booking.updateBooking(newBooking);
