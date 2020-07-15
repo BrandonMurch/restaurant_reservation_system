@@ -7,11 +7,11 @@ public class CreateUsersForTesting {
 	public CreateUsersForTesting() {}
 
 	public User createUser1() {
-		User user =  new User("John",
-			     "Smith",
-			     "alkjelkjfeffe",
-			     "+22 1234567890",
-			     "John.Smith@email.com",true);
+		User user = new User("John",
+				"Smith",
+				"alkjelkjfeffe",
+				"+22 1234567890",
+				"John.Smith1@email.com", true);
 		user.setId(1);
 		return user;
 
@@ -21,7 +21,7 @@ public class CreateUsersForTesting {
 				"Smith",
 				"kajfelkafeljke",
 				"+22 1234567891",
-				"Rachel.Smith@email.com", true);
+				"Rachel.Smith1@email.com", true);
 		user.setId(2);
 		return user;
 	}
@@ -30,7 +30,7 @@ public class CreateUsersForTesting {
 				"Smith",
 				"kajfelkafeljke",
 				"+99 38484567891",
-				"aNewEmail@email.com", true);
+				"aNewEmail1@email.com", true);
 		user.setId(2);
 		return user;
 	}
@@ -38,7 +38,7 @@ public class CreateUsersForTesting {
 	public User createUser3() {
 		User user = new User("John", "Smith",
 				"alkjelkjfeffe", "+22 1234567890",
-				"John.Smith@email.com", true);
+				"John.Smith1@email.com", true);
 		user.setId(3);
 		return user;
 	}

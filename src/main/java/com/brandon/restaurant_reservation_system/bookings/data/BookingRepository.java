@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,8 +26,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
 	@Query("SELECT b FROM Booking b WHERE  b.startTime >= :date " +
 			"and b.startTime < :date2")
-	List<Booking> getBookingsBetweenDates(@Param("date") LocalDate date,
-	                                      @Param("date2") LocalDate date2);
+	List<Booking> getBookingsBetweenDates(@Param("date") LocalDateTime date,
+										  @Param("date2") LocalDateTime date2);
 
 	@Query("SELECT b FROM Booking b INNER JOIN b.user u WHERE email = :email")
 	List<Booking> getBookingsByUser(@Param("email") String email);
