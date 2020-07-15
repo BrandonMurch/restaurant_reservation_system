@@ -1,10 +1,8 @@
 package com.brandon.restaurant_reservation_system.bookings.controller;
 
-import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
-import com.brandon.restaurant_reservation_system.helpers.http.HttpRequestBuilder;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.services.BookingHandlerService;
 import com.brandon.restaurant_reservation_system.users.model.User;
@@ -12,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -22,7 +19,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -40,19 +36,11 @@ class BookingControllerTest {
 	@MockBean
 	private BookingRepository bookingRepository;
 	@MockBean
-	private HttpRequestBuilder httpRequestBuilder;
-	@MockBean
 	private BookingHandlerService bookingHandler;
 	@MockBean
 	private Restaurant restaurant;
 	@Autowired
 	private MockMvc mvc;
-
-	@Value("${server.host}")
-	private String ipAddress;
-	@Value("${server.port}")
-	private String port;
-	private final DateTimeFormatter timeFormat = GlobalVariables.getDateTimeFormat();
 
 	private List<Booking> bookings;
 	private Booking booking1;
