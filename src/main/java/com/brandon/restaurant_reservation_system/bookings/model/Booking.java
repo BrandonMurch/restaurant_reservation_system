@@ -132,9 +132,12 @@ public class Booking {
 
 		public boolean isTheBookingDuringThisTime(LocalDateTime startTime,
 		                                      LocalDateTime endTime) {
-			if (this.getStartTime().isAfter(endTime)) {
-				return true;
-			} else return this.getEndTime().isBefore(startTime);
+			if (this.getStartTime().isAfter(endTime)
+					|| this.getStartTime().isEqual(endTime)) {
+				return false;
+			}
+			return !(this.getEndTime().isBefore(startTime)
+					|| this.getEndTime().isEqual(startTime));
 		}
 
 	@Override
