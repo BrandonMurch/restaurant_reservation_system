@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -57,11 +56,11 @@ public class BookingController {
 					dateTimeFormat);
 			return bookingRepository.getBookingsByStartTime(parsedStartTime);
 		} else if (date != null) {
-			LocalDate parsedDate = DateTimeHandler.parseDate(date,
-					dateFormat);
-			LocalDate nextDay = parsedDate.plusDays(1);
+			LocalDateTime parsedDateTime = DateTimeHandler.parseDate(date,
+					dateFormat).atStartOfDay();
+			LocalDateTime nextDay = parsedDateTime.plusDays(1);
 
-			return bookingRepository.getBookingsBetweenDates(parsedDate,
+			return bookingRepository.getBookingsBetweenDates(parsedDateTime,
 					nextDay);
 		} else {
 			return bookingRepository.findAll();

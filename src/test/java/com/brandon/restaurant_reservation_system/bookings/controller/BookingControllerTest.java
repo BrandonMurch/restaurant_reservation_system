@@ -144,8 +144,8 @@ class BookingControllerTest {
 	@Test
 	void getBookingsByDate() throws Exception {
 		String date = "2020-12-11";
-		LocalDate startDate = LocalDate.parse(date);
-		LocalDate endDate = startDate.plusDays(1);
+		LocalDateTime startDate = LocalDate.parse(date).atStartOfDay();
+		LocalDateTime endDate = startDate.plusDays(1);
 		Mockito.when(bookingRepository
 				.getBookingsBetweenDates(startDate, endDate))
 				.thenReturn(this.bookings);
