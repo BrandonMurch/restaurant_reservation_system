@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
@@ -20,13 +24,13 @@ public class PopulateRestaurantService {
 		setConfig(restaurant);
 		DateRange range = getDateRange();
 		restaurant.setBookingDateRange(range.getStart(),
-				range.getEnd());
+		range.getEnd());
 		restaurant.setOpeningHours(
-				modifyOpeningHours(restaurant.getOpeningHours()));
+		modifyOpeningHours(restaurant.getOpeningHours()));
 		restaurant.allowBookingPerTimeInterval(15);
 	}
 
-	public static void setConfig(Restaurant restaurant) {
+	private static void setConfig(Restaurant restaurant) {
 		RestaurantConfig config = new RestaurantConfig();
 		config.setCapacity(20);
 		config.setStandardBookingDuration(120);
@@ -64,33 +68,33 @@ public class PopulateRestaurantService {
 	}
 
 	private static void addCombinations(List<RestaurantTable> tables,
-	                                    Restaurant restaurant) {
+										Restaurant restaurant) {
 
 		restaurant.addTableCombination(
-				Arrays.asList(tables.get(7), tables.get(8)));
+		Arrays.asList(tables.get(7), tables.get(8)));
 		restaurant.addTableCombination(Arrays.asList(tables.get(7),
-				tables.get(8), tables.get(9)));
+		tables.get(8), tables.get(9)));
 		restaurant.addTableCombination(Arrays.asList(tables.get(9),
-				tables.get(8)));
+		tables.get(8)));
 		restaurant.addTableCombination(Arrays.asList(tables.get(4),
-				tables.get(5)));
+		tables.get(5)));
 	}
 
 	private List<LocalTime> getBookingTimes() {
 		return Arrays.asList(LocalTime.of(18, 0),
-				LocalTime.of(20, 30),
-				LocalTime.of(23, 15));
+		LocalTime.of(20, 30),
+		LocalTime.of(23, 15));
 	}
 
 	private static Map<DayOfWeek, Day> modifyOpeningHours(
-			Map<DayOfWeek, Day> map) {
+	Map<DayOfWeek, Day> map) {
 		Map<DayOfWeek, Day> newMap = new HashMap<>(map);
 
 		DayOfWeek[] days = {
-				DayOfWeek.WEDNESDAY,
-				DayOfWeek.THURSDAY,
-				DayOfWeek.FRIDAY,
-				DayOfWeek.SATURDAY
+		DayOfWeek.WEDNESDAY,
+		DayOfWeek.THURSDAY,
+		DayOfWeek.FRIDAY,
+		DayOfWeek.SATURDAY
 		};
 
 		for (DayOfWeek day : days) {
