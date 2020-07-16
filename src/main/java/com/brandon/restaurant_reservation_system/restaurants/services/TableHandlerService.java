@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
 import com.brandon.restaurant_reservation_system.restaurants.data.CombinationRepository;
@@ -42,7 +46,7 @@ public class TableHandlerService {
 		updateLargestTableSize();
 	}
 
-	private void updateLargestTableSize() {
+	protected void updateLargestTableSize() {
 		for (RestaurantTable restaurantTable : tableRepository.findAll()) {
 			if (restaurantTable.getSeats() > this.largestTableSize) {
 				this.largestTableSize = restaurantTable.getSeats();
@@ -73,7 +77,7 @@ public class TableHandlerService {
 
 		for (RestaurantTable table : tables) {
 			Optional<RestaurantTable> foundTable =
-					tableRepository.findById(table.getName());
+			tableRepository.findById(table.getName());
 			if (foundTable.isPresent()) {
 				foundTable.get().addCombination(combination);
 			} else {
@@ -88,10 +92,10 @@ public class TableHandlerService {
 		List<RestaurantTable> tables = combination.getRestaurantTables();
 		for (RestaurantTable table : tables) {
 			Optional<RestaurantTable> foundTable =
-					tableRepository.findById(table.getName());
+			tableRepository.findById(table.getName());
 			foundTable.ifPresent(
-					restaurantTable -> restaurantTable.removeCombination(
-							combination));
+			restaurantTable -> restaurantTable.removeCombination(
+			combination));
 		}
 		combinationRepository.deleteById(combination.getName());
 	}
