@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.restaurants.data;
 
 import com.brandon.restaurant_reservation_system.restaurants.model.Day;
@@ -40,19 +44,16 @@ public class BookingTimes implements Serializable {
 		}
 	}
 
-
-
 	public Map<DayOfWeek, Day> getOpeningHours() {
 		return openingHours;
 	}
 
-	public void setOpeningHours(
-			Map<DayOfWeek, Day> openingHours) {
-		this.openingHours = openingHours;
-	}
-
 	public Day getOpeningHours(DayOfWeek dayOfWeek) {
 		return openingHours.get(dayOfWeek);
+	}
+
+	public void setOpeningHours(Map<DayOfWeek, Day> openingHours) {
+		this.openingHours = openingHours;
 	}
 
 	public boolean isOpenOnDate(LocalDate date) {
@@ -68,11 +69,11 @@ public class BookingTimes implements Serializable {
 	public void allowBookingPerTimeInterval(int bookingIntervalInMinutes) {
 		bookingsAtCertainTimes = false;
 		this.bookingSlotIntervals =
-				Duration.ofMinutes(bookingIntervalInMinutes);
+		Duration.ofMinutes(bookingIntervalInMinutes);
 		calculateBookingTimes();
 	}
 
-	protected void calculateBookingTimes() {
+	private void calculateBookingTimes() {
 		Map<DayOfWeek, List<LocalTime>> bookingTimesByDay = new HashMap<>();
 		for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
 			Day day = openingHours.get(dayOfWeek);
@@ -97,7 +98,7 @@ public class BookingTimes implements Serializable {
 
 	public boolean isBookingTime(LocalDateTime dateTime) {
 		return getBookingTimes(
-				dateTime.toLocalDate()).contains(dateTime.toLocalTime()
+		dateTime.toLocalDate()).contains(dateTime.toLocalTime()
 		);
 	}
 
