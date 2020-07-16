@@ -1,8 +1,13 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Entity
@@ -56,8 +61,22 @@ public class CombinationOfTables {
 	}
 
 	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		CombinationOfTables that = (CombinationOfTables) o;
+		return getTotalSeats() == that.getTotalSeats() &&
+		Objects.equals(getName(), that.getName());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getTotalSeats(), getName());
+	}
+
+	@Override
 	public String toString() {
 		return this.name + " - Total seats: "
-				+ this.totalSeats;
+		+ this.totalSeats;
 	}
 }

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
@@ -8,6 +12,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -61,10 +66,24 @@ public class RestaurantTable {
 	}
 
 	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		RestaurantTable that = (RestaurantTable) o;
+		return getSeats() == that.getSeats() &&
+		Objects.equals(getName(), that.getName());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getName(), getSeats());
+	}
+
+	@Override
 	public String toString() {
 		return "RestaurantTable{" +
-				"name='" + name + '\'' +
-				", seats=" + seats +
-				'}';
+		"name='" + name + '\'' +
+		", seats=" + seats +
+		'}';
 	}
 }
