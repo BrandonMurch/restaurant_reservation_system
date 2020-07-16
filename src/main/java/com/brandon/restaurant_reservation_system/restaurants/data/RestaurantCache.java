@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 @Component
 public class RestaurantCache {
@@ -55,7 +56,7 @@ public class RestaurantCache {
 	public void setAvailableDates(
 	SortedSet<LocalDate> availableDates) {
 		dateThatDatesLastUpdated = LocalDate.now();
-		this.availableDates = availableDates;
+		this.availableDates = new TreeSet<>(availableDates);
 	}
 }
 

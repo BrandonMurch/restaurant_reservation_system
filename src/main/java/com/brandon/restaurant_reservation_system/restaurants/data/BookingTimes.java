@@ -63,7 +63,7 @@ public class BookingTimes implements Serializable {
 
 	public void allowBookingsOnlyAtCertainTimes(List<LocalTime> bookingTimes) {
 		this.bookingsAtCertainTimes = true;
-		this.bookingTimes = bookingTimes;
+		this.bookingTimes = new ArrayList<>(bookingTimes);
 	}
 
 	public void allowBookingPerTimeInterval(int bookingIntervalInMinutes) {

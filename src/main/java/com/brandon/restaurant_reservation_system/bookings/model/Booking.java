@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.bookings.model;
 
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.CustomDateTimeFormatter;
@@ -110,7 +114,7 @@ public class Booking {
 	}
 
 	public void setTables(List<RestaurantTable> restaurantTables) {
-		this.restaurantTables = restaurantTables;
+		this.restaurantTables = new ArrayList<>(restaurantTables);
 	}
 
 	public void addTable(RestaurantTable restaurantTable) {
