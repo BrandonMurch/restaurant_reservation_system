@@ -1,10 +1,13 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,9 +27,9 @@ public class Day implements Serializable {
 	}
 
 	public Day(DayOfWeek dayOfWeek,
-	           List<OpeningClosingPair> hoursOfOperation) {
+			   List<OpeningClosingPair> hoursOfOperation) {
 		this.dayOfWeek = dayOfWeek;
-		this.hoursOfOperation = hoursOfOperation;
+		this.hoursOfOperation = new ArrayList<>(hoursOfOperation);
 		this.isOpen = true;
 	}
 
@@ -55,15 +58,16 @@ public class Day implements Serializable {
 	}
 
 	public void removeOpeningAndClosing(LocalTime opening, LocalTime closing) {
-		Iterator<OpeningClosingPair> itr = this.hoursOfOperation.iterator();
-		while (itr.hasNext()) {
-			OpeningClosingPair nextPair = itr.next();
-			if (opening.equals(nextPair.getOpening())
-					&& closing.equals(nextPair.getClosing())) {
-				itr.remove();
-				break;
-			}
-		}
+		hoursOfOperation.remove(new OpeningClosingPair(opening, closing));
+		//		Iterator<OpeningClosingPair> itr = this.hoursOfOperation.iterator();
+		//		while (itr.hasNext()) {
+		//			OpeningClosingPair nextPair = itr.next();
+		//			if (opening.equals(nextPair.getOpening())
+		//					&& closing.equals(nextPair.getClosing())) {
+		//				itr.remove();
+		//				break;
+		//			}
+		//		}
 	}
 
 	public Optional<OpeningClosingPair> getPairThatContainsTime(LocalTime time) {
