@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.helpers.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -11,7 +15,7 @@ public class JsonConverter {
 	}
 
 	public static <T> T jsonToObject(String json, Class<T> returnType)
-			throws JsonProcessingException {
+	throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
 		return mapper.readValue(json, returnType);
 	}
