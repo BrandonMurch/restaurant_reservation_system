@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.bookings.controller;
 
 import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
@@ -171,18 +175,18 @@ class BookingControllerTest {
 	@Test
 	void updateBookingNotPresent() throws Exception {
 		Mockito.when(bookingRepository.findById((long) 1))
-				.thenReturn(Optional.empty());
+		.thenReturn(Optional.empty());
 		Mockito.when(bookingHandler.createBooking(any(Booking.class), any(User.class)))
-				.thenReturn(Optional.of(updatedBooking2));
+		.thenReturn(Optional.of(updatedBooking2));
 
-		String uri = "/bookings";
+		String uri = "/bookings/" + updatedBooking2.getId();
 		String bookingJson = objectToJson(updatedBooking2);
 		MvcResult result =
-				mvc.perform(MockMvcRequestBuilders.put(uri)
-						.accept(MediaType.APPLICATION_JSON)
-						.content(bookingJson)
-						.contentType(MediaType.APPLICATION_JSON))
-						.andReturn();
+		mvc.perform(MockMvcRequestBuilders.put(uri)
+		.accept(MediaType.APPLICATION_JSON)
+		.content(bookingJson)
+		.contentType(MediaType.APPLICATION_JSON))
+		.andReturn();
 
 		assertEquals(201, result.getResponse().getStatus());
 	}
@@ -190,16 +194,16 @@ class BookingControllerTest {
 	@Test
 	void updateBookingAlreadyPresent() throws Exception {
 		Mockito.when(bookingRepository.findById(any(Long.class)))
-				.thenReturn(Optional.of(this.updatedBooking2));
+		.thenReturn(Optional.of(this.updatedBooking2));
 
-		String uri = "/bookings";
+		String uri = "/bookings/" + updatedBooking2.getId();
 		String bookingJson = objectToJson(updatedBooking2);
 		MvcResult result =
-				mvc.perform(MockMvcRequestBuilders.put(uri)
-						.accept(MediaType.APPLICATION_JSON)
-						.content(bookingJson)
-						.contentType(MediaType.APPLICATION_JSON))
-						.andReturn();
+		mvc.perform(MockMvcRequestBuilders.put(uri)
+		.accept(MediaType.APPLICATION_JSON)
+		.content(bookingJson)
+		.contentType(MediaType.APPLICATION_JSON))
+		.andReturn();
 
 		assertEquals(204, result.getResponse().getStatus());
 

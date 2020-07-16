@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.bookings.controller;
 
 import com.brandon.restaurant_reservation_system.GlobalVariables;
@@ -28,7 +32,7 @@ public class BookingController {
 
 	private final DateTimeFormatter dateFormat = GlobalVariables.getDateFormat();
 	private final DateTimeFormatter dateTimeFormat =
-			GlobalVariables.getDateTimeFormat();
+	GlobalVariables.getDateTimeFormat();
 	@Autowired
 	private BookingRepository bookingRepository;
 	@Autowired
@@ -38,30 +42,30 @@ public class BookingController {
 	}
 
 	@GetMapping(value = "")
-	public List<Booking> getBookingsDuringTime(
-			@RequestParam(required = false) String startTime,
-			@RequestParam(required = false) String endTime,
-			@RequestParam(required = false) String date) {
+	public List<Booking> getBookings(
+	@RequestParam(required = false) String startTime,
+	@RequestParam(required = false) String endTime,
+	@RequestParam(required = false) String date) {
 		if (startTime != null && endTime != null) {
 			LocalDateTime parsedStartTime =
-					DateTimeHandler.parseDateTime(startTime,
-							dateTimeFormat);
+			DateTimeHandler.parseDateTime(startTime,
+			dateTimeFormat);
 			LocalDateTime parsedEndTime = DateTimeHandler.parseDateTime(endTime,
-					dateTimeFormat);
+			dateTimeFormat);
 			return bookingRepository.getBookingsDuringTime(parsedStartTime,
-					parsedEndTime);
+			parsedEndTime);
 		} else if (startTime != null) {
 			LocalDateTime parsedStartTime = DateTimeHandler.parseDateTime(
-					startTime,
-					dateTimeFormat);
+			startTime,
+			dateTimeFormat);
 			return bookingRepository.getBookingsByStartTime(parsedStartTime);
 		} else if (date != null) {
 			LocalDateTime parsedDateTime = DateTimeHandler.parseDate(date,
-					dateFormat).atStartOfDay();
+			dateFormat).atStartOfDay();
 			LocalDateTime nextDay = parsedDateTime.plusDays(1);
 
 			return bookingRepository.getBookingsBetweenDates(parsedDateTime,
-					nextDay);
+			nextDay);
 		} else {
 			return bookingRepository.findAll();
 		}
@@ -70,15 +74,17 @@ public class BookingController {
 	@GetMapping("/{bookingId}")
 	public Booking getBookingById(@PathVariable long bookingId) {
 		return bookingRepository.findById(bookingId)
-				.orElseThrow(() -> new BookingNotFoundException(bookingId));
+		.orElseThrow(() -> new BookingNotFoundException(bookingId));
 	}
 
-	@PutMapping("")
+	@PutMapping("/{bookingId}")
 	public ResponseEntity<?> updateBooking(
-			@RequestBody Booking newBooking) {
+	@RequestBody Booking newBooking,
+	@PathVariable long bookingId
+	) {
 
 		Optional<Booking> result =
-				bookingRepository.findById(newBooking.getId());
+		bookingRepository.findById(bookingId);
 
 		if (result.isPresent()) {
 			Booking booking = result.get();
@@ -86,14 +92,14 @@ public class BookingController {
 			return new ResponseEntity<>("Booking sucessfully updated.", HttpStatus.NO_CONTENT);
 		} else {
 			ResponseEntity<?> response =
-					this.createBooking(
-							new RequestBodyUserBooking(newBooking.getUser(),
-									newBooking));
+			this.createBooking(
+			new RequestBodyUserBooking(newBooking.getUser(),
+			newBooking));
 			if (response.getStatusCode() == HttpStatus.CREATED) {
 				return ResponseEntity.created(
-						ServletUriComponentsBuilder
-								.fromCurrentRequest().build().toUri())
-						.build();
+				ServletUriComponentsBuilder
+				.fromCurrentRequest().build().toUri())
+				.build();
 			}
 			return response;
 		}
@@ -101,11 +107,11 @@ public class BookingController {
 
 	@PostMapping("")
 	public ResponseEntity<?> createBooking(
-			@RequestBody RequestBodyUserBooking body) {
+	@RequestBody RequestBodyUserBooking body) {
 
 		Booking booking = body.getBooking();
 		Optional<ResponseEntity<ApiError>> bookingValidationException =
-				BookingValidationService.validateBooking(booking);
+		BookingValidationService.validateBooking(booking);
 		if (bookingValidationException.isPresent()) {
 			return bookingValidationException.get();
 		}
@@ -124,10 +130,10 @@ public class BookingController {
 
 	private ResponseEntity<String> buildUriFromBooking(Booking booking) {
 		URI location = ServletUriComponentsBuilder
-				.fromCurrentRequest()
-				.path("/{id}")
-				.buildAndExpand(booking.getId())
-				.toUri();
+		.fromCurrentRequest()
+		.path("/{id}")
+		.buildAndExpand(booking.getId())
+		.toUri();
 		return ResponseEntity.created(location).build();
 
 	}
