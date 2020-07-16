@@ -14,15 +14,14 @@ import static com.brandon.restaurant_reservation_system.helpers.date_time.servic
 
 public class CreateBookingsForTest {
 
-	private final CreateUsersForTesting createUser = new CreateUsersForTesting();
-	private final User user = createUser.createUser1();
-	private final User user2 = createUser.createUser2();
+	private final User user = CreateUsersForTesting.createUser1();
+	private final User user2 = CreateUsersForTesting.createUser2();
 	private final DateTimeFormatter dateTimeFormat =
-			GlobalVariables.getDateTimeFormat();
-	private final Restaurant restaurant = new Restaurant();
+	GlobalVariables.getDateTimeFormat();
 	private final CreateTableForTest createTableForTest;
 
 	public CreateBookingsForTest() {
+		Restaurant restaurant = new Restaurant();
 		PopulateRestaurantService.populateRestaurant(restaurant);
 		createTableForTest = new CreateTableForTest(restaurant);
 	}

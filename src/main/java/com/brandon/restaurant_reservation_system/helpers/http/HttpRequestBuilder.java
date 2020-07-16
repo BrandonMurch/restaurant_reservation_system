@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.helpers.http;
 
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotFoundException;
@@ -21,20 +25,21 @@ public class HttpRequestBuilder {
 	@Value("${server.host:localhost}")
 	private  String ipAddress;
 	private final RestTemplate restTemplate =
-			new RestTemplateBuilder().build();
+	new RestTemplateBuilder().build();
 
 	public HttpRequestBuilder() {}
 
 	public Optional<String> httpGetJson(String relativePath) {
+
 		return Optional.ofNullable(restTemplate
-				.getForEntity(constructUrl(relativePath), String.class)
-				.getBody());
+		.getForEntity(constructUrl(relativePath), String.class)
+		.getBody());
 	}
 
 	public List<User> httpGetUsers(String relativePath)
-			throws UserNotFoundException {
+	throws UserNotFoundException {
 		ResponseEntity<User[]> response = restTemplate
-				.getForEntity(constructUrl(relativePath), User[].class);
+		.getForEntity(constructUrl(relativePath), User[].class);
 		if (!response.getStatusCode().equals(HttpStatus.OK)) {
 			throw new UserNotFoundException("Users not found");
 		}
@@ -47,9 +52,9 @@ public class HttpRequestBuilder {
 	}
 
 	public List<Booking> httpGetBookings(String relativePath)
-			throws BookingNotFoundException {
+	throws BookingNotFoundException {
 		ResponseEntity<Booking[]> response = restTemplate
-				.getForEntity(constructUrl(relativePath), Booking[].class);
+		.getForEntity(constructUrl(relativePath), Booking[].class);
 		if (!response.getStatusCode().equals(HttpStatus.OK)) {
 			throw new BookingNotFoundException("Bookings not found");
 		}
