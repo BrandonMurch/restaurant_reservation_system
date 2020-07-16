@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.restaurants.data;
 
 import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
@@ -17,7 +21,7 @@ public class BookingDateRange implements Serializable {
 	}
 
 	public BookingDateRange(
-			DateRange bookingDateRange) {
+	DateRange bookingDateRange) {
 		setBookingRange(bookingDateRange);
 	}
 
