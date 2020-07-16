@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.users.controller;
 
 import com.brandon.restaurant_reservation_system.users.CreateUsersForTesting;
@@ -16,7 +20,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,8 +42,6 @@ public class UserControllerTest {
 	private List<User> users;
 	@Value("${server.host}")
 	private String ipAddress;
-	@Value("${server.port}")
-	private String port;
 	private User user1, user2, updatedUser2;
 
 
@@ -53,20 +54,38 @@ public class UserControllerTest {
 	void getUsers() throws Exception {
 		Mockito.when(userRepo.findAll()).thenReturn(this.users);
 
-		// Submit a get request to /users.
 		String uri = "/users";
 		MvcResult result = mvc.perform(MockMvcRequestBuilders.get(uri)
-				.contentType(MediaType.APPLICATION_JSON)).andReturn();
+		.contentType(MediaType.APPLICATION_JSON)).andReturn();
 
-		// Test a HttpStatus 200 OK is returned.
 		int status = result.getResponse().getStatus();
 		assertEquals(200, status);
 
-		// Test that users are returned
 		String content = result.getResponse().getContentAsString();
 		User[] users = jsonToObject(content, User[].class);
 		assertTrue(users.length > 0);
-		assertEquals("John", users[0].getFirstName());
+		assertEquals(this.users.get(0).getFirstName(), users[0].getFirstName());
+	}
+
+	@Test
+	void getUsersByEmail() throws Exception {
+		Mockito
+		.when(userRepo.findByEmail(this.user1.getEmail()))
+		.thenReturn(java.util.Optional.ofNullable(this.user1));
+
+		String uri = "/users?email=" + this.users.get(0).getEmail();
+		MvcResult result = mvc
+		.perform(MockMvcRequestBuilders.get(uri)
+		.contentType(MediaType.APPLICATION_JSON))
+		.andReturn();
+
+		int status = result.getResponse().getStatus();
+		assertEquals(200, status);
+
+		String content = result.getResponse().getContentAsString();
+		User[] users = jsonToObject(content, User[].class);
+		assertTrue(users.length > 0);
+		assertEquals(this.user1.getFirstName(), users[0].getFirstName());
 	}
 
 	@Test
@@ -74,19 +93,16 @@ public class UserControllerTest {
 		mockUser.setId(3);
 		Mockito.when(userRepo.save(mockUser)).thenReturn(mockUser);
 
-		// Send a Post request to /users with a new user in the body
 		String uri = "/users";
 		String userJson = objectToJson(mockUser);
 		MvcResult result = mvc.perform(MockMvcRequestBuilders.post(uri)
-				.accept(MediaType.APPLICATION_JSON)
+		.accept(MediaType.APPLICATION_JSON)
 				.content(userJson).contentType(MediaType.APPLICATION_JSON))
 				.andReturn();
 
-		// Test that a HttpStatus 201 CREATED is returned.
 		int status = result.getResponse().getStatus();
 		assertEquals(201, status);
 
-		// Test that the uri to the created user is returned.
 		assertEquals("http://" + ipAddress + "/users/3",
 				result.getResponse().getHeader(HttpHeaders.LOCATION));
 	}
@@ -96,16 +112,13 @@ public class UserControllerTest {
 		Mockito.when(userRepo.findById((long)2)).thenReturn(
 				java.util.Optional.ofNullable(users.get(1)));
 
-		// Get call to /users/2.
 		String uri = "/users/2";
 		MvcResult result = mvc.perform(MockMvcRequestBuilders.get(uri)
 				.contentType(MediaType.APPLICATION_JSON)).andReturn();
 
-		// Check status is 200 OK
 		int status = result.getResponse().getStatus();
 		assertEquals(200, status);
 
-		// Check a user was returned;
 		User user = jsonToObject(result.getResponse().getContentAsString(),
 				User.class);
 		assertEquals(user, user2);
@@ -118,7 +131,6 @@ public class UserControllerTest {
 				java.util.Optional.ofNullable(users.get(1)));
 		Mockito.when(userRepo.save(updatedUser2)).thenReturn(updatedUser2);
 
-		// Put call to /users/2
 		String uri = "/users/2";
 		String userJson = objectToJson(updatedUser2);
 		MvcResult result = mvc.perform(MockMvcRequestBuilders.put(uri)
@@ -126,7 +138,6 @@ public class UserControllerTest {
 				.content(userJson).contentType(MediaType.APPLICATION_JSON))
 				.andReturn();
 
-		// Check status is 204 NO_CONTENT
 		int status = result.getResponse().getStatus();
 		assertEquals(204, status);
 	}
@@ -134,24 +145,19 @@ public class UserControllerTest {
 	@Test
 	void deleteUser() throws Exception {
 
-		// Delete to /useres/2
 		String uri = "/users/2";
 		MvcResult result = mvc.perform(MockMvcRequestBuilders.delete(uri))
 				.andReturn();
 
-		// Check status is 204 NO_CONTENT
 		int status = result.getResponse().getStatus();
 		assertEquals(204, status);
 	}
 
 	public List<User> initUsers() {
-
-		// Set up an array with 2 users
-		// Set up 1 mock user and 1 updated user
 		CreateUsersForTesting createUser = new CreateUsersForTesting();
-		user1 = createUser.createUser1();
-		user2 = createUser.createUser2();
-		updatedUser2 = createUser.createUpdatedUser2();
+		user1 = CreateUsersForTesting.createUser1();
+		user2 = CreateUsersForTesting.createUser2();
+		updatedUser2 = CreateUsersForTesting.createUpdatedUser2();
 		mockUser = createUser.createUser3();
 		return Arrays.asList(user1, user2);
 	}
