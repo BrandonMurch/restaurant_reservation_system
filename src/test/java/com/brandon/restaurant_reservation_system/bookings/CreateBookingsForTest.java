@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.bookings;
 
 import com.brandon.restaurant_reservation_system.GlobalVariables;
@@ -18,12 +22,11 @@ public class CreateBookingsForTest {
 	private final User user2 = CreateUsersForTesting.createUser2();
 	private final DateTimeFormatter dateTimeFormat =
 	GlobalVariables.getDateTimeFormat();
-	private final CreateTableForTest createTableForTest;
 
 	public CreateBookingsForTest() {
 		Restaurant restaurant = new Restaurant();
 		PopulateRestaurantService.populateRestaurant(restaurant);
-		createTableForTest = new CreateTableForTest(restaurant);
+
 	}
 
 	public Booking createBookingForTwoAt19() {
@@ -50,26 +53,36 @@ public class CreateBookingsForTest {
 
 	public Booking createUpdatedBookingForFour() {
 		Booking booking = new Booking(4,
-				parseDateTime("2020-10-11T20:00:00.00", dateTimeFormat),
-				parseDateTime("2020-10-11T18:00:00.00", dateTimeFormat),
-				user);
+		parseDateTime("2020-10-11T20:00:00.00", dateTimeFormat),
+		parseDateTime("2020-10-11T18:00:00.00", dateTimeFormat),
+		user);
 		booking.setId(2);
-		booking.addTable(createTableForTest.getTable1());
+		booking.addTable(CreateTableForTest.getTable1());
 		return booking;
 
 	}
 
 	public Booking createBookingForFourAt19() {
 		Booking booking = new Booking(4,
-				parseDateTime("2020-10-11T19:00:00.00",
-						dateTimeFormat),
-				parseDateTime("2020-10-11T23:00:00.00",
-						dateTimeFormat),
-				user);
+		parseDateTime("2020-10-11T19:00:00.00",
+		dateTimeFormat),
+		parseDateTime("2020-10-11T23:00:00.00",
+		dateTimeFormat),
+		user);
 		booking.setId(3);
 		return booking;
 	}
 
+	public Booking createBookingOnDifferentDate() {
+		Booking booking = new Booking(4,
+		parseDateTime("2020-10-10T20:00:00.00",
+		dateTimeFormat),
+		parseDateTime("2020-10-10T23:00:00.00",
+		dateTimeFormat),
+		user);
+		booking.setId(2);
+		return booking;
+	}
 
 
 }

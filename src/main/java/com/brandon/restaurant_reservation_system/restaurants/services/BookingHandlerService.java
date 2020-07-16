@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
@@ -34,7 +38,7 @@ public class BookingHandlerService {
 
 	public Optional<Booking> createBooking(Booking booking, User user) {
 		Optional<User> result = handleUsersForBooking(user,
-				booking.getStartTime().toLocalDate());
+		booking.getStartTime().toLocalDate());
 		if (result.isEmpty()) {
 			return Optional.empty();
 		} else {
@@ -42,10 +46,10 @@ public class BookingHandlerService {
 		}
 
 		List<RestaurantTable> tables =
-				tableAllocatorService.getAvailableTable(booking);
+		tableAllocatorService.getAvailableTable(booking);
 		if (tables.isEmpty()) {
 			throw new BookingNotPossibleException("Requested date is not " +
-					"available");
+			"available");
 		}
 		booking.setTables(tables);
 		tables.forEach((table) -> table.addBooking(booking));
@@ -62,7 +66,7 @@ public class BookingHandlerService {
 		List<User> dbUsers;
 		try {
 			dbUsers = httpRequestBuilder.httpGetUsers("/users" +
-					"?email=" + user.getEmail());
+			"?email=" + user.getEmail());
 		} catch (HttpClientErrorException ex) {
 			throw new UserNotFoundException(ex.getResponseBodyAsString());
 		}
@@ -71,11 +75,11 @@ public class BookingHandlerService {
 		} else {
 			user = dbUsers.get(0);
 			List<Booking> bookings =
-					bookingRepository.getBookingsByUser(user.getEmail());
+			bookingRepository.getBookingsByUser(user.getEmail());
 
 			for (Booking storedBooking : bookings) {
 				if (storedBooking.getStartTime().toLocalDate().equals(
-						date)) {
+				date)) {
 					return Optional.empty();
 				}
 			}
