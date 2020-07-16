@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
@@ -24,9 +28,7 @@ public class TableAllocatorService {
 	private Restaurant restaurant;
 	@Autowired
 	private BookingHandlerService bookingService;
-
 	private List<RestaurantTable> restaurantTableList;
-	//	private Map<Integer, List<CombinationOfTables>> movableTableCombinations;
 	private Map<Integer, RestaurantTable> availableTables;
 	private Map<Integer, CombinationOfTables> availableCombinations;
 
@@ -35,7 +37,7 @@ public class TableAllocatorService {
 
 	//		 This constructor is for testing purposes
 	protected TableAllocatorService(Restaurant restaurant,
-	                                BookingRepository bookingRepository) {
+									BookingRepository bookingRepository) {
 		this(restaurant);
 		this.bookingRepository = bookingRepository;
 	}
@@ -48,105 +50,108 @@ public class TableAllocatorService {
 	public List<RestaurantTable> getAvailableTable(Booking booking) {
 		if (booking.getEndTime() == null) {
 			booking.setEndTime(
-					booking.getStartTime()
-							.plus(restaurant.getStandardBookingDuration())
+			booking.getStartTime()
+			.plus(restaurant.getStandardBookingDuration())
 			);
 		}
 		return getAvailableTable(
-				booking.getStartTime(),
-				booking.getEndTime(),
-				booking.getPartySize(),
-				restaurant.canABookingOccupyALargerTable());
+		booking.getStartTime(),
+		booking.getEndTime(),
+		booking.getPartySize(),
+		restaurant.canABookingOccupyALargerTable());
 	}
 
 
 	public List<RestaurantTable> getAvailableTable(LocalDateTime startTime,
-	                                               int partySize,
-	                                               boolean searchGreaterSizes) {
+												   int partySize,
+												   boolean searchGreaterSizes) {
 		LocalDateTime endTime =
-				startTime.plus(restaurant.getStandardBookingDuration());
+		startTime.plus(restaurant.getStandardBookingDuration());
 		return getAvailableTable(startTime, endTime, partySize,
-				searchGreaterSizes);
+		searchGreaterSizes);
 	}
 
 	public List<RestaurantTable> getAvailableTable(LocalDateTime startTime,
-	                                               LocalDateTime endTime,
-	                                               int partySize,
-	                                               boolean searchGreaterSizes) {
+												   LocalDateTime endTime,
+												   int partySize,
+												   boolean searchGreaterSizes) {
 		restaurantTableList = restaurant.getTableList();
 		if (restaurantTableList == null || restaurantTableList.isEmpty()) {
 			throw new IllegalStateException("Please ensure the restaurant is " +
-					"set up with tables before trying to make a booking.");
+			"set up with tables before trying to make a booking.");
 		} else if (!restaurant.isBookingTime(startTime)) {
 			return Collections.emptyList();
 		}
 
 		List<Booking> bookings = getBookings(startTime, endTime);
-		Map<RestaurantTable, Booking> occupiedTables = getOccupiedTables(
-				bookings);
+
+		Optional<Map<RestaurantTable, Booking>> optionalResults =
+		getOccupiedTables(bookings);
+
+		if (optionalResults.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		Map<RestaurantTable, Booking> occupiedTables = optionalResults.get();
 		List<RestaurantTable> foundRestaurantTables;
 		foundRestaurantTables = getTableBySizeAndUpdateMap(occupiedTables,
-				partySize);
+		partySize);
 		if (!foundRestaurantTables.isEmpty()) {
 			return foundRestaurantTables;
-		}
-
-		foundRestaurantTables = getCombinationBySizeAndUpdateMap(occupiedTables,
-				partySize);
-		if (!foundRestaurantTables.isEmpty()) {
-			return foundRestaurantTables;
-		}
-
-		return getATableRecursively(partySize + 1, searchGreaterSizes);
-	}
-
-	private List<RestaurantTable> getATableRecursively(int partySize,
-	                                                   boolean searchGreaterSizes) {
-		if (availableTables.containsKey(partySize)) {
-			return Collections.singletonList(
-					availableTables.get(partySize)
-			);
 		}
 
 		if (restaurant.hasCombinationsOfTables()) {
-			if (availableCombinations.containsKey(partySize)) {
-				return availableCombinations.get(
-						partySize).getRestaurantTables();
+			foundRestaurantTables = getCombinationBySizeAndUpdateMap(occupiedTables,
+			partySize);
+			if (!foundRestaurantTables.isEmpty()) {
+				return foundRestaurantTables;
 			}
 		}
 
 		if (searchGreaterSizes) {
-			if (partySize >= restaurant.getLargestTableSize()) {
-				return Collections.emptyList();
-			} else {
-				return getATableRecursively(partySize + 1,
-						true);
-			}
+			return getATableRecursively(partySize + 1);
 		}
+
 		return Collections.emptyList();
 	}
 
-	protected List<Booking> getBookings(LocalDateTime startTime) {
-		return getBookings(startTime,
-				startTime.plus(restaurant.getStandardBookingDuration()));
+	private List<RestaurantTable> getATableRecursively(int partySize) {
+		if (availableTables.containsKey(partySize)) {
+			return Collections.singletonList(
+			availableTables.get(partySize)
+			);
+		} else if (restaurant.hasCombinationsOfTables()) {
+			if (availableCombinations.containsKey(partySize)) {
+				return availableCombinations.get(
+				partySize).getRestaurantTables();
+			}
+		} else if (partySize >= restaurant.getLargestTableSize()) {
+			return Collections.emptyList();
+		}
+		return getATableRecursively(partySize + 1);
 	}
 
-	protected List<Booking> getBookings(LocalDateTime startTime,
-	                                    LocalDateTime endTime) {
+	private List<Booking> getBookings(LocalDateTime startTime) {
+		return getBookings(startTime,
+		startTime.plus(restaurant.getStandardBookingDuration()));
+	}
+
+	private List<Booking> getBookings(LocalDateTime startTime,
+									  LocalDateTime endTime) {
 		List<Booking> bookings =
-				bookingRepository.getBookingsDuringTime(startTime,
-						endTime);
+		bookingRepository.getBookingsDuringTime(startTime,
+		endTime);
 		if (bookings == null) {
 			throw new IllegalStateException("Connection to the booking " +
-					"database failed.");
+			"database failed.");
 		}
 
 		return bookings;
 	}
 
 
-	protected Map<RestaurantTable, Booking> getOccupiedTables(
-			List<Booking> bookings) {
+	protected Optional<Map<RestaurantTable, Booking>> getOccupiedTables(
+	List<Booking> bookings) {
 		Map<RestaurantTable, Booking> occupiedTables = new HashMap<>();
 
 		int capacityCount = 0;
@@ -155,39 +160,38 @@ public class TableAllocatorService {
 			// Check capacity. Return an empty list if capacity is reached.
 			capacityCount += booking.getPartySize();
 			if (capacityCount > restaurant.getCapacity()) {
-				return Collections.emptyMap();
+				return Optional.empty();
 			}
 
 			booking.getTables()
-					.forEach(table -> occupiedTables.put(table, booking));
+			.forEach(table -> occupiedTables.put(table, booking));
 		}
-		return occupiedTables;
+		return Optional.of(occupiedTables);
 	}
 
 	protected List<RestaurantTable> getTableBySizeAndUpdateMap(
-			Map<RestaurantTable,
-					Booking> occupiedTables, int size) {
+	Map<RestaurantTable,
+	Booking> occupiedTables, int size) {
 		availableTables = new HashMap<>();
 		for (RestaurantTable restaurantTable : restaurantTableList) {
 			if (!occupiedTables.containsKey(restaurantTable)
-					|| !availableTables.containsKey(
-					restaurantTable.getSeats())) {
+			|| !availableTables.containsKey(restaurantTable.getSeats())) {
 				if (restaurantTable.getSeats() == size) {
 					return Collections.singletonList(restaurantTable);
 				}
 				availableTables.put(restaurantTable.getSeats(),
-						restaurantTable);
+				restaurantTable);
 			}
 		}
 		return Collections.emptyList();
 	}
 
 	protected List<RestaurantTable> getCombinationBySizeAndUpdateMap(
-			Map<RestaurantTable,
-					Booking> occupiedTables, int size) {
+	Map<RestaurantTable,
+	Booking> occupiedTables, int size) {
 		availableCombinations = new HashMap<>();
 		for (CombinationOfTables combination :
-				restaurant.getCombinationsOfTables()) {
+		restaurant.getCombinationsOfTables()) {
 			boolean foundAOccupiedTable = false;
 
 			for (RestaurantTable restaurantTable : combination.getRestaurantTables()) {
@@ -199,12 +203,12 @@ public class TableAllocatorService {
 
 			if (!foundAOccupiedTable) {
 				if (!availableCombinations.containsKey(
-						combination.getTotalSeats())) {
+				combination.getTotalSeats())) {
 					if (combination.getTotalSeats() == size) {
 						return combination.getRestaurantTables();
 					}
 					availableCombinations.put(combination.getTotalSeats(),
-							combination);
+					combination);
 				}
 			}
 		}
@@ -217,13 +221,13 @@ public class TableAllocatorService {
 
 		for (LocalTime time : times) {
 			if (date.isEqual(LocalDate.now()) && time.isBefore(
-					LocalTime.now())) {
+			LocalTime.now())) {
 				continue;
 			}
 			LocalDateTime dateTime = date.atTime(time);
 
 			if (!getAvailableTable(dateTime, size,
-					restaurant.canABookingOccupyALargerTable()).isEmpty()) {
+			restaurant.canABookingOccupyALargerTable()).isEmpty()) {
 				availableTimes.add(time);
 			}
 		}
@@ -240,7 +244,7 @@ public class TableAllocatorService {
 
 		while (current.isBefore(end)) {
 			if (restaurant.isOpenOnDate(current)
-					&& isDateAvailable(current)) {
+			&& isDateAvailable(current)) {
 				availableDates.add(current);
 			}
 			current = current.plusDays(1);
@@ -250,13 +254,13 @@ public class TableAllocatorService {
 
 	}
 
-	public boolean isDateAvailable(LocalDate date) {
+	private boolean isDateAvailable(LocalDate date) {
 		List<LocalTime> times = restaurant.getBookingTimes(date);
 		for (LocalTime time : times) {
 			LocalDateTime dateTime = date.atTime(time);
 
 			if (!getAvailableTable(dateTime, 2,
-					restaurant.canABookingOccupyALargerTable()).isEmpty()) {
+			restaurant.canABookingOccupyALargerTable()).isEmpty()) {
 				return true;
 			}
 		}
@@ -269,6 +273,12 @@ public class TableAllocatorService {
 		}
 	}
 
+	protected Map<Integer, RestaurantTable> getAvailableTablesForTest() {
+		return availableTables;
+	}
 
+	protected Map<Integer, CombinationOfTables> getAvailableCombinationsForTest() {
+		return availableCombinations;
+	}
 }
 
