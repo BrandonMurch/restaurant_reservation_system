@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
 import com.brandon.restaurant_reservation_system.restaurants.data.BookingDateRange;
@@ -205,7 +209,7 @@ public class Restaurant implements Serializable {
 	// Serialization & Deserialization ----------------------------------------
 
 
-	public void serialize() {
+	private void serialize() {
 
 		try {
 			FileOutputStream fileOut = new FileOutputStream("restaurant.ser");
@@ -218,7 +222,7 @@ public class Restaurant implements Serializable {
 		}
 	}
 
-	public boolean deserialize() {
+	private boolean deserialize() {
 		try {
 			FileInputStream fileIn = new FileInputStream("restaurant.ser");
 			ObjectInputStream in = new ObjectInputStream(fileIn);
