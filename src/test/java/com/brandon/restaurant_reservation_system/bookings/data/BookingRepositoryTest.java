@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.bookings.data;
 
 import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
@@ -28,7 +32,7 @@ class BookingRepositoryTest {
     private UserRepository userRepository;
 
     private final CreateBookingsForTest createBooking = new CreateBookingsForTest();
-    Booking booking = createBooking.createBookingForTwoAt19();
+    Booking booking = CreateBookingsForTest.createBookingForTwoAt19();
 
     @Value("${spring.datasource.url}")
     String jdbcUrl;
@@ -49,7 +53,7 @@ class BookingRepositoryTest {
     @Test
     void getBookingsDuringTime() {
         List<Booking> result = bookingRepository
-                .getBookingsDuringTime(booking.getStartTime(), booking.getEndTime());
+          .getBookingsDuringTime(booking.getStartTime(), booking.getEndTime());
         assertEquals(1, result.size());
         assertEquals(booking, result.get(0));
     }
@@ -57,7 +61,7 @@ class BookingRepositoryTest {
     @Test
     void getBookingsByStartTime() {
         List<Booking> result = bookingRepository
-                .getBookingsByStartTime(booking.getStartTime());
+          .getBookingsByStartTime(booking.getStartTime());
         assertEquals(1, result.size());
         assertEquals(booking, result.get(0));
     }
@@ -67,7 +71,7 @@ class BookingRepositoryTest {
         LocalDateTime date = booking.getStartTime().toLocalDate().atStartOfDay();
         LocalDateTime nextDate = date.plusDays(1);
         List<Booking> result = bookingRepository
-                .getBookingsBetweenDates(date, nextDate);
+          .getBookingsBetweenDates(date, nextDate);
         assertEquals(1, result.size());
         assertEquals(booking, result.get(0));
     }
@@ -75,7 +79,7 @@ class BookingRepositoryTest {
     @Test
     void getBookingsByUser() {
         List<Booking> result =
-                bookingRepository.getBookingsByUser(booking.getUser().getEmail());
+          bookingRepository.getBookingsByUser(booking.getUser().getEmail());
         assertEquals(1, result.size());
         assertEquals(booking, result.get(0));
     }

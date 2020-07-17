@@ -1,26 +1,32 @@
-package com.brandon.restaurant_reservation_system.users.service;
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
 
-import static org.junit.jupiter.api.Assertions.*;
+package com.brandon.restaurant_reservation_system.users.service;
 
 import org.junit.jupiter.api.Test;
 
-class UserAuthenticationServiceTest {
-    
+import static org.junit.jupiter.api.Assertions.*;
 
-    @Test
-    void testCreatePasswordHash() {
-	String hash = UserAuthenticationService.createPasswordHash("Password");
-	String[] splitHash = hash.split(":");
-	assertEquals(3, splitHash.length);
-	System.out.println(splitHash[0]);
-	assertTrue(splitHash[0].matches("\\d+"));
-    }
-    
-    @Test
-    void testValidatePassword() {
-	String hash = UserAuthenticationService.createPasswordHash("Password");
-	assertTrue(UserAuthenticationService.validatePassword("Password", 
+class UserAuthenticationServiceTest {
+
+
+	@Test
+	void testCreatePasswordHash() {
+		String hash = UserAuthenticationService.createPasswordHash("Password");
+		if (hash == null) {
+			fail();
+		}
+		String[] splitHash = hash.split(":");
+		assertEquals(3, splitHash.length);
+		assertTrue(splitHash[0].matches("\\d+"));
+	}
+
+	@Test
+	void testValidatePassword() {
+		String hash = UserAuthenticationService.createPasswordHash("Password");
+		assertTrue(UserAuthenticationService.validatePassword("Password",
 		hash));
-    }
+	}
 
 }

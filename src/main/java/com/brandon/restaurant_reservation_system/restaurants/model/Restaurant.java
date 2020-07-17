@@ -130,6 +130,10 @@ public class Restaurant implements Serializable {
 		this.tables.createCombination(tables);
 	}
 
+	public void removeTableCombination(CombinationOfTables combination) {
+		this.tables.deleteCombination(combination);
+	}
+
 	public int getLargestTableSize() {
 		return tables.getLargestTableSize();
 	}

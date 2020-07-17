@@ -42,7 +42,7 @@ class BookingHandlerServiceTest {
 
     @Test
     void createBooking() {
-        Booking booking = createBooking.createBookingForFourAt20();
+        Booking booking = CreateBookingsForTest.createBookingForFourAt20();
         User user = booking.getUser();
 
         Mockito
@@ -66,7 +66,7 @@ class BookingHandlerServiceTest {
 
     @Test
     void createBookingNewUser() {
-        Booking booking = createBooking.createBookingForFourAt20();
+        Booking booking = CreateBookingsForTest.createBookingForFourAt20();
         User user = booking.getUser();
 
         Mockito
@@ -80,7 +80,7 @@ class BookingHandlerServiceTest {
 
     @Test()
     void createBookingNotAvailable() {
-        Booking booking = createBooking.createBookingForFourAt20();
+        Booking booking = CreateBookingsForTest.createBookingForFourAt20();
         User user = booking.getUser();
 
         Mockito

@@ -135,12 +135,11 @@ public class BookingController {
 		.buildAndExpand(booking.getId())
 		.toUri();
 		return ResponseEntity.created(location).build();
-
 	}
 
-	@DeleteMapping("/{bookingId")
+	@DeleteMapping("/{bookingId}")
 	public ResponseEntity<String> deleteBooking(@PathVariable long bookingId) {
 		bookingRepository.deleteById(bookingId);
-		return new ResponseEntity<>("Booking was successfully deleted", HttpStatus.NO_CONTENT);
+		return ResponseEntity.noContent().build();
 	}
 }
