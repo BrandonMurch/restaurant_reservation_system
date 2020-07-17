@@ -6,83 +6,73 @@ package com.brandon.restaurant_reservation_system.bookings;
 
 import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
-import com.brandon.restaurant_reservation_system.restaurants.CreateTableForTest;
-import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
-import com.brandon.restaurant_reservation_system.restaurants.services.PopulateRestaurantService;
-import com.brandon.restaurant_reservation_system.users.CreateUsersForTesting;
-import com.brandon.restaurant_reservation_system.users.model.User;
-
-import java.time.format.DateTimeFormatter;
 
 import static com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler.parseDateTime;
+import static com.brandon.restaurant_reservation_system.restaurants.CreateTableForTest.getTable1;
+import static com.brandon.restaurant_reservation_system.users.CreateUsersForTesting.createUser1;
 
 public class CreateBookingsForTest {
 
-	private final User user = CreateUsersForTesting.createUser1();
-	private final User user2 = CreateUsersForTesting.createUser2();
-	private final DateTimeFormatter dateTimeFormat =
-	GlobalVariables.getDateTimeFormat();
+    public CreateBookingsForTest() {
+    }
 
-	public CreateBookingsForTest() {
-		Restaurant restaurant = new Restaurant();
-		PopulateRestaurantService.populateRestaurant(restaurant);
+    public static Booking createBookingForTwoAt19() {
+        Booking booking = new Booking(2,
+          parseDateTime("2020-10-09T19:00:00.00",
+            GlobalVariables.getDateTimeFormat()),
+          parseDateTime("2020-10-09T23:00:00.00",
+            GlobalVariables.getDateTimeFormat()),
+          createUser1());
+        booking.setId(1);
+        return booking;
+    }
 
-	}
+    public static Booking createBookingForFourAt20() {
+        Booking booking = new Booking(4,
+          parseDateTime("2020-10-09T20:00:00.00",
+            GlobalVariables.getDateTimeFormat()),
+          parseDateTime("2020-10-09T23:00:00.00",
+            GlobalVariables.getDateTimeFormat()),
+          createUser1());
+        booking.setId(2);
+        return booking;
+    }
 
-	public Booking createBookingForTwoAt19() {
-		Booking booking = new Booking(2,
-				parseDateTime("2020-10-11T19:00:00.00",
-						dateTimeFormat),
-				parseDateTime("2020-10-11T23:00:00.00",
-						dateTimeFormat),
-				user2);
-		booking.setId(1);
-		return booking;
-	}
+    public static Booking createUpdatedBookingForFour() {
+        Booking booking = new Booking(
+          4,
+          parseDateTime(
+            "2020-10-09T20:00:00.00", GlobalVariables.getDateTimeFormat()
+          ),
+          parseDateTime(
+            "2020-10-09T18:00:00.00", GlobalVariables.getDateTimeFormat()
+          ),
+          createUser1());
+        booking.setId(2);
+        booking.addTable(getTable1());
+        return booking;
 
-	public Booking createBookingForFourAt20() {
-		Booking booking = new Booking(4,
-				parseDateTime("2020-10-11T20:00:00.00",
-						dateTimeFormat),
-				parseDateTime("2020-10-11T23:00:00.00",
-						dateTimeFormat),
-				user);
-		booking.setId(2);
-		return booking;
-	}
+    }
 
-	public Booking createUpdatedBookingForFour() {
-		Booking booking = new Booking(4,
-		parseDateTime("2020-10-11T20:00:00.00", dateTimeFormat),
-		parseDateTime("2020-10-11T18:00:00.00", dateTimeFormat),
-		user);
-		booking.setId(2);
-		booking.addTable(CreateTableForTest.getTable1());
-		return booking;
+    public static Booking createBookingForFourAt19() {
+        Booking booking = new Booking(4,
+          parseDateTime("2020-10-11T19:00:00.00",
+            GlobalVariables.getDateTimeFormat()),
+          parseDateTime("2020-10-11T23:00:00.00",
+            GlobalVariables.getDateTimeFormat()),
+          createUser1());
+        booking.setId(3);
+        return booking;
+    }
 
-	}
-
-	public Booking createBookingForFourAt19() {
-		Booking booking = new Booking(4,
-		parseDateTime("2020-10-11T19:00:00.00",
-		dateTimeFormat),
-		parseDateTime("2020-10-11T23:00:00.00",
-		dateTimeFormat),
-		user);
-		booking.setId(3);
-		return booking;
-	}
-
-	public Booking createBookingOnDifferentDate() {
-		Booking booking = new Booking(4,
-		parseDateTime("2020-10-10T20:00:00.00",
-		dateTimeFormat),
-		parseDateTime("2020-10-10T23:00:00.00",
-		dateTimeFormat),
-		user);
-		booking.setId(2);
-		return booking;
-	}
-
-
+    public Booking createBookingOnDifferentDate() {
+        Booking booking = new Booking(4,
+          parseDateTime("2020-10-10T20:00:00.00",
+            GlobalVariables.getDateTimeFormat()),
+          parseDateTime("2020-10-10T23:00:00.00",
+            GlobalVariables.getDateTimeFormat()),
+          createUser1());
+        booking.setId(2);
+        return booking;
+    }
 }
