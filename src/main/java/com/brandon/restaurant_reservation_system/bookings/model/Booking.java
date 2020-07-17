@@ -11,6 +11,8 @@ import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTab
 import com.brandon.restaurant_reservation_system.users.model.User;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -32,14 +34,15 @@ public class Booking {
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	private LocalDateTime endTime;
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
 
 	@ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
 	@JoinTable(name = "bookings_table",
-			joinColumns = @JoinColumn(name = "bookings_id"),
-			inverseJoinColumns = @JoinColumn(name = "restaurantTable_id"))
+	joinColumns = @JoinColumn(name = "bookings_id"),
+	inverseJoinColumns = @JoinColumn(name = "restaurantTable_id"))
 	private List<RestaurantTable> restaurantTables;
 
 	public Booking(int partySize, LocalDateTime startTime,
