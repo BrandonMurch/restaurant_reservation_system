@@ -9,64 +9,75 @@ import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.users.exceptions.UserNotFoundException;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.*;
+import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.Optional;
 
+// NOTE: When changing this, remember to change mock as well.
 @Service
 public class HttpRequestBuilder {
 
-	@Value("${server.port:8080}")
-	private  String serverPort;
+	@LocalServerPort
+	private String port;
 	@Value("${server.host:localhost}")
-	private  String ipAddress;
-	private final RestTemplate restTemplate =
-	new RestTemplateBuilder().build();
+	private String ipAddress;
+	private WebClient webClient;
 
-	public HttpRequestBuilder() {}
+	public HttpRequestBuilder() {
+	}
+
+	@PostConstruct
+	private void postConstruct() {
+		String url = "http://" + ipAddress + ":" + port;
+		webClient = WebClient.builder().baseUrl(url).build();
+	}
 
 	public Optional<String> httpGetJson(String relativePath) {
 
-		return Optional.ofNullable(restTemplate
-		.getForEntity(constructUrl(relativePath), String.class)
-		.getBody());
+		return webClient
+		.get().uri(relativePath)
+		.retrieve()
+		.bodyToMono(String.class)
+		.blockOptional();
 	}
 
 	public List<User> httpGetUsers(String relativePath)
 	throws UserNotFoundException {
-		ResponseEntity<User[]> response = restTemplate
-		.getForEntity(constructUrl(relativePath), User[].class);
-		if (!response.getStatusCode().equals(HttpStatus.OK)) {
+		ResponseEntity<List<User>> response = webClient
+		.get().uri(relativePath)
+		.retrieve()
+		.toEntityList(User.class)
+		.block();
+
+
+		if (response == null) {
+			throw new RuntimeException("Unexpected Error trying to connect to " + relativePath);
+		} else if (!response.getStatusCode().equals(HttpStatus.OK)) {
 			throw new UserNotFoundException("Users not found");
 		}
-		User[] userArray = response.getBody();
-		if (userArray == null) {
-			return Collections.emptyList();
-		} else {
-			return new ArrayList<>(Arrays.asList(userArray));
-		}
+		return response.getBody();
 	}
 
 	public List<Booking> httpGetBookings(String relativePath)
 	throws BookingNotFoundException {
-		ResponseEntity<Booking[]> response = restTemplate
-		.getForEntity(constructUrl(relativePath), Booking[].class);
-		if (!response.getStatusCode().equals(HttpStatus.OK)) {
-			throw new BookingNotFoundException("Bookings not found");
-		}
-		Booking[] bookingArray = response.getBody();
-		if (bookingArray == null) {
-			return Collections.emptyList();
-		} else {
-			return Arrays.asList(bookingArray);
-		}
-	}
+		ResponseEntity<List<Booking>> response = webClient
+		.get().uri(relativePath)
+		.retrieve()
+		.toEntityList(Booking.class)
+		.block();
 
-	private String constructUrl(String relativePath) {
-		return "http://" + ipAddress + ":" + serverPort + relativePath;
+
+		if (response == null) {
+			throw new RuntimeException("Unexpected Error trying to connect to " + relativePath);
+		} else if (!response.getStatusCode().equals(HttpStatus.OK)) {
+			throw new UserNotFoundException("Bookings not found");
+		}
+		return response.getBody();
 	}
 }
