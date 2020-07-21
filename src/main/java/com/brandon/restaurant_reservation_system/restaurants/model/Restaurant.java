@@ -33,15 +33,15 @@ public class Restaurant implements Serializable {
 	private transient TableHandlerService tables;
 	private String name;
 	private BookingTimes bookingTimes = new BookingTimes();
-	private BookingDateRange bookingDateRange;
+	private transient BookingDateRange bookingDateRange = new BookingDateRange(0);
 	private RestaurantConfig config;
 
 	public Restaurant() {
 	}
 
 	public Restaurant(String name,
-	                  RestaurantConfig restaurantConfig,
-	                  int minutesBetweenBookingSlots) {
+					  RestaurantConfig restaurantConfig,
+					  int minutesBetweenBookingSlots) {
 		this(name, restaurantConfig);
 		this.bookingTimes = new BookingTimes(minutesBetweenBookingSlots);
 		serialize();

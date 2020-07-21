@@ -22,9 +22,7 @@ public class PopulateRestaurantService {
 
 	public static void populateRestaurant(Restaurant restaurant) {
 		setConfig(restaurant);
-		DateRange range = getDateRange();
-		restaurant.setBookingDateRange(range.getStart(),
-		range.getEnd());
+		restaurant.setBookingDateRange(30);
 		restaurant.setOpeningHours(
 		modifyOpeningHours(restaurant.getOpeningHours()));
 		restaurant.allowBookingPerTimeInterval(15);
