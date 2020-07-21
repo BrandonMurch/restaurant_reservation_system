@@ -8,39 +8,54 @@ import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.users.CreateUsersForTesting;
 import com.brandon.restaurant_reservation_system.users.model.User;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
 class HttpRequestBuilderTest {
 
     @Mock
-    private RestTemplate restTemplate;
+    private WebClient webClient;
     @InjectMocks
     private final HttpRequestBuilder httpRequest = new HttpRequestBuilder();
+    private static MockWebServer server;
 
+    @BeforeAll
+    static void beforeSetUp() throws IOException {
+        server = new MockWebServer();
+        server.start();
+    }
+
+    @AfterAll
+    static void tearDown() throws IOException {
+        server.shutdown();
+    }
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(httpRequest, "serverPort", "8080");
-        ReflectionTestUtils.setField(httpRequest, "ipAddress", "localhost");
+        String baseUrl = String.format("http://localhost:%s", server.getPort());
+        WebClient webClient = WebClient.builder().baseUrl(baseUrl).build();
+        ReflectionTestUtils.setField(httpRequest, "webClient", webClient);
+        //        ReflectionTestUtils.setField(httpRequest, "ipAddress", "localhost");
     }
 
     @Test
@@ -68,9 +83,10 @@ class HttpRequestBuilderTest {
           "    }\n" +
           "}";
 
-        Mockito
-          .when(restTemplate.getForEntity(any(String.class), eq(String.class)))
-          .thenReturn(new ResponseEntity<>(jsonExample, HttpStatus.OK));
+        server.enqueue(new MockResponse()
+          .setBody(jsonExample)
+          .addHeader("Content-Type", "application/json")
+        );
 
         Optional<String> result = httpRequest.httpGetJson("/json");
         if (result.isPresent()) {
@@ -81,31 +97,34 @@ class HttpRequestBuilderTest {
     }
 
     @Test
-    void httpGetUsers() {
-        User[] users = {CreateUsersForTesting.createUser1()};
-        Mockito
-          .when(restTemplate.getForEntity(any(String.class), eq(User[].class)))
-          .thenReturn(new ResponseEntity<>(users, HttpStatus.OK));
+    void httpGetUsers() throws JsonProcessingException {
+        List<User> users = Collections.singletonList(
+          CreateUsersForTesting.createUser1());
+        server.enqueue(new MockResponse()
+          .setBody(new ObjectMapper().writeValueAsString(users))
+          .addHeader("Content-Type", "application/json")
+        );
 
         List<User> result = httpRequest.httpGetUsers("/users");
 
         assertFalse(result.isEmpty());
-        assertEquals(Arrays.asList(users), result);
+        assertEquals(users, result);
     }
 
     @Test
-    void httpGetBookings() {
+    void httpGetBookings() throws JsonProcessingException {
 
         CreateBookingsForTest bookingStubs = new CreateBookingsForTest();
 
-        Booking[] bookings = {bookingStubs.createBookingForTwoAt19()};
-        Mockito
-          .when(restTemplate.getForEntity(any(String.class), eq(Booking[].class)))
-          .thenReturn(new ResponseEntity<>(bookings, HttpStatus.OK));
-
+        List<Booking> bookings =
+          Collections.singletonList(CreateBookingsForTest.createBookingForTwoAt19());
+        server.enqueue(new MockResponse()
+          .setBody(new ObjectMapper().writeValueAsString(bookings))
+          .addHeader("Content-Type", "application/json")
+        );
         List<Booking> result = httpRequest.httpGetBookings("/bookings");
 
         assertFalse(result.isEmpty());
-        assertEquals(Arrays.asList(bookings), result);
+        assertEquals(bookings, result);
     }
 }

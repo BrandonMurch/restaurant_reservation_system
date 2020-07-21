@@ -9,7 +9,6 @@ import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.users.exceptions.UserNotFoundException;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -19,22 +18,22 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Optional;
 
-// NOTE: When changing this, remember to change mock as well.
 @Service
 public class HttpRequestBuilder {
 
-	@LocalServerPort
+	@Value("${server.port}")
 	private String port;
 	@Value("${server.host:localhost}")
 	private String ipAddress;
 	private WebClient webClient;
+	private String url;
 
 	public HttpRequestBuilder() {
 	}
 
 	@PostConstruct
 	private void postConstruct() {
-		String url = "http://" + ipAddress + ":" + port;
+		url = "http://" + ipAddress + ":" + port;
 		webClient = WebClient.builder().baseUrl(url).build();
 	}
 
