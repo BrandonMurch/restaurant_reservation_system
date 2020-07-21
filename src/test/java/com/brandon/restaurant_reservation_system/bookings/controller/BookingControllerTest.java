@@ -58,10 +58,10 @@ class BookingControllerTest {
 
 	private List<Booking> initBookings() {
 		CreateBookingsForTest createBooking = new CreateBookingsForTest();
-		booking1 = createBooking.createBookingForTwoAt19();
+		booking1 = CreateBookingsForTest.createBookingForTwoAt19();
 		User user = booking1.getUser();
-		Booking booking2 = createBooking.createBookingForFourAt20();
-		updatedBooking2 = createBooking.createUpdatedBookingForFour();
+		Booking booking2 = CreateBookingsForTest.createBookingForFourAt20();
+		updatedBooking2 = CreateBookingsForTest.createUpdatedBookingForFour();
 		return Arrays.asList(booking1, booking2);
 
 	}
@@ -110,14 +110,14 @@ class BookingControllerTest {
 
 	@Test
 	void getBookingsByStartTime() throws Exception {
-		String start = "2020-10-11T20:00";
+		String start = "2020-10-09T20:00";
 		LocalDateTime startTime = LocalDateTime.parse(start);
 		Mockito.when(bookingRepository
-				.getBookingsByStartTime(startTime))
-				.thenReturn(this.bookings.stream()
-						.filter(booking -> booking.getStartTime().equals(
-								startTime))
-						.collect(Collectors.toList()));
+		.getBookingsByStartTime(startTime))
+		.thenReturn(this.bookings.stream()
+		.filter(booking -> booking.getStartTime().equals(
+		startTime))
+		.collect(Collectors.toList()));
 
 		String uri = "/bookings?startTime=" + start;
 		MvcResult result =
