@@ -24,8 +24,8 @@ class BookingTimesTest {
     @BeforeEach
     void setUp() {
         bookingTimes = new BookingTimes();
-        DayOfWeek[] days = {DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
-          LocalDate.now().getDayOfWeek()};
+        DayOfWeek[] days = {LocalDate.now().getDayOfWeek(),
+          LocalDate.now().plusDays(1).getDayOfWeek()};
         Map<DayOfWeek, Day> openingHours = bookingTimes.getOpeningHours();
         for (DayOfWeek dayOfWeek : days) {
             Day day = openingHours.get(dayOfWeek);
