@@ -76,8 +76,8 @@ public class BookingHandlerService {
 			for (Booking storedBooking : bookings) {
 				if (storedBooking.getStartTime().toLocalDate().equals(
 				date)) {
-					throw new DuplicateFoundException(user.getFirstName() + " " + user.getLastName() +
-					" has already made a booking on this date");
+					throw new DuplicateFoundException("You have already made a booking " +
+					"on this date");
 				}
 			}
 		}
