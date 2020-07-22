@@ -64,10 +64,12 @@ public class Restaurant implements Serializable {
 
 	@PostConstruct
 	private void postConstruct() {
-		boolean isDeserializeSuccess = deserialize();
-		if (!isDeserializeSuccess) {
-			PopulateRestaurantService.populateRestaurant(this);
-		}
+		// TODO: remove this when in production
+		//		boolean isDeserializeSuccess = deserialize();
+
+		//		if (!isDeserializeSuccess) {
+		PopulateRestaurantService.populateRestaurant(this);
+		//		}
 		// TODO: Remove this when database is created.
 		PopulateRestaurantService.populateRestaurantTables(this);
 	}
