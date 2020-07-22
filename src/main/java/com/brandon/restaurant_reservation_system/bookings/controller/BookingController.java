@@ -7,6 +7,7 @@ package com.brandon.restaurant_reservation_system.bookings.controller;
 import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotFoundException;
+import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequestFormatException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.model.RequestBodyUserBooking;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingValidationService;
@@ -118,14 +119,10 @@ public class BookingController {
 
 		User user = body.getUser();
 		if (user.getEmail() == null) {
-			return new ResponseEntity<>("Email is required.", HttpStatus.BAD_REQUEST);
+			throw new BookingRequestFormatException("Email is a required field");
 		}
-		Optional<Booking> result = bookingHandler.createBooking(booking, user);
-		if (result.isPresent()) {
-			return buildUriFromBooking(booking);
-		} else {
-			return new ResponseEntity<>("User has already made a booking on this date", HttpStatus.CONFLICT);
-		}
+		Booking result = bookingHandler.createBooking(booking, user);
+		return buildUriFromBooking(result);
 	}
 
 	private ResponseEntity<String> buildUriFromBooking(Booking booking) {

@@ -20,7 +20,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -59,9 +58,9 @@ class BookingHandlerServiceTest {
           );
 
 
-        Optional<Booking> result = bookingHandler.createBooking(booking, user);
+        Booking result = bookingHandler.createBooking(booking, user);
 
-        assertEquals(Optional.of(booking), result);
+        assertEquals(booking, result);
     }
 
     @Test
@@ -73,9 +72,9 @@ class BookingHandlerServiceTest {
           .when(tableAllocatorService.getAvailableTable(any(Booking.class)))
           .thenReturn(Collections.singletonList(CreateTableForTest.getTable1()));
 
-        Optional<Booking> result = bookingHandler.createBooking(booking, user);
+        Booking result = bookingHandler.createBooking(booking, user);
 
-        assertEquals(Optional.of(booking), result);
+        assertEquals(booking, result);
     }
 
     @Test()
@@ -88,7 +87,7 @@ class BookingHandlerServiceTest {
           .thenReturn(Collections.emptyList());
 
         Exception exception = assertThrows(BookingNotPossibleException.class, () -> {
-            Optional<Booking> result = bookingHandler.createBooking(booking, user);
+            Booking result = bookingHandler.createBooking(booking, user);
         });
 
         String expectedMessage = "Requested date is not available";

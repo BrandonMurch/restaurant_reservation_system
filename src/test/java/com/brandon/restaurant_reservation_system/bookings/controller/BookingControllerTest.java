@@ -177,7 +177,7 @@ class BookingControllerTest {
 		Mockito.when(bookingRepository.findById((long) 1))
 		.thenReturn(Optional.empty());
 		Mockito.when(bookingHandler.createBooking(any(Booking.class), any(User.class)))
-		.thenReturn(Optional.of(updatedBooking2));
+		.thenReturn(updatedBooking2);
 
 		String uri = "/bookings/" + updatedBooking2.getId();
 		String bookingJson = objectToJson(updatedBooking2);

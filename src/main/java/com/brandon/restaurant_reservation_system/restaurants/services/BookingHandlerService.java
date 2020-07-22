@@ -5,6 +5,7 @@
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
+import com.brandon.restaurant_reservation_system.bookings.exceptions.DuplicateFoundException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.helpers.http.HttpRequestBuilder;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.BookingNotPossibleException;
@@ -19,7 +20,6 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -36,14 +36,10 @@ public class BookingHandlerService {
 	public BookingHandlerService() {
 	}
 
-	public Optional<Booking> createBooking(Booking booking, User user) {
-		Optional<User> result = handleUsersForBooking(user,
+	public Booking createBooking(Booking booking, User user) {
+		User result = handleUsersForBooking(user,
 		booking.getStartTime().toLocalDate());
-		if (result.isEmpty()) {
-			return Optional.empty();
-		} else {
-			booking.setUser(result.get());
-		}
+		booking.setUser(result);
 
 		List<RestaurantTable> tables =
 		tableAllocatorService.getAvailableTable(booking);
@@ -59,10 +55,10 @@ public class BookingHandlerService {
 		LocalDate date = booking.getStartTime().toLocalDate();
 		tableAllocatorService.removeDateIfUnavailable(date);
 
-		return Optional.of(booking);
+		return booking;
 	}
 
-	private Optional<User> handleUsersForBooking(User user, LocalDate date) {
+	private User handleUsersForBooking(User user, LocalDate date) {
 		List<User> dbUsers;
 		try {
 			dbUsers = httpRequestBuilder.httpGetUsers("/users" +
@@ -80,10 +76,11 @@ public class BookingHandlerService {
 			for (Booking storedBooking : bookings) {
 				if (storedBooking.getStartTime().toLocalDate().equals(
 				date)) {
-					return Optional.empty();
+					throw new DuplicateFoundException(user.getFirstName() + " " + user.getLastName() +
+					" has already made a booking on this date");
 				}
 			}
 		}
-		return Optional.of(user);
+		return user;
 	}
 }

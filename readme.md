@@ -11,6 +11,16 @@
     Date Format = '2011-12-03'
     
     Time Format = '10:15:30'
+    
+####Exceptions
+
+    When the request causes exceptions, it will be returned in the following JSON format:
+    {
+        status: "HttpStatusCode ex. CONFLICT or BAD_REQUEST", 
+        timestamp: "2020-07-22@12:59:03",
+        message: "message", 
+        subErrors: []
+    }
 
 ####/bookings
     (Get) Retrieve all bookings, or those based on queries:
