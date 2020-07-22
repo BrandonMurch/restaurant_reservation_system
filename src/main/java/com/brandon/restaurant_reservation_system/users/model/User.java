@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.users.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -24,10 +28,23 @@ public class User {
 	public User() {
 	}
 
+	public User(User newUser) {
+		this(
+		newUser.getFirstName(),
+		newUser.getLastName(),
+		newUser.getHash(),
+		newUser.getPhoneNumber(),
+		newUser.getEmail(),
+		newUser.getTermsAndConditions()
+		);
+		this.id = newUser.id;
+
+	}
+
 	public User(String firstName, String lastName, String hash,
-	            String phoneNumber, String email, boolean termsAndConditions) {
-		this.firstName = firstName;
-		this.lastName = lastName;
+				String phoneNumber, String email, boolean termsAndConditions) {
+		this.firstName = firstLetterToUppercase(firstName);
+		this.lastName = firstLetterToUppercase(lastName);
 		this.hash = hash;
 		this.phoneNumber = phoneNumber;
 		this.email = email;
@@ -36,22 +53,18 @@ public class User {
 
 
 	public String getFirstName() {
-
 		return firstName;
 	}
 
 	public String getLastName() {
-
 		return lastName;
 	}
 
 	public String getHash() {
-
 		return hash;
 	}
 
 	public long getId() {
-
 		return id;
 	}
 
@@ -68,7 +81,6 @@ public class User {
 	}
 
 	public String getEmail() {
-
 		return email;
 	}
 
@@ -133,9 +145,13 @@ public class User {
 	@Override
 	public String toString() {
 		return "User{" +
-				"id=" + id +
-				", firstName='" + firstName + '\'' +
-				", lastName='" + lastName + '\'' +
-				'}';
+		"id=" + id +
+		", firstName='" + firstName + '\'' +
+		", lastName='" + lastName + '\'' +
+		'}';
+	}
+
+	protected String firstLetterToUppercase(String name) {
+		return name.substring(0, 1).toUpperCase() + name.substring(1);
 	}
 }

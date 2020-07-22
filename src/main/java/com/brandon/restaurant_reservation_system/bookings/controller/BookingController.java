@@ -117,7 +117,7 @@ public class BookingController {
 			return bookingValidationException.get();
 		}
 
-		User user = body.getUser();
+		User user = new User(body.getUser());
 		if (user.getEmail() == null) {
 			throw new BookingRequestFormatException("Email is a required field");
 		}

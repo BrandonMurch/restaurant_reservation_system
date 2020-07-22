@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.users.model;
 
 import com.brandon.restaurant_reservation_system.users.data.UserRepository;
@@ -54,13 +58,23 @@ class UserTest {
 	assertEquals("1234567895", user1.getPhoneNumber());	
     }
 
-    @Test
-    void testGetEmail() {
-	assertEquals("Albert.Smith@email.com", user1.getEmail());	
-    }
+	@Test
+	void testGetEmail() {
+		assertEquals("Albert.Smith@email.com", user1.getEmail());
+	}
 
-    @Test
-    void testGetId() {
-	assertTrue(user1.getId() > 0);
-    }
+	@Test
+	void testGetId() {
+		assertTrue(user1.getId() > 0);
+	}
+
+	@Test
+	void firstLetterToUppercase() {
+		String word = "john";
+		String expected = "John";
+		String actual = new User("john", "johnson", null, "+1 12345678", "email@email" +
+		".com", true).getFirstName();
+
+		assertEquals(expected, actual);
+	}
 }

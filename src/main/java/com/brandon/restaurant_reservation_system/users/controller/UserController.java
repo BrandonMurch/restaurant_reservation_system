@@ -91,16 +91,16 @@ public class UserController {
 	@PostMapping("")
 	public ResponseEntity<?> createUser(@RequestBody User user) {
 		Optional<ResponseEntity<User>> userValidationException =
-				UserValidationService.validateUser(user);
+		UserValidationService.validateUser(user);
 
 		if (userValidationException.isPresent()) {
 			// Improperly formatted. Returns with error.
 			return userValidationException.get();
 		}
 
+		user = new User(user);
 		user = userRepository.save(user);
 		return buildUriFromUser(user);
-
 	}
 
 	@DeleteMapping("/{id}")
