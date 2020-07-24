@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2020 Brandon Murch
+ */
+
 package com.brandon.restaurant_reservation_system.bookings.model;
 
 import com.brandon.restaurant_reservation_system.users.model.User;
@@ -83,15 +87,6 @@ class BookingTest {
         assertTrue(booking.doTheseBookingsOverlap(bookingDoesOverlap));
         assertTrue(booking.doTheseBookingsOverlap(bookingDoesOverlap2));
         assertTrue(booking.doTheseBookingsOverlap(bookingDoesOverlap3));
-        System.out.println("********************************************");
-        System.out.println("\n \n \n \n");
-        System.out.println(booking.getStartTime());
-        System.out.println(booking.getEndTime());
-        System.out.println(bookingDoesNotOverlap2.getStartTime());
-        System.out.println(bookingDoesNotOverlap2.getEndTime());
-
-        System.out.println("\n \n \n \n");
-        System.out.println("********************************************");
         assertFalse(booking.doTheseBookingsOverlap(bookingDoesNotOverlap));
         assertFalse(booking.doTheseBookingsOverlap(bookingDoesNotOverlap2));
         assertFalse(booking.doTheseBookingsOverlap(bookingDoesNotOverlap3));
