@@ -7,7 +7,6 @@ package com.brandon.restaurant_reservation_system.restaurants.services;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
-import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,20 +25,11 @@ public class TableAllocatorService {
 	private BookingRepository bookingRepository;
 	@Autowired
 	private Restaurant restaurant;
-	@Autowired
-	private BookingHandlerService bookingService;
 	private List<RestaurantTable> restaurantTableList;
 	private Map<Integer, RestaurantTable> availableTables;
 	private Map<Integer, CombinationOfTables> availableCombinations;
 
 	public TableAllocatorService() {
-	}
-
-	//		 This constructor is for testing purposes
-	protected TableAllocatorService(Restaurant restaurant,
-									BookingRepository bookingRepository) {
-		this(restaurant);
-		this.bookingRepository = bookingRepository;
 	}
 
 	public TableAllocatorService(Restaurant restaurant) {
@@ -232,45 +222,6 @@ public class TableAllocatorService {
 			}
 		}
 		return availableTimes;
-	}
-
-
-	public SortedSet<LocalDate> getAvailableDates() {
-		DateRange dates = restaurant.getBookingDateRange();
-		LocalDate current = dates.getStart();
-		LocalDate end = dates.getEnd().plusDays(1);
-
-		SortedSet<LocalDate> availableDates = new TreeSet<>();
-
-		while (current.isBefore(end)) {
-			if (restaurant.isOpenOnDate(current)
-			&& isDateAvailable(current)) {
-				availableDates.add(current);
-			}
-			current = current.plusDays(1);
-		}
-
-		return availableDates;
-
-	}
-
-	private boolean isDateAvailable(LocalDate date) {
-		List<LocalTime> times = restaurant.getBookingTimes(date);
-		for (LocalTime time : times) {
-			LocalDateTime dateTime = date.atTime(time);
-
-			if (!getAvailableTable(dateTime, 2,
-			restaurant.canABookingOccupyALargerTable()).isEmpty()) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public void removeDateIfUnavailable(LocalDate date) {
-		if (!isDateAvailable(date)) {
-			restaurant.removeAvailableDate(date);
-		}
 	}
 
 	protected Map<Integer, RestaurantTable> getAvailableTablesForTest() {

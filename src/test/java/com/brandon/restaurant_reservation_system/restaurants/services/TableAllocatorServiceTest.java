@@ -8,14 +8,15 @@ import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
-import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -32,16 +33,13 @@ import static org.mockito.ArgumentMatchers.any;
 class TableAllocatorServiceTest {
 
     @Mock
-    private BookingRepository bookingRepository;
-    @Mock
     private Restaurant restaurant;
     @Mock
-    private BookingHandlerService bookingHandlerService;
+    private BookingRepository bookingRepository;
     @InjectMocks
     private TableAllocatorService tableAllocator;
     private final LocalDateTime dateTime1 = LocalDateTime.now();
     private final LocalDateTime dateTime2 = LocalDateTime.now().plusHours(2);
-    private final CreateBookingsForTest createBookingsForTest = new CreateBookingsForTest();
 
     private final List<RestaurantTable> tableList = Arrays.asList(
       new RestaurantTable("k1", 2),
@@ -78,6 +76,11 @@ class TableAllocatorServiceTest {
       ))
     );
 
+    @BeforeEach
+    void setup() {
+        MockitoAnnotations.initMocks(this);
+    }
+
     @Test
     void getAvailableTableWithBooking() {
         Mockito
@@ -93,7 +96,7 @@ class TableAllocatorServiceTest {
               any(LocalDateTime.class))
           )
           .thenReturn(Collections.emptyList());
-        Booking booking = createBookingsForTest.createBookingForTwoAt19();
+        Booking booking = CreateBookingsForTest.createBookingForTwoAt19();
 
         assertEquals(Collections.singletonList(tableList.get(0)),
           tableAllocator.getAvailableTable(booking));
@@ -239,7 +242,7 @@ class TableAllocatorServiceTest {
 
     @Test
     void getOccupiedTables() {
-        Booking booking = createBookingsForTest.createBookingForTwoAt19();
+        Booking booking = CreateBookingsForTest.createBookingForTwoAt19();
         booking.setTables(Collections.singletonList(tableList.get(0)));
         List<Booking> bookings = Collections.singletonList(booking);
 
@@ -265,7 +268,7 @@ class TableAllocatorServiceTest {
     @Test
     void getOccupiedTablesOverCapacity() {
         List<Booking> bookings =
-          Collections.singletonList(createBookingsForTest.createBookingForTwoAt19());
+          Collections.singletonList(CreateBookingsForTest.createBookingForTwoAt19());
         Mockito
           .when(restaurant.getCapacity())
           .thenReturn(0);
@@ -307,7 +310,7 @@ class TableAllocatorServiceTest {
           .when(restaurant.getCapacity())
           .thenReturn(0);
         List<Booking> bookings =
-          Collections.singletonList(createBookingsForTest.createBookingForTwoAt19());
+          Collections.singletonList(CreateBookingsForTest.createBookingForTwoAt19());
         Mockito
           .when(bookingRepository
             .getBookingsDuringTime(
@@ -370,38 +373,5 @@ class TableAllocatorServiceTest {
           LocalDate.now()));
     }
 
-    @Test
-    void getAvailableDates() {
-        Mockito
-          .when(restaurant.getBookingDateRange())
-          .thenReturn(new DateRange(LocalDate.now(), LocalDate.now().plusDays(2)));
-        Mockito
-          .when(restaurant.isOpenOnDate(any(LocalDate.class)))
-          .thenReturn(true);
-        Mockito
-          .when(restaurant.getStandardBookingDuration())
-          .thenReturn(Duration.ofHours(2));
-        Mockito
-          .when(restaurant.getTableList())
-          .thenReturn(tableList);
-        Mockito
-          .when(restaurant.isBookingTime(any(LocalDateTime.class)))
-          .thenReturn(true);
-        List<LocalTime> bookingTimes = Arrays.asList(
-          LocalTime.of(18, 0),
-          LocalTime.of(20, 0)
-        );
-        Mockito
-          .when(restaurant.getBookingTimes(any(LocalDate.class)))
-          .thenReturn(bookingTimes);
-        Mockito
-          .when(restaurant.canABookingOccupyALargerTable())
-          .thenReturn(false);
 
-        SortedSet<LocalDate> expected = new TreeSet<>();
-        for (int i = 0; i < 3; i++) {
-            expected.add(LocalDate.now().plusDays(i));
-        }
-        assertEquals(expected, tableAllocator.getAvailableDates());
-    }
 }

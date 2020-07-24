@@ -13,6 +13,7 @@ import com.brandon.restaurant_reservation_system.bookings.model.RequestBodyUserB
 import com.brandon.restaurant_reservation_system.bookings.services.BookingValidationService;
 import com.brandon.restaurant_reservation_system.errors.ApiError;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
+import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.services.BookingHandlerService;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,8 @@ public class BookingController {
 	private final DateTimeFormatter dateFormat = GlobalVariables.getDateFormat();
 	private final DateTimeFormatter dateTimeFormat =
 	GlobalVariables.getDateTimeFormat();
+	@Autowired
+	private Restaurant restaurant;
 	@Autowired
 	private BookingRepository bookingRepository;
 	@Autowired
@@ -122,6 +125,7 @@ public class BookingController {
 			throw new BookingRequestFormatException("Email is a required field");
 		}
 		Booking result = bookingHandler.createBooking(booking, user);
+		restaurant.removeDateIfUnavailable(booking.getStartTime().toLocalDate());
 		return buildUriFromBooking(result);
 	}
 

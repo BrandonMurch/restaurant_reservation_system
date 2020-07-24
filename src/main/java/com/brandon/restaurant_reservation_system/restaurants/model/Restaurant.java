@@ -256,12 +256,8 @@ public class Restaurant implements Serializable {
 		cache.addAvailableDate(date);
 	}
 
-	public void removeAvailableDate(LocalDate date) {
-		cache.removeAvailableDate(date);
-	}
-
-	public void setAvailableDates(SortedSet<LocalDate> dates) {
-		cache.setAvailableDates(dates);
+	public void removeDateIfUnavailable(LocalDate date) {
+		cache.removeDateIfUnavailable(date);
 	}
 
 }

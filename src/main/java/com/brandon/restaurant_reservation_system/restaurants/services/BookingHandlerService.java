@@ -53,8 +53,6 @@ public class BookingHandlerService {
 		bookingRepository.save(booking);
 
 		LocalDate date = booking.getStartTime().toLocalDate();
-		tableAllocatorService.removeDateIfUnavailable(date);
-
 		return booking;
 	}
 

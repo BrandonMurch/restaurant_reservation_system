@@ -5,11 +5,17 @@
 package com.brandon.restaurant_reservation_system.restaurants.data;
 
 
+import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
+import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -17,26 +23,20 @@ import java.util.TreeSet;
 public class RestaurantCache {
 
 	@Autowired
+	private Restaurant restaurant;
+	@Autowired
 	private TableAllocatorService tableAllocatorService;
 	private LocalDate dateThatDatesLastUpdated;
-	private SortedSet<LocalDate> availableDates;
+	private SortedSet<LocalDate> availableDates = new TreeSet<>();
 
 	public RestaurantCache() {
 	}
 
-	private void refreshCache() {
-		System.out.println("Refresh happened");
-		availableDates = tableAllocatorService.getAvailableDates();
-		dateThatDatesLastUpdated = LocalDate.now();
+	@PostConstruct
+	public void postConstruct() {
+		createCache();
 	}
 
-	public void checkCache() {
-		if ((availableDates == null)
-		|| availableDates.isEmpty()
-		|| !dateThatDatesLastUpdated.isEqual(LocalDate.now())) {
-			refreshCache();
-		}
-	}
 
 	public SortedSet<LocalDate> getAvailableDates() {
 		checkCache();
@@ -48,15 +48,47 @@ public class RestaurantCache {
 		availableDates.add(date);
 	}
 
-	public void removeAvailableDate(LocalDate date) {
-		checkCache();
-		availableDates.remove(date);
+	public void removeDateIfUnavailable(LocalDate date) {
+		if (!tryBookingOnDate(date)) {
+			availableDates.remove(date);
+		}
 	}
 
-	public void setAvailableDates(
-	SortedSet<LocalDate> availableDates) {
+	protected void checkCache() {
+		if (availableDates.isEmpty()
+		|| !dateThatDatesLastUpdated.isEqual(LocalDate.now())) {
+			createCache();
+		}
+	}
+
+	protected void createCache() {
+		DateRange dates = restaurant.getBookingDateRange();
+		LocalDate current = dates.getStart();
+		LocalDate end = dates.getEnd().plusDays(1);
+
+		availableDates = new TreeSet<>();
+
+		while (current.isBefore(end)) {
+			if (restaurant.isOpenOnDate(current)
+			&& tryBookingOnDate(current)) {
+				availableDates.add(current);
+			}
+			current = current.plusDays(1);
+		}
 		dateThatDatesLastUpdated = LocalDate.now();
-		this.availableDates = new TreeSet<>(availableDates);
+	}
+
+	private boolean tryBookingOnDate(LocalDate date) {
+		List<LocalTime> times = restaurant.getBookingTimes(date);
+		for (LocalTime time : times) {
+			LocalDateTime dateTime = date.atTime(time);
+
+			if (!tableAllocatorService.getAvailableTable(dateTime, 2,
+			false).isEmpty()) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 
