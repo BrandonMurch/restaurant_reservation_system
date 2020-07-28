@@ -10,11 +10,11 @@ import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotF
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequestFormatException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.model.RequestBodyUserBooking;
+import com.brandon.restaurant_reservation_system.bookings.services.BookingHandlerService;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingValidationService;
 import com.brandon.restaurant_reservation_system.errors.ApiError;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
-import com.brandon.restaurant_reservation_system.restaurants.services.BookingHandlerService;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

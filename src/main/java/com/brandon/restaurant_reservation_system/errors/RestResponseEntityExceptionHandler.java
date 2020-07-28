@@ -4,9 +4,9 @@
 
 package com.brandon.restaurant_reservation_system.errors;
 
+import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotPossibleException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequestFormatException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.DuplicateFoundException;
-import com.brandon.restaurant_reservation_system.restaurants.exceptions.BookingNotPossibleException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;

@@ -2,14 +2,15 @@
  * Copyright (c) 2020 Brandon Murch
  */
 
-package com.brandon.restaurant_reservation_system.restaurants.services;
+package com.brandon.restaurant_reservation_system.bookings.services;
 
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
+import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotPossibleException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.DuplicateFoundException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.helpers.http.HttpRequestBuilder;
-import com.brandon.restaurant_reservation_system.restaurants.exceptions.BookingNotPossibleException;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
+import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
 import com.brandon.restaurant_reservation_system.users.data.UserRepository;
 import com.brandon.restaurant_reservation_system.users.exceptions.UserNotFoundException;
 import com.brandon.restaurant_reservation_system.users.model.User;
