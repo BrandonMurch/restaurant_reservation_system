@@ -5,7 +5,7 @@
 package com.brandon.restaurant_reservation_system.users.model;
 
 import com.brandon.restaurant_reservation_system.users.data.UserRepository;
-import com.brandon.restaurant_reservation_system.users.service.UserAuthenticationService;
+import com.brandon.restaurant_reservation_system.users.service.UserPasswordEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class UserTest {
 
 	User user1;
+	private UserPasswordEncoder passwordEncoder;
 
 	@Autowired
 	UserRepository userRepository;
@@ -25,8 +26,8 @@ class UserTest {
 	@BeforeEach
 	void setUp() {
 		user1 = new User("Albert", "Smith",
-				UserAuthenticationService.createPasswordHash("Password"),
-				"1234567894", "Albert.Smith@email.com", true);
+		passwordEncoder.encode("Password"),
+		"1234567894", "Albert.Smith@email.com", true);
 		userRepository.save(user1);
 	}
 

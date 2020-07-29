@@ -1,14 +1,78 @@
 package com.brandon.restaurant_reservation_system.users.model;
 
-public class Administrator extends User {
+import com.brandon.restaurant_reservation_system.users.data.AdminPermissions;
 
-	private AdminLevel adminLevel;
+import javax.persistence.CollectionTable;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-	public Administrator(String firstName, String lastName, String hash,
-	                     String phoneNumber, String email,
-	                     AdminLevel adminLevel, boolean termsAndConditions) {
-		super(firstName, lastName, hash,
-				phoneNumber, email, termsAndConditions);
-		this.adminLevel = adminLevel;
+
+/*
+	reference Administrator to see if they have permissions to do something
+ */
+
+@Entity
+@DiscriminatorValue("ADMINISTRATOR")
+public class Administrator extends Loginable {
+
+	@ElementCollection(targetClass = AdminPermissions.class)
+	@CollectionTable(name = "admin_permissions")
+	private Collection<AdminPermissions> permissions;
+
+	private Administrator(String username, String hash, Collection<AdminPermissions> permissions) {
+		super(username, hash);
+		this.permissions = permissions;
 	}
+
+	protected Administrator() {
+	}
+
+	public Collection<AdminPermissions> getPermissions() {
+		return permissions;
+	}
+
+	@Override
+	public String toString() {
+		return this.getUsername();
+	}
+
+	public static class AdminBuilder {
+		private long id;
+		private final String username;
+		private final String hash;
+		private Set<AdminPermissions> permissions;
+
+		public AdminBuilder(String username, String hash) {
+			this.username = username;
+			this.hash = hash;
+		}
+
+		public Administrator buildNoPrivilegeAdmin() {
+			this.permissions = new HashSet<>();
+			return new Administrator(username, hash, permissions);
+		}
+
+		public Administrator buildViewOnlyAdmin() {
+			permissions = Arrays.stream(AdminPermissions.values())
+			.filter(permission ->
+			permission.getType().equals(AdminPermissions.PermissionType.VIEW)
+			)
+			.collect(Collectors.toSet());
+			return new Administrator(username, hash, permissions);
+
+		}
+
+		public Administrator buildFullAdmin() {
+			permissions =
+			Arrays.stream(AdminPermissions.values()).collect(Collectors.toSet());
+			return new Administrator(username, hash, permissions);
+		}
+	}
+
 }

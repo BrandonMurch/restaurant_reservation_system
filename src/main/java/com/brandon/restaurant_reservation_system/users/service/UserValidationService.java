@@ -14,14 +14,10 @@ public class UserValidationService
 	public static Optional<ResponseEntity<User>> validateUser(User user) {
 		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
 		Optional<ValidationError> emailError = validateEmail(user.getEmail());
-		if (emailError.isPresent()) {
-			apiError.addSubError(emailError.get());
-		}
+		emailError.ifPresent(apiError::addSubError);
 		Optional<ValidationError> phoneError =
-				validatePhoneNumber(user.getPhoneNumber());
-		if (phoneError.isPresent()) {
-			apiError.addSubError(phoneError.get());
-		}
+		validatePhoneNumber(user.getPhoneNumber());
+		phoneError.ifPresent(apiError::addSubError);
 
 		switch (apiError.getSubErrors().size()) {
 			case 1:
@@ -31,14 +27,14 @@ public class UserValidationService
 				apiError.setMessage("Validation errors");
 				return Optional.of(createResponseEntity(apiError));
 		}
-	return Optional.empty();
+		return Optional.empty();
 	}
     
     private static Optional<ValidationError> validateEmail(String email) {
-	String emailRegex =
+		String emailRegex =
 		// Created by Arushi
 		// https://www.tutorialspoint.com/validate-email-address-in-java
-		"^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
+		"^[\\w-_.+]*[\\w-_.]@([\\w]+\\.)+[\\w]+[\\w]$";
 	if (!email.matches(emailRegex)) {
 		return Optional.of(new ValidationError("User","Email", email,
 				"Invalid email, should have structure: email@address.com"));

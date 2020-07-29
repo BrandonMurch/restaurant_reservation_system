@@ -4,50 +4,41 @@
 
 package com.brandon.restaurant_reservation_system.users.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 
 @Entity
 @Table(name = "users")
-public class User {
+@DiscriminatorValue("USER")
+public class User extends Loginable {
 
 	@Id
 	@GeneratedValue
 	private long id;
-	@Column(unique = true)
-	private String email;
 	private String firstName;
 	private String lastName;
-	@JsonIgnore
-	private String hash;
 	private String phoneNumber;
 	private boolean termsAndConditions;
 
 
 	public User() {
+		super();
 	}
 
 	public User(User newUser) {
-		this(
-		newUser.getFirstName(),
-		newUser.getLastName(),
-		newUser.getHash(),
-		newUser.getPhoneNumber(),
-		newUser.getEmail(),
-		newUser.getTermsAndConditions()
-		);
+		super(newUser.getUsername(), newUser.getPassword());
+		this.firstName = newUser.firstName;
+		this.lastName = newUser.lastName;
+		this.phoneNumber = newUser.phoneNumber;
+		this.termsAndConditions = newUser.termsAndConditions;
 		this.id = newUser.id;
-
 	}
 
-	public User(String firstName, String lastName, String hash,
+	public User(String firstName, String lastName, String password,
 				String phoneNumber, String email, boolean termsAndConditions) {
+		super(email, password);
 		this.firstName = firstLetterToUppercase(firstName);
 		this.lastName = firstLetterToUppercase(lastName);
-		this.hash = hash;
 		this.phoneNumber = phoneNumber;
-		this.email = email;
 		this.termsAndConditions = termsAndConditions;
 	}
 
@@ -58,10 +49,6 @@ public class User {
 
 	public String getLastName() {
 		return lastName;
-	}
-
-	public String getHash() {
-		return hash;
 	}
 
 	public long getId() {
@@ -81,7 +68,7 @@ public class User {
 	}
 
 	public String getEmail() {
-		return email;
+		return this.getUsername();
 	}
 
 	public String getPhoneNumber() {
@@ -102,7 +89,8 @@ public class User {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((email == null) ? 0 : email.hashCode());
+		result = prime * result + ((this.getUsername() == null) ? 0 :
+		this.getUsername().hashCode());
 		result = prime * result + ((firstName == null) ? 0 : firstName.hashCode());
 		result = prime * result + (int) (id ^ (id >>> 32));
 		result = prime * result + ((lastName == null) ? 0 : lastName.hashCode());
@@ -113,6 +101,7 @@ public class User {
 
 	@Override
 	public boolean equals(Object obj) {
+
 		if (this == obj)
 			return true;
 		if (obj == null)
@@ -120,10 +109,12 @@ public class User {
 		if (getClass() != obj.getClass())
 			return false;
 		User other = (User) obj;
-		if (email == null) {
-			if (other.email != null)
+		String username = this.getUsername();
+		String otherUserName = other.getUsername();
+		if (username == null) {
+			if (otherUserName != null)
 				return false;
-		} else if (!email.equals(other.email))
+		} else if (!username.equals(otherUserName))
 			return false;
 		if (firstName == null) {
 			if (other.firstName != null)
@@ -145,8 +136,7 @@ public class User {
 	@Override
 	public String toString() {
 		return "User{" +
-		"id=" + id +
-		", firstName='" + firstName + '\'' +
+		" firstName='" + firstName + '\'' +
 		", lastName='" + lastName + '\'' +
 		'}';
 	}

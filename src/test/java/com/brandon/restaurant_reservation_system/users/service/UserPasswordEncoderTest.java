@@ -8,12 +8,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserAuthenticationServiceTest {
+class UserPasswordEncoderTest {
 
+	private final UserPasswordEncoder passwordEncoder = new UserPasswordEncoder();
 
 	@Test
 	void testCreatePasswordHash() {
-		String hash = UserAuthenticationService.createPasswordHash("Password");
+		String hash = passwordEncoder.encode("Password");
 		if (hash == null) {
 			fail();
 		}
@@ -24,8 +25,9 @@ class UserAuthenticationServiceTest {
 
 	@Test
 	void testValidatePassword() {
-		String hash = UserAuthenticationService.createPasswordHash("Password");
-		assertTrue(UserAuthenticationService.validatePassword("Password",
+		String hash = passwordEncoder.encode("Password");
+		System.out.println(hash);
+		assertTrue(passwordEncoder.matches("Password",
 		hash));
 	}
 
