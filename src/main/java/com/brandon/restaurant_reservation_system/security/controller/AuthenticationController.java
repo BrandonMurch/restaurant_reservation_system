@@ -37,8 +37,6 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<?> saveUser(@RequestBody UserRegisterRequest newUser) {
-        // TODO: move this to a more suitable spot
-
         return ResponseEntity.ok(userDetailsService.saveUser(newUser));
     }
 

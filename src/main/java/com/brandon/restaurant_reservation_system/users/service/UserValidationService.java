@@ -8,10 +8,9 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
 
-public class UserValidationService
-{
+public class UserValidationService {
 
-	public static Optional<ResponseEntity<User>> validateUser(User user) {
+	public static Optional<ResponseEntity<ApiError>> validateUser(User user) {
 		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
 		Optional<ValidationError> emailError = validateEmail(user.getEmail());
 		emailError.ifPresent(apiError::addSubError);
@@ -43,17 +42,17 @@ public class UserValidationService
     }
     
     private static Optional<ValidationError> validatePhoneNumber(String phone) {
-	String phoneRegex = "^\\+\\d{1,3} \\d{6,14}$";
-    if (!phone.matches(phoneRegex)) {
-	    return Optional.of(new ValidationError("User","Phone Number", phone,
-			    "Invalid phone number, " +
-					    "should have structure: +{country code} {phone " +
-					    "number}"));
-    }
-    return Optional.empty();
-    }
+		String phoneRegex = "^\\+\\d{1,3} \\d{6,14}$";
+		if (!phone.matches(phoneRegex)) {
+			return Optional.of(new ValidationError("User", "Phone Number", phone,
+			"Invalid phone number, " +
+			"should have structure: +{country code} {phone " +
+			"number}"));
+		}
+		return Optional.empty();
+	}
 
-    private static ResponseEntity<User> createResponseEntity(ApiError apiError) {
-		return new ResponseEntity(apiError, apiError.getStatus());
-    }
+	private static ResponseEntity<ApiError> createResponseEntity(ApiError apiError) {
+		return ResponseEntity.status(apiError.getStatus()).body(apiError);
+	}
 }

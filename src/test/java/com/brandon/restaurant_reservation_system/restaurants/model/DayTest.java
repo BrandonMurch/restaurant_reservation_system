@@ -17,9 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class DayTest {
 
     private Day day;
-    LocalTime now = LocalTime.now();
-    LocalTime oneHour = now.plusHours(1);
-    OpeningClosingPair pair = new OpeningClosingPair(now, oneHour);
+    final LocalTime now = LocalTime.now();
+    final LocalTime oneHour = now.plusHours(1);
+    final OpeningClosingPair pair = new OpeningClosingPair(now, oneHour);
 
 
     @BeforeEach

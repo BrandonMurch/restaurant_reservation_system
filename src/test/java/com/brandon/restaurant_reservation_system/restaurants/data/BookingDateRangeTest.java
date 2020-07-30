@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BookingDateRangeTest {
-    LocalDate start = LocalDate.now();
+    final LocalDate start = LocalDate.now();
     LocalDate end = LocalDate.now().plusDays(5);
     private final BookingDateRange bookingDateRange = new BookingDateRange(5);
     private final BookingDateRange bookingDateRangeFixed =

@@ -26,14 +26,13 @@ public class HttpRequestBuilder {
 	@Value("${server.host:localhost}")
 	private String ipAddress;
 	private WebClient webClient;
-	private String url;
 
-	public HttpRequestBuilder() {
+    public HttpRequestBuilder() {
 	}
 
 	@PostConstruct
 	private void postConstruct() {
-		url = "http://" + ipAddress + ":" + port;
+		String url = "http://" + ipAddress + ":" + port;
 		webClient = WebClient.builder().baseUrl(url).build();
 	}
 

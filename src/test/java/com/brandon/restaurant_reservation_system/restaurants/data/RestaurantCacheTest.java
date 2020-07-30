@@ -39,7 +39,7 @@ class RestaurantCacheTest {
     @InjectMocks
     private final RestaurantCache cache = new RestaurantCache();
 
-    SortedSet<LocalDate> availableDates = new TreeSet<>();
+    final SortedSet<LocalDate> availableDates = new TreeSet<>();
 
     @BeforeEach
     void setUp() {

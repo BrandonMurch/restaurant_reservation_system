@@ -17,7 +17,7 @@ public enum CustomDateTimeFormatter {
 
 	public String value() {
 		return format;
-	};
+	}
 
 	public String getExample() {
 		return example;

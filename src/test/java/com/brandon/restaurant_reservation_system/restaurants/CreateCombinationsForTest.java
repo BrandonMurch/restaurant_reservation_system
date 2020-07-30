@@ -7,17 +7,17 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CreateCombinationsForTest {
-	List<RestaurantTable> restaurantTableList;
+	final List<RestaurantTable> restaurantTableList;
 
 	public CreateCombinationsForTest(
-			List<RestaurantTable> restaurantTableList) {
+	List<RestaurantTable> restaurantTableList) {
 		this.restaurantTableList = restaurantTableList;
 	}
 
 	public List<CombinationOfTables> getCombinationList() {
 		return Arrays.asList(
-				getCombination1(),
-				getCombination2(),
+		getCombination1(),
+		getCombination2(),
 				getCombination3());
 	}
 

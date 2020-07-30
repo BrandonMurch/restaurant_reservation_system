@@ -7,17 +7,12 @@ package com.brandon.restaurant_reservation_system.helpers.json;
 import com.brandon.restaurant_reservation_system.users.CreateUsersForTesting;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 class JsonConverterTest {
-
-    @BeforeEach
-    void setUp() {
-    }
 
     @Test
     void objectToJson() {

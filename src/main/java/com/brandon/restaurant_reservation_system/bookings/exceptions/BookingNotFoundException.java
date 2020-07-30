@@ -9,4 +9,6 @@ public class BookingNotFoundException extends RuntimeException {
 	public BookingNotFoundException(String message) {
 		super(message);
 	}
+
+	private static final long serialVersionUID = 8305734761535986611L;
 }

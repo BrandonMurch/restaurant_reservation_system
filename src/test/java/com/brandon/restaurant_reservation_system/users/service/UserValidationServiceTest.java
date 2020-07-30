@@ -18,7 +18,7 @@ class UserValidationServiceTest {
 
 	@BeforeEach
 	void Setup() {
-		user = testUser.createUser1();
+		user = CreateUsersForTesting.createUser1();
 	}
 
 
@@ -26,22 +26,22 @@ class UserValidationServiceTest {
 	void testValidateEmail() {
 		// set up an ApiError mimicking a validation error
 		ValidationError error = new ValidationError("User", "Email",
-				"this is not an email.com",
-				"Invalid email, should have structure: email@address.com");
+		"this is not an email.com",
+		"Invalid email, should have structure: email@address.com");
 		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
 		apiError.addSubError(error);
 		apiError.setMessage("Validation error");
 		ResponseEntity<ApiError> response = new ResponseEntity<>(apiError,
-				apiError.getStatus());
+		apiError.getStatus());
 
-		User invalidEmailUser = testUser.invalidEmail();
+		User invalidEmailUser = CreateUsersForTesting.invalidEmail();
 
 		// Improperly formatted email.
 		assertTrue(UserValidationService.validateUser(
-				invalidEmailUser).isPresent());
+		invalidEmailUser).isPresent());
 		assertEquals(UserValidationService
-						.validateUser(invalidEmailUser).get().getStatusCode(),
-				response.getStatusCode());
+		.validateUser(invalidEmailUser).get().getStatusCode(),
+		response.getStatusCode());
 
 		// Properly formatted email.
 		assertFalse(UserValidationService.validateUser(this.user).isPresent());
@@ -51,24 +51,24 @@ class UserValidationServiceTest {
     void testValidatePhoneNumber() {
 		// set up an ApiError mimicking a validation error
 		ValidationError error = new ValidationError("User",
-				"Phone Number", "+ 123456789 012",
-				"Invalid phone number, " +
-						"should have structure: +{country code} {phone number}");
+		"Phone Number", "+ 123456789 012",
+		"Invalid phone number, " +
+		"should have structure: +{country code} {phone number}");
 
 		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
 		apiError.addSubError(error);
 		apiError.setMessage("Validation error");
 		ResponseEntity<ApiError> response = new ResponseEntity<>(apiError,
-				apiError.getStatus());
+		apiError.getStatus());
 
-		User invalidPhoneUser = testUser.invalidPhone();
+		User invalidPhoneUser = CreateUsersForTesting.invalidPhone();
 
 		// Improperly formatted phone number.
 		assertTrue(UserValidationService.validateUser(
-				invalidPhoneUser).isPresent());
+		invalidPhoneUser).isPresent());
 		assertEquals(UserValidationService
-						.validateUser(invalidPhoneUser).get().getStatusCode(),
-				response.getStatusCode());
+		.validateUser(invalidPhoneUser).get().getStatusCode(),
+		response.getStatusCode());
 
 		// Properly formatted email.
 		assertFalse(UserValidationService.validateUser(user).isPresent());

@@ -22,4 +22,5 @@ public class DateTimeFormatException extends RuntimeException {
 				+ LocalDateTime.now().format(dateFormat));
 	}
 
+    private static final long serialVersionUID = -8803453916392107435L;
 }

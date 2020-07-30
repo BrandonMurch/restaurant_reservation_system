@@ -93,7 +93,8 @@ public class BookingController {
 		if (result.isPresent()) {
 			Booking booking = result.get();
 			booking.updateBooking(newBooking);
-			return new ResponseEntity<>("Booking sucessfully updated.", HttpStatus.NO_CONTENT);
+			return new ResponseEntity<>("Booking successfully updated.",
+			HttpStatus.NO_CONTENT);
 		} else {
 			ResponseEntity<?> response =
 			this.createBooking(

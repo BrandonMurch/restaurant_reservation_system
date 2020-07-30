@@ -12,7 +12,6 @@ import com.brandon.restaurant_reservation_system.restaurants.controller.Restaura
 import com.brandon.restaurant_reservation_system.users.CreateUsersForTesting;
 import com.brandon.restaurant_reservation_system.users.controller.UserController;
 import com.brandon.restaurant_reservation_system.users.model.User;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,10 +34,6 @@ class RestaurantReservationSystemApplicationTests {
 	private UserController userController;
 	@Autowired
 	private WebTestClient testClient;
-
-	@BeforeEach
-	void setup() {
-	}
 
 	@Test
 	void getBookings() {

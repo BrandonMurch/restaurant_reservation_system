@@ -21,10 +21,12 @@ public class LocalDateTimeDeserializer extends
 		String str = p.getText();
 		try {
 			return LocalDateTime.parse(str, GlobalVariables.getDateTimeFormat());
-		} catch (DateTimeParseException ex) {}
+		} catch (DateTimeParseException ignored) {
+		}
 		try {
 			return LocalDateTime.parse(str);
-		} catch (DateTimeParseException ex) {}
+		} catch (DateTimeParseException ignored) {
+		}
 
 		return null;
 	}

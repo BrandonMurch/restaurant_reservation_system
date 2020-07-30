@@ -10,4 +10,5 @@ public class UserNotFoundException extends RuntimeException {
 		super(message);
 	}
 
+    private static final long serialVersionUID = -5771175479104494740L;
 }

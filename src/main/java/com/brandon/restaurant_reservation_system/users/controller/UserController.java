@@ -4,6 +4,7 @@
 
 package com.brandon.restaurant_reservation_system.users.controller;
 
+import com.brandon.restaurant_reservation_system.errors.ApiError;
 import com.brandon.restaurant_reservation_system.users.data.UserRepository;
 import com.brandon.restaurant_reservation_system.users.exceptions.UserNotFoundException;
 import com.brandon.restaurant_reservation_system.users.model.User;
@@ -51,8 +52,8 @@ public class UserController {
 		return userRepository.findById(id)
 				.map(user -> {
 					user.updateWith(newUser);
-					Optional<ResponseEntity<User>> userValidationException =
-							UserValidationService.validateUser(user);
+					Optional<ResponseEntity<ApiError>> userValidationException =
+					UserValidationService.validateUser(user);
 					if (userValidationException.isPresent()) {
 						return userValidationException.get();
 					}
@@ -74,23 +75,9 @@ public class UserController {
 				});
 	}
 
-//	TODO: How to pass credentials to the server?
-
-//	@PostMapping("/users/login")
-//	public ResponseEntity<User> login(@RequestBody String password, @RequestBody String email) {
-//		User user = userRepository.getByEmail(email);
-//		if (UserAuthenticationService.validatePassword(user.getHash(),
-//				password)) {
-//			return ResponseEntity.ok(user);
-//		}
-//
-//		return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-//	}
-
-
 	@PostMapping("")
 	public ResponseEntity<?> createUser(@RequestBody User user) {
-		Optional<ResponseEntity<User>> userValidationException =
+		Optional<ResponseEntity<ApiError>> userValidationException =
 		UserValidationService.validateUser(user);
 
 		if (userValidationException.isPresent()) {
