@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 public class AuthenticationController {
 
@@ -42,7 +44,8 @@ public class AuthenticationController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<?> generateAuthenticationToken(
-      @RequestBody AuthenticationRequest authenticationRequest
+      @RequestBody AuthenticationRequest authenticationRequest,
+      HttpServletRequest request
     ) throws Exception {
 
         authenticate(authenticationRequest.getUsername(),
@@ -51,7 +54,7 @@ public class AuthenticationController {
         final UserDetails userDetails = userDetailsService
           .loadUserByUsername(authenticationRequest.getUsername());
 
-        final String token = tokenUtil.generateToken(userDetails);
+        final String token = tokenUtil.generateToken(userDetails, request);
 
         return ResponseEntity.ok(new TokenResponse(token));
 
