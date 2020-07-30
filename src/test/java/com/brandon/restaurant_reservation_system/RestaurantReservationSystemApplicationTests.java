@@ -12,10 +12,15 @@ import com.brandon.restaurant_reservation_system.restaurants.controller.Restaura
 import com.brandon.restaurant_reservation_system.users.CreateUsersForTesting;
 import com.brandon.restaurant_reservation_system.users.controller.UserController;
 import com.brandon.restaurant_reservation_system.users.model.User;
+import com.brandon.restaurant_reservation_system.users.service.UserPasswordEncoder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.List;
@@ -24,8 +29,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@Import(TestWebSecurityConfig.class)
+@ActiveProfiles("Test")
 class RestaurantReservationSystemApplicationTests {
 
+	// TODO: update these to test for authentication as well
+	@MockBean
+	UserPasswordEncoder passwordEncoder;
+	@MockBean
+	AuthenticationManager authenticationManager;
 	@Autowired
 	private BookingController bookingController;
 	@Autowired

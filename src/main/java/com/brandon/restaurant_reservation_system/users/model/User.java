@@ -4,6 +4,8 @@
 
 package com.brandon.restaurant_reservation_system.users.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -67,6 +69,7 @@ public class User extends Loginable {
 		}
 	}
 
+	@JsonIgnore
 	public String getEmail() {
 		return this.getUsername();
 	}

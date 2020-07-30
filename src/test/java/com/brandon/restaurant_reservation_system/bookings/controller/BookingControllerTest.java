@@ -4,6 +4,7 @@
 
 package com.brandon.restaurant_reservation_system.bookings.controller;
 
+import com.brandon.restaurant_reservation_system.TestWebSecurityConfig;
 import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
@@ -16,7 +17,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -34,7 +37,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 
-@WebMvcTest(value = BookingController.class)
+@ActiveProfiles("Test")
+@WebMvcTest(BookingController.class)
+@Import(TestWebSecurityConfig.class)
 class BookingControllerTest {
 
 	@MockBean
@@ -53,18 +58,17 @@ class BookingControllerTest {
 
 	@BeforeEach
 	void setUp() {
-		bookings = initBookings();
-	}
-
-	private List<Booking> initBookings() {
 		CreateBookingsForTest createBooking = new CreateBookingsForTest();
 		booking1 = CreateBookingsForTest.createBookingForTwoAt19();
 		User user = booking1.getUser();
 		Booking booking2 = CreateBookingsForTest.createBookingForFourAt20();
 		updatedBooking2 = CreateBookingsForTest.createUpdatedBookingForFour();
-		return Arrays.asList(booking1, booking2);
-
+		this.bookings = Arrays.asList(booking1, booking2);
 	}
+
+	//	private List<Booking> initBookings() {
+	//
+	//	}
 
 	@Test
 	void getBookings() throws Exception {
@@ -72,10 +76,10 @@ class BookingControllerTest {
 
 		String uri = "/bookings";
 		MvcResult result =
-				mvc.perform(MockMvcRequestBuilders
-						.get(uri)
-						.contentType(MediaType.APPLICATION_JSON))
-						.andReturn();
+		mvc.perform(MockMvcRequestBuilders
+		.get(uri)
+		.contentType(MediaType.APPLICATION_JSON))
+		.andReturn();
 		int status = result.getResponse().getStatus();
 		assertEquals(200, status);
 
@@ -206,7 +210,5 @@ class BookingControllerTest {
 		.andReturn();
 
 		assertEquals(204, result.getResponse().getStatus());
-
-
 	}
 }

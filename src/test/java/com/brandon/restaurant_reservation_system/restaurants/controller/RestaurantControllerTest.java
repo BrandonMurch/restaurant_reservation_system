@@ -4,6 +4,7 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.controller;
 
+import com.brandon.restaurant_reservation_system.TestWebSecurityConfig;
 import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
@@ -12,7 +13,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -26,6 +29,8 @@ import java.util.TreeSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @WebMvcTest(value = RestaurantController.class)
+@ActiveProfiles("Test")
+@Import(TestWebSecurityConfig.class)
 class RestaurantControllerTest {
     @MockBean
     private TableAllocatorService tableAllocator;
