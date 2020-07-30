@@ -34,7 +34,6 @@ public class RestaurantCache {
 
 	@PostConstruct
 	public void postConstruct() {
-		createCache();
 	}
 
 
@@ -49,13 +48,15 @@ public class RestaurantCache {
 	}
 
 	public void removeDateIfUnavailable(LocalDate date) {
+		checkCache();
 		if (!tryBookingOnDate(date)) {
 			availableDates.remove(date);
 		}
 	}
 
 	protected void checkCache() {
-		if (availableDates.isEmpty()
+		if (availableDates == null
+		|| availableDates.isEmpty()
 		|| !dateThatDatesLastUpdated.isEqual(LocalDate.now())) {
 			createCache();
 		}
@@ -79,6 +80,7 @@ public class RestaurantCache {
 	}
 
 	private boolean tryBookingOnDate(LocalDate date) {
+		checkCache();
 		List<LocalTime> times = restaurant.getBookingTimes(date);
 		for (LocalTime time : times) {
 			LocalDateTime dateTime = date.atTime(time);
