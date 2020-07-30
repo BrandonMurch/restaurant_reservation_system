@@ -24,6 +24,7 @@ import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
 class BookingHandlerServiceTest {
@@ -49,7 +50,7 @@ class BookingHandlerServiceTest {
           .when(tableAllocatorService.getAvailableTable(any(Booking.class)))
           .thenReturn(Collections.singletonList(CreateTableForTest.getTable1()));
         Mockito
-          .when(httpRequestBuilder.getList(any(String.class), User.class))
+          .when(httpRequestBuilder.getList(any(String.class), eq(User.class)))
           .thenReturn(Collections.singletonList(user));
         Mockito
           .when(bookingRepository.getBookingsByUser(any(String.class)))
