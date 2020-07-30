@@ -370,7 +370,7 @@ class TableAllocatorServiceTest {
           .when(restaurant.canABookingOccupyALargerTable())
           .thenReturn(false);
         assertEquals(new TreeSet<>(bookingTimes), tableAllocator.getAvailableTimes(2,
-          LocalDate.now()));
+          LocalDate.now().plusDays(1)));
     }
 
 
