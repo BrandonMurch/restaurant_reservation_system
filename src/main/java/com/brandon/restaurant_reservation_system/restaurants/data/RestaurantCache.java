@@ -80,7 +80,6 @@ public class RestaurantCache {
 	}
 
 	private boolean tryBookingOnDate(LocalDate date) {
-		checkCache();
 		List<LocalTime> times = restaurant.getBookingTimes(date);
 		for (LocalTime time : times) {
 			LocalDateTime dateTime = date.atTime(time);
