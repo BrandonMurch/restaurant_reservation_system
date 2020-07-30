@@ -49,7 +49,7 @@ class BookingHandlerServiceTest {
           .when(tableAllocatorService.getAvailableTable(any(Booking.class)))
           .thenReturn(Collections.singletonList(CreateTableForTest.getTable1()));
         Mockito
-          .when(httpRequestBuilder.httpGetUsers(any(String.class)))
+          .when(httpRequestBuilder.getList(any(String.class), User.class))
           .thenReturn(Collections.singletonList(user));
         Mockito
           .when(bookingRepository.getBookingsByUser(any(String.class)))

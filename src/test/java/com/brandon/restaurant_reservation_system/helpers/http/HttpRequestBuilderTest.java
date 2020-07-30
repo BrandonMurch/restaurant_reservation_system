@@ -55,7 +55,6 @@ class HttpRequestBuilderTest {
         String baseUrl = String.format("http://localhost:%s", server.getPort());
         WebClient webClient = WebClient.builder().baseUrl(baseUrl).build();
         ReflectionTestUtils.setField(httpRequest, "webClient", webClient);
-        //        ReflectionTestUtils.setField(httpRequest, "ipAddress", "localhost");
     }
 
     @Test
@@ -88,13 +87,14 @@ class HttpRequestBuilderTest {
           .addHeader("Content-Type", "application/json")
         );
 
-        Optional<String> result = httpRequest.httpGetJson("/json");
+        Optional<String> result = httpRequest.get("/json", String.class);
         if (result.isPresent()) {
             assertEquals(jsonExample, result.get());
         } else {
             fail();
         }
     }
+
 
     @Test
     void httpGetUsers() throws JsonProcessingException {
@@ -105,7 +105,7 @@ class HttpRequestBuilderTest {
           .addHeader("Content-Type", "application/json")
         );
 
-        List<User> result = httpRequest.httpGetUsers("/users");
+        List<User> result = httpRequest.getList("/users", User.class);
 
         assertFalse(result.isEmpty());
         assertEquals(users, result);
@@ -122,7 +122,7 @@ class HttpRequestBuilderTest {
           .setBody(new ObjectMapper().writeValueAsString(bookings))
           .addHeader("Content-Type", "application/json")
         );
-        List<Booking> result = httpRequest.httpGetBookings("/bookings");
+        List<Booking> result = httpRequest.getList("/bookings", Booking.class);
 
         assertFalse(result.isEmpty());
         assertEquals(bookings, result);

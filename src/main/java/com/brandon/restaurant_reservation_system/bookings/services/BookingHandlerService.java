@@ -60,8 +60,8 @@ public class BookingHandlerService {
 	private User handleUsersForBooking(User user, LocalDate date) {
 		List<User> dbUsers;
 		try {
-			dbUsers = httpRequestBuilder.httpGetUsers("/users" +
-			"?email=" + user.getEmail());
+			dbUsers = httpRequestBuilder.getList("/users" +
+			"?email=" + user.getEmail(), User.class);
 		} catch (HttpClientErrorException ex) {
 			throw new UserNotFoundException(ex.getResponseBodyAsString());
 		}
