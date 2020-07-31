@@ -62,11 +62,9 @@ class RestaurantControllerTest {
         String jsonReturn = "{\"availableDates\":[\"" + todayString + "\"]," +
           "\"start\":\"" + todayString + "\",\"end\":\"" + tomorrowString + "\"}";
 
-        String uri = "/restaurant/availability";
-
         MvcResult result =
           mvc.perform(MockMvcRequestBuilders
-            .get(uri)
+            .get("/restaurant/availability")
             .contentType(MediaType.APPLICATION_JSON))
             .andReturn();
         int status = result.getResponse().getStatus();

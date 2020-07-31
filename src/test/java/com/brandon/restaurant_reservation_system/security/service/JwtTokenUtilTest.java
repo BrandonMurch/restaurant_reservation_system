@@ -49,7 +49,7 @@ class JwtTokenUtilTest {
 
     @Test
     void generateToken() {
-        assertFalse(token.isEmpty());
+       assertFalse(token.isEmpty());
     }
 
     @Test
