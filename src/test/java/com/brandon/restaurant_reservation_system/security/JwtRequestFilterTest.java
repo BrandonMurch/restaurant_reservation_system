@@ -21,10 +21,10 @@ import org.springframework.security.core.userdetails.User;
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class JwtRequestFilterTest {
@@ -63,19 +63,18 @@ class JwtRequestFilterTest {
             any(String.class)))
           .thenReturn(true);
 
+        // token must have Bearer as its first word for the filter to recognize it.
         String token = "Bearer This is a token!";
         request.addHeader("Authorization", token);
 
         filterUnderTest.doFilterInternal(request, response, mockFilterChain);
 
-        Scanner scanner = new Scanner(System.in);
-        while (scanner.hasNext()) {
-            String line = scanner.nextLine();
-            if (line.contains("Unable to get JWT Token")
-              || line.contains("JWT token has expired")
-              || line.contains("JWT Token does not begin with Bearer String")) {
-                fail();
-            }
-        }
+        verify(tokenUtil, times(1))
+          .getUsernameFromToken(any(String.class));
+        verify(tokenUtil, times(1))
+          .validateToken(any(String.class), any(User.class),
+            any(String.class));
+        verify(userDetailsService, times(1))
+          .loadUserByUsername(any(String.class));
     }
 }
