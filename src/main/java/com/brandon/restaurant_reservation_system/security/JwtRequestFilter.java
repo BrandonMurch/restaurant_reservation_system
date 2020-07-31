@@ -27,7 +27,6 @@ import java.io.IOException;
 @Profile("!Test")
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-
     @Autowired
     private JwtUserDetailsService userDetailsService;
     @Autowired
