@@ -9,6 +9,7 @@ import com.brandon.restaurant_reservation_system.security.service.JwtUserDetails
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,8 +36,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(
       HttpServletRequest request,
-      HttpServletResponse response,
-      FilterChain filterChain
+      @NonNull
+        HttpServletResponse response,
+      @NonNull
+        FilterChain filterChain
     ) throws ServletException, IOException {
         final String requestTokenHeader = request.getHeader("Authorization");
         String username = null;
@@ -60,7 +63,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             UserDetails userDetails =
               this.userDetailsService.loadUserByUsername(username);
 
-            if (tokenUtil.validateToken(token, userDetails)) {
+            if (tokenUtil.validateToken(token, userDetails, request.getRemoteAddr())) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
                   = new UsernamePasswordAuthenticationToken(
                   userDetails,

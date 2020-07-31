@@ -54,7 +54,7 @@ public class AuthenticationController {
         final UserDetails userDetails = userDetailsService
           .loadUserByUsername(authenticationRequest.getUsername());
 
-        final String token = tokenUtil.generateToken(userDetails, request);
+        final String token = tokenUtil.generateToken(userDetails, request.getRemoteAddr());
 
         return ResponseEntity.ok(new TokenResponse(token));
 

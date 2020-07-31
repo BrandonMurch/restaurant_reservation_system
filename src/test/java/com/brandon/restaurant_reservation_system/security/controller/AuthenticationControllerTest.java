@@ -26,7 +26,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -78,7 +77,7 @@ class AuthenticationControllerTest {
           .when(userDetailsService.loadUserByUsername(any(String.class)))
           .thenReturn(userDetails);
         Mockito
-          .when(tokenUtil.generateToken(eq(userDetails), any(HttpServletRequest.class)))
+          .when(tokenUtil.generateToken(eq(userDetails), any(String.class)))
           .thenReturn("ThisIsAToken");
 
         String content = mvc.perform(MockMvcRequestBuilders

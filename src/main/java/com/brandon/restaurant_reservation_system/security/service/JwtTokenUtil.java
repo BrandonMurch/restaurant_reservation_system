@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
@@ -54,10 +53,9 @@ public class JwtTokenUtil implements Serializable {
         return expiration.before(new Date());
     }
 
-    public String generateToken(UserDetails userDetails, HttpServletRequest request) {
+    public String generateToken(UserDetails userDetails, String requestAddress) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("ip_address", request.getRemoteAddr());
-        System.out.println(claims.get("ip_address"));
+        claims.put("ip_address", requestAddress);
         return doGenerateToken(claims, userDetails.getUsername());
     }
 
@@ -71,9 +69,13 @@ public class JwtTokenUtil implements Serializable {
           .compact();
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
+    public Boolean validateToken(String token, UserDetails userDetails,
+                                 String requestAddress) {
         final String username = getUsernameFromToken(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        final String ipAddress = getIpAddressFromToken(token);
+        return (username.equals(userDetails.getUsername())
+          && !isTokenExpired(token))
+          && ipAddress.equals(requestAddress);
     }
 
 
