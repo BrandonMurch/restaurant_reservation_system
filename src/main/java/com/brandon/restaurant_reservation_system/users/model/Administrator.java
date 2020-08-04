@@ -1,6 +1,8 @@
 package com.brandon.restaurant_reservation_system.users.model;
 
 import com.brandon.restaurant_reservation_system.users.data.AdminPermissions;
+import com.brandon.restaurant_reservation_system.users.service.UserPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.DiscriminatorValue;
@@ -45,12 +47,24 @@ public class Administrator extends Loginable {
 	public static class AdminBuilder {
 		private long id;
 		private final String username;
-		private final String hash;
+		private String hash;
 		private Set<AdminPermissions> permissions;
 
-		public AdminBuilder(String username, String hash) {
+		public AdminBuilder(String username) {
 			this.username = username;
-			this.hash = hash;
+		}
+
+		public AdminBuilder addPassword(String password) {
+			PasswordEncoder passwordEncoder = new UserPasswordEncoder();
+			this.hash = passwordEncoder.encode(password);
+
+			return this;
+		}
+
+		public AdminBuilder addAlreadyHashedPassword(String password) {
+			this.hash = password;
+
+			return this;
 		}
 
 		public Administrator buildNoPrivilegeAdmin() {
