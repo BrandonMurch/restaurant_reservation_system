@@ -4,6 +4,8 @@
 
 package com.brandon.restaurant_reservation_system.security.service;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.userdetails.User;
@@ -11,6 +13,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,13 +53,36 @@ class JwtTokenUtilTest {
 
     @Test
     void generateToken() {
-       assertFalse(token.isEmpty());
+        assertFalse(token.isEmpty());
     }
 
     @Test
     void validateToken() {
         Boolean isValid = tokenUtil
-          .validateToken(token, user, address);
+          .validateTokenWithUser(token, user, address);
         assertTrue(isValid);
+    }
+
+    @Test
+    void checkToken() {
+        Boolean result = tokenUtil.validateToken(createFakeToken(), address);
+        assertFalse(result);
+        result = tokenUtil.validateToken(token, address);
+        assertTrue(result);
+        result = tokenUtil.validateToken(token, "not an address");
+        assertFalse(result);
+
+    }
+
+    private String createFakeToken() {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("ip_address", address);
+        return Jwts.builder()
+          .setClaims(claims)
+          .setSubject("user")
+          .setIssuedAt(new Date(System.currentTimeMillis()))
+          .setExpiration(new Date(System.currentTimeMillis() + 60 * 60 * 100 * 1000))
+          .signWith(SignatureAlgorithm.HS512, "Not the right secret!")
+          .compact();
     }
 }

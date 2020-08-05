@@ -59,7 +59,7 @@ class JwtRequestFilterTest {
             new User("user", "pass", new ArrayList<>())
           );
         Mockito
-          .when(tokenUtil.validateToken(any(String.class), any(User.class),
+          .when(tokenUtil.validateTokenWithUser(any(String.class), any(User.class),
             any(String.class)))
           .thenReturn(true);
 
@@ -72,7 +72,7 @@ class JwtRequestFilterTest {
         verify(tokenUtil, times(1))
           .getUsernameFromToken(any(String.class));
         verify(tokenUtil, times(1))
-          .validateToken(any(String.class), any(User.class),
+          .validateTokenWithUser(any(String.class), any(User.class),
             any(String.class));
         verify(userDetailsService, times(1))
           .loadUserByUsername(any(String.class));

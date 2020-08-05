@@ -57,7 +57,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             UserDetails userDetails =
               this.userDetailsService.loadUserByUsername(username);
 
-            if (tokenUtil.validateToken(token, userDetails, request.getRemoteAddr())) {
+            if (tokenUtil.validateTokenWithUser(token, userDetails, request.getRemoteAddr())) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
                   = new UsernamePasswordAuthenticationToken(
                   userDetails,
