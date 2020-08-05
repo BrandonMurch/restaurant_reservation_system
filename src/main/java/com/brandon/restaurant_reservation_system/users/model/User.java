@@ -7,6 +7,7 @@ package com.brandon.restaurant_reservation_system.users.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 
 @Entity
 @Table(name = "users")
@@ -27,7 +28,7 @@ public class User extends Loginable {
 	}
 
 	public User(User newUser) {
-		super(newUser.getUsername(), newUser.getPassword());
+		super(newUser.getUsername(), newUser.getPassword(), new ArrayList<>());
 		this.firstName = newUser.firstName;
 		this.lastName = newUser.lastName;
 		this.phoneNumber = newUser.phoneNumber;
@@ -37,7 +38,7 @@ public class User extends Loginable {
 
 	public User(String firstName, String lastName, String password,
 				String phoneNumber, String email, boolean termsAndConditions) {
-		super(email, password);
+		super(email, password, new ArrayList<>());
 		this.firstName = firstLetterToUppercase(firstName);
 		this.lastName = firstLetterToUppercase(lastName);
 		this.phoneNumber = phoneNumber;

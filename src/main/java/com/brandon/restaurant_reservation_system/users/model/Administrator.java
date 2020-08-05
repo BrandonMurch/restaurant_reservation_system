@@ -4,9 +4,7 @@ import com.brandon.restaurant_reservation_system.users.data.AdminPermissions;
 import com.brandon.restaurant_reservation_system.users.service.UserPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import javax.persistence.CollectionTable;
 import javax.persistence.DiscriminatorValue;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,20 +21,11 @@ import java.util.stream.Collectors;
 @DiscriminatorValue("ADMINISTRATOR")
 public class Administrator extends Loginable {
 
-	@ElementCollection(targetClass = AdminPermissions.class)
-	@CollectionTable(name = "admin_permissions")
-	private Collection<AdminPermissions> permissions;
-
 	private Administrator(String username, String hash, Collection<AdminPermissions> permissions) {
-		super(username, hash);
-		this.permissions = permissions;
+		super(username, hash, permissions);
 	}
 
-	protected Administrator() {
-	}
-
-	public Collection<AdminPermissions> getPermissions() {
-		return permissions;
+	private Administrator() {
 	}
 
 	@Override

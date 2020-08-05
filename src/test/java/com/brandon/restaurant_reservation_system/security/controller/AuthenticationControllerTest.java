@@ -5,6 +5,7 @@
 package com.brandon.restaurant_reservation_system.security.controller;
 
 import com.brandon.restaurant_reservation_system.TestWebSecurityConfig;
+import com.brandon.restaurant_reservation_system.security.model.RequestedAuthority;
 import com.brandon.restaurant_reservation_system.security.model.UserRegisterRequest;
 import com.brandon.restaurant_reservation_system.security.service.JwtTokenUtil;
 import com.brandon.restaurant_reservation_system.security.service.JwtUserDetailsService;
@@ -27,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -90,6 +92,71 @@ class AuthenticationControllerTest {
         String expected = "{\"token\":\"ThisIsAToken\"}";
 
         assertEquals(expected, content);
+    }
+
+    @Test
+    void validateToken() throws Exception {
+
+        org.springframework.security.core.userdetails.User user
+          = new org.springframework.security.core.userdetails.User(
+          "user",
+          "pass",
+          Collections.singletonList(new RequestedAuthority("VIEW_PAGE")));
+
+        Mockito
+          .when(tokenUtil.validateToken(any(String.class), any(String.class)))
+          .thenReturn(true);
+        Mockito
+          .when(tokenUtil.getUsernameFromToken(any(String.class)))
+          .thenReturn("user");
+        Mockito
+          .when(userDetailsService.loadUserByUsername(any(String.class)))
+          .thenReturn(user);
+
+        mvc.perform(MockMvcRequestBuilders
+          .post("/validate")
+          .content("{\"token\":\"TOKEN\", \"permission\":\"VIEW_PAGE\"}")
+          .contentType(MediaType.APPLICATION_JSON))
+          .andExpect(status().isOk());
+    }
+
+
+    @Test
+    void validateTokenInvalidToken() throws Exception {
+
+        Mockito
+          .when(tokenUtil.validateToken(any(String.class), any(String.class)))
+          .thenReturn(false);
+
+        mvc.perform(MockMvcRequestBuilders
+          .post("/validate")
+          .content("{\"token\":\"TOKEN\", \"permission\":\"VIEW_PAGE\"}")
+          .contentType(MediaType.APPLICATION_JSON))
+          .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void validateTokenForbidden() throws Exception {
+
+        org.springframework.security.core.userdetails.User user
+          = new org.springframework.security.core.userdetails.User(
+          "user", "pass", new ArrayList<>());
+
+        Mockito
+          .when(tokenUtil.validateToken(any(String.class), any(String.class)))
+          .thenReturn(true);
+        Mockito
+          .when(tokenUtil.getUsernameFromToken(any(String.class)))
+          .thenReturn("user");
+        Mockito
+          .when(userDetailsService.loadUserByUsername(any(String.class)))
+          .thenReturn(user);
+
+        mvc.perform(MockMvcRequestBuilders
+          .post("/validate")
+          .content("{\"token\":\"TOKEN\", \"permission\":\"VIEW_PAGE\"}")
+          .contentType(MediaType.APPLICATION_JSON))
+          .andExpect(status().isForbidden());
     }
 
     @Test

@@ -4,7 +4,9 @@
 
 package com.brandon.restaurant_reservation_system.users.data;
 
-public enum AdminPermissions {
+import org.springframework.security.core.GrantedAuthority;
+
+public enum AdminPermissions implements GrantedAuthority {
     VIEW_BOOKINGS(PermissionType.VIEW, "Bookings"),
     EDIT_BOOKINGS(PermissionType.EDIT, "Bookings"),
     VIEW_RESTAURANT(PermissionType.VIEW, "Restaurant"),
@@ -35,5 +37,10 @@ public enum AdminPermissions {
 
     public enum PermissionType {
         EDIT, VIEW
+    }
+
+    @Override
+    public String getAuthority() {
+        return this.toString();
     }
 }

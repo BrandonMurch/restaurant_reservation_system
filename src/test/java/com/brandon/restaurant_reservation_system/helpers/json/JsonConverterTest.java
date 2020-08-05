@@ -17,7 +17,7 @@ class JsonConverterTest {
     @Test
     void objectToJson() {
         User user = CreateUsersForTesting.createUser1();
-        String userJson = "{\"id\":1,\"username\":\"John.Smith1@email.com\",\"password\":\"alkjelkjfeffe\",\"firstName\":\"John\",\"lastName\":\"Smith\",\"phoneNumber\":\"+22 1234567890\",\"termsAndConditions\":true}";
+        String userJson = "{\"id\":1,\"username\":\"John.Smith1@email.com\",\"password\":\"alkjelkjfeffe\",\"permissions\":[],\"firstName\":\"John\",\"lastName\":\"Smith\",\"phoneNumber\":\"+22 1234567890\",\"termsAndConditions\":true}";
         try {
             String result = JsonConverter.objectToJson(user);
             assertEquals(userJson, result);

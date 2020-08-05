@@ -3,9 +3,7 @@
  */
 package com.brandon.restaurant_reservation_system.security.controller;
 
-import com.brandon.restaurant_reservation_system.security.model.AuthenticationRequest;
-import com.brandon.restaurant_reservation_system.security.model.TokenResponse;
-import com.brandon.restaurant_reservation_system.security.model.UserRegisterRequest;
+import com.brandon.restaurant_reservation_system.security.model.*;
 import com.brandon.restaurant_reservation_system.security.service.JwtTokenUtil;
 import com.brandon.restaurant_reservation_system.security.service.JwtUserDetailsService;
 import com.brandon.restaurant_reservation_system.users.data.UserRepository;
@@ -40,6 +38,29 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<?> saveUser(@RequestBody UserRegisterRequest newUser) {
         return ResponseEntity.ok(userDetailsService.saveUser(newUser));
+    }
+
+    @PostMapping("/validate")
+    public ResponseEntity<?> validateToken(
+      @RequestBody PageAuthorizationRequest authorizationRequest,
+      HttpServletRequest request
+    ) {
+
+        String token = authorizationRequest.getToken();
+        if (!tokenUtil.validateToken(authorizationRequest.getToken(),
+          request.getRemoteAddr())) {
+            return ResponseEntity.status(401).build();
+        }
+
+        String username = tokenUtil.getUsernameFromToken(token);
+        RequestedAuthority permission =
+          new RequestedAuthority(authorizationRequest.getPermission());
+        // TODO: add permissions to token
+        UserDetails user = userDetailsService.loadUserByUsername(username);
+        if (user.getAuthorities().contains(permission)) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(403).build();
     }
 
     @PostMapping("/authenticate")
