@@ -32,7 +32,7 @@ public enum AdminPermissions implements GrantedAuthority {
 
     @Override
     public String toString() {
-        return this.name().replace("_", " ").toLowerCase();
+        return this.name();
     }
 
     public enum PermissionType {

@@ -63,9 +63,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
           .csrf().disable()
-          // TODO: remove /test when done testing
+          // TODO: remove /test, /h2-console/* when done testing
           .authorizeRequests()
-          .antMatchers("/authenticate", "/test", "/register",
+          .antMatchers("/authenticate", "/validate", "/test", "/test/*", "/register",
             "/h2-console/*").permitAll()
           .anyRequest().authenticated()
           .and().exceptionHandling()

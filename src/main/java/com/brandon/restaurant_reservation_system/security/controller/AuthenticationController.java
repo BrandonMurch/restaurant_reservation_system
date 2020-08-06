@@ -52,10 +52,10 @@ public class AuthenticationController {
             return ResponseEntity.status(401).build();
         }
 
-        String username = tokenUtil.getUsernameFromToken(token);
         RequestedAuthority permission =
           new RequestedAuthority(authorizationRequest.getPermission());
-        // TODO: add permissions to token
+
+        String username = tokenUtil.getUsernameFromToken(token);
         UserDetails user = userDetailsService.loadUserByUsername(username);
         if (user.getAuthorities().contains(permission)) {
             return ResponseEntity.ok().build();
