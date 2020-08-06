@@ -7,6 +7,7 @@ package com.brandon.restaurant_reservation_system.users.data;
 import org.springframework.security.core.GrantedAuthority;
 
 public enum AdminPermissions implements GrantedAuthority {
+    VIEW_ADMIN_DASHBOARD(PermissionType.VIEW, "Admin Dashboard"),
     VIEW_BOOKINGS(PermissionType.VIEW, "Bookings"),
     EDIT_BOOKINGS(PermissionType.EDIT, "Bookings"),
     VIEW_RESTAURANT(PermissionType.VIEW, "Restaurant"),
