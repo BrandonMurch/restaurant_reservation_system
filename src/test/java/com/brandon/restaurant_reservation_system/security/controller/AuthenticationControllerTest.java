@@ -114,8 +114,8 @@ class AuthenticationControllerTest {
           .thenReturn(user);
 
         mvc.perform(MockMvcRequestBuilders
-          .post("/validate")
-          .content("{\"token\":\"TOKEN\", \"permission\":\"VIEW_PAGE\"}")
+          .get("/validate?path=VIEW_PAGE")
+          .header("Authorization", "Bearer TOKEN")
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isOk());
     }
@@ -129,8 +129,8 @@ class AuthenticationControllerTest {
           .thenReturn(false);
 
         mvc.perform(MockMvcRequestBuilders
-          .post("/validate")
-          .content("{\"token\":\"TOKEN\", \"permission\":\"VIEW_PAGE\"}")
+          .get("/validate?path=VIEW_PAGE")
+          .header("Authorization", "Bearer TOKEN")
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isUnauthorized());
     }
@@ -153,8 +153,8 @@ class AuthenticationControllerTest {
           .thenReturn(user);
 
         mvc.perform(MockMvcRequestBuilders
-          .post("/validate")
-          .content("{\"token\":\"TOKEN\", \"permission\":\"VIEW_PAGE\"}")
+          .get("/validate?path=VIEW_PAGE")
+          .header("Authorization", "Bearer TOKEN")
           .contentType(MediaType.APPLICATION_JSON))
           .andExpect(status().isForbidden());
     }

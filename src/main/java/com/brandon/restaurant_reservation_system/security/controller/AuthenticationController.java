@@ -3,11 +3,15 @@
  */
 package com.brandon.restaurant_reservation_system.security.controller;
 
-import com.brandon.restaurant_reservation_system.security.model.*;
+import com.brandon.restaurant_reservation_system.security.model.AuthenticationRequest;
+import com.brandon.restaurant_reservation_system.security.model.RequestedAuthority;
+import com.brandon.restaurant_reservation_system.security.model.TokenResponse;
+import com.brandon.restaurant_reservation_system.security.model.UserRegisterRequest;
 import com.brandon.restaurant_reservation_system.security.service.JwtTokenUtil;
 import com.brandon.restaurant_reservation_system.security.service.JwtUserDetailsService;
 import com.brandon.restaurant_reservation_system.users.data.UserRepository;
 import com.brandon.restaurant_reservation_system.users.service.UserPasswordEncoder;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,9 +19,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -40,22 +42,33 @@ public class AuthenticationController {
         return ResponseEntity.ok(userDetailsService.saveUser(newUser));
     }
 
-    @PostMapping("/validate")
+    @GetMapping("/validate")
     public ResponseEntity<?> validateToken(
-      @RequestBody PageAuthorizationRequest authorizationRequest,
+      @RequestParam("path") String path,
       HttpServletRequest request
     ) {
 
-        String token = authorizationRequest.getToken();
-        if (!tokenUtil.validateToken(authorizationRequest.getToken(),
-          request.getRemoteAddr())) {
+        final String requestTokenHeader = request.getHeader("Authorization");
+        String username = null;
+        String token = null;
+
+        if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
+            token = requestTokenHeader.substring(7);
+            try {
+                username = tokenUtil.getUsernameFromToken(token);
+            } catch (IllegalArgumentException | ExpiredJwtException ignored) {
+            }
+        }
+
+        if (token == null
+          || username == null
+          || !tokenUtil.validateToken(token, request.getRemoteAddr())) {
             return ResponseEntity.status(401).build();
         }
 
         RequestedAuthority permission =
-          new RequestedAuthority(authorizationRequest.getPermission());
-
-        String username = tokenUtil.getUsernameFromToken(token);
+          new RequestedAuthority(path);
+        username = tokenUtil.getUsernameFromToken(token);
         UserDetails user = userDetailsService.loadUserByUsername(username);
         if (user.getAuthorities().contains(permission)) {
             return ResponseEntity.ok().build();
