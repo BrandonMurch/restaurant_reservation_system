@@ -26,8 +26,9 @@ public class RestaurantCache {
 	private BookingRepository bookingRepository;
 	@Autowired
 	private TableAllocatorService tableAllocatorService;
-	private LocalDate dateThatDatesLastUpdated;
+	private LocalDate datesLastUpdated;
 	private final SortedSet<LocalDate> availableDates = new TreeSet<>();
+	private LocalDate countsLastUpdated;
 	private Map<LocalDate, Integer> bookingsPerDate = new HashMap<>();
 
 
@@ -59,13 +60,15 @@ public class RestaurantCache {
 
 	protected void checkBookingsPerDate() {
 		if (bookingsPerDate == null
-		|| bookingsPerDate.isEmpty()) {
+		|| bookingsPerDate.isEmpty()
+		|| !countsLastUpdated.isEqual(LocalDate.now())) {
 			createBookingsPerDate();
 		}
 	}
 
 	protected void createBookingsPerDate() {
 		bookingsPerDate = bookingRepository.getCountByDayMap();
+		countsLastUpdated = LocalDate.now();
 	}
 
 	public SortedSet<LocalDate> getAvailableDates() {
@@ -87,7 +90,7 @@ public class RestaurantCache {
 
 	protected void checkAvailableDatesCache() {
 		if (availableDates.isEmpty()
-		|| !dateThatDatesLastUpdated.isEqual(LocalDate.now())) {
+		|| !datesLastUpdated.isEqual(LocalDate.now())) {
 			createAvailableDatesCache();
 		}
 	}
@@ -104,7 +107,7 @@ public class RestaurantCache {
 			}
 			current = current.plusDays(1);
 		}
-		dateThatDatesLastUpdated = LocalDate.now();
+		datesLastUpdated = LocalDate.now();
 	}
 
 	private boolean tryBookingOnDate(LocalDate date) {
