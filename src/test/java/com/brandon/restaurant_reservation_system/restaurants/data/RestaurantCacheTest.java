@@ -20,11 +20,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.spy;
@@ -40,11 +39,14 @@ class RestaurantCacheTest {
     private final RestaurantCache cache = new RestaurantCache();
 
     final SortedSet<LocalDate> availableDates = new TreeSet<>();
+    private final Map<LocalDate, Integer> bookingsPerDate = new HashMap<>();
 
     @BeforeEach
     void setUp() {
         availableDates.add(LocalDate.now());
         availableDates.add(LocalDate.now().plusDays(1));
+        bookingsPerDate.put(LocalDate.now(), 2);
+        bookingsPerDate.put(LocalDate.now().plusDays(1), 4);
     }
 
     @Test
@@ -103,8 +105,31 @@ class RestaurantCacheTest {
         assertEquals(expected, cache.getAvailableDates());
     }
 
+    @Test
+    void getBookingsPerDate() {
+        mockInstanceVariables();
+        assertEquals(bookingsPerDate, cache.getBookingsPerDate());
+        assertTrue(cache.getBookingsPerDate().keySet().size() > 1);
+    }
+
+    @Test
+    void addBookingToDate() {
+        mockInstanceVariables();
+        cache.addBookingToDate(LocalDate.now(), 2);
+        assertEquals(4, cache.getBookingsPerDate().get(LocalDate.now()));
+    }
+
+    @Test
+    void removeBookingFromDate() {
+        mockInstanceVariables();
+        cache.removeBookingFromDate(LocalDate.now(), 2);
+        assertEquals(0, cache.getBookingsPerDate().get(LocalDate.now()));
+    }
+
     private void mockInstanceVariables() {
         ReflectionTestUtils.setField(cache, "availableDates", availableDates);
-        ReflectionTestUtils.setField(cache, "dateThatDatesLastUpdated", LocalDate.now());
+        ReflectionTestUtils.setField(cache, "datesLastUpdated", LocalDate.now());
+        ReflectionTestUtils.setField(cache, "bookingsPerDate", bookingsPerDate);
+        ReflectionTestUtils.setField(cache, "countsLastUpdated", LocalDate.now());
     }
 }
