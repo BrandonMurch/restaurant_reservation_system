@@ -8,19 +8,17 @@ import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotPossibleException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.DuplicateFoundException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
-import com.brandon.restaurant_reservation_system.helpers.http.HttpRequestBuilder;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
 import com.brandon.restaurant_reservation_system.users.data.UserRepository;
-import com.brandon.restaurant_reservation_system.users.exceptions.UserNotFoundException;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -31,13 +29,12 @@ public class BookingHandlerService {
 	private UserRepository userRepository;
 	@Autowired
 	private TableAllocatorService tableAllocatorService;
-	@Autowired
-	private HttpRequestBuilder httpRequestBuilder;
 
 	public BookingHandlerService() {
 	}
 
 	public Booking createBooking(Booking booking, User user) {
+
 		User result = handleUsersForBooking(user,
 		booking.getStartTime().toLocalDate());
 		booking.setUser(result);
@@ -51,24 +48,20 @@ public class BookingHandlerService {
 		booking.setTables(tables);
 		tables.forEach((table) -> table.addBooking(booking));
 
-		bookingRepository.save(booking);
 
+		bookingRepository.save(booking);
 		LocalDate date = booking.getStartTime().toLocalDate();
 		return booking;
 	}
 
 	private User handleUsersForBooking(User user, LocalDate date) {
-		List<User> dbUsers;
-		try {
-			dbUsers = httpRequestBuilder.getList("/users" +
-			"?email=" + user.getEmail(), User.class);
-		} catch (HttpClientErrorException ex) {
-			throw new UserNotFoundException(ex.getResponseBodyAsString());
-		}
-		if (dbUsers.isEmpty()) {
+		// TODO: is there a better way instead of directly accessing the repository?
+		Optional<User> dbUser = userRepository.findByEmail(user.getEmail());
+
+		if (dbUser.isEmpty()) {
 			userRepository.save(user);
 		} else {
-			user = dbUsers.get(0);
+			user = dbUser.get();
 			List<Booking> bookings =
 			bookingRepository.getBookingsByUser(user.getEmail());
 
