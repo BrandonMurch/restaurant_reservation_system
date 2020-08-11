@@ -19,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -54,7 +55,6 @@ class BookingControllerTest {
 	private List<Booking> bookings;
 	private Booking booking1;
 	private Booking updatedBooking2;
-
 
 	@BeforeEach
 	void setUp() {
@@ -185,14 +185,18 @@ class BookingControllerTest {
 
 		String uri = "/bookings/" + updatedBooking2.getId();
 		String bookingJson = objectToJson(updatedBooking2);
-		MvcResult result =
+		MockHttpServletResponse response =
 		mvc.perform(MockMvcRequestBuilders.put(uri)
 		.accept(MediaType.APPLICATION_JSON)
 		.content(bookingJson)
 		.contentType(MediaType.APPLICATION_JSON))
-		.andReturn();
+		.andReturn()
+		.getResponse();
 
-		assertEquals(201, result.getResponse().getStatus());
+		assertEquals(201, response.getStatus());
+		String expected = "<201 CREATED Created,[Location:\"http://localhost/bookings/"
+		+ updatedBooking2.getId() + "\"]>";
+		assertEquals(expected, response.getContentAsString());
 	}
 
 	@Test
