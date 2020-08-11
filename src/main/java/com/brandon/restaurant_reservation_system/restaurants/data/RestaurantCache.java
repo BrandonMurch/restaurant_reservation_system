@@ -5,19 +5,17 @@
 package com.brandon.restaurant_reservation_system.restaurants.data;
 
 
+import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 @Component
 public class RestaurantCache {
@@ -25,49 +23,79 @@ public class RestaurantCache {
 	@Autowired
 	private Restaurant restaurant;
 	@Autowired
+	private BookingRepository bookingRepository;
+	@Autowired
 	private TableAllocatorService tableAllocatorService;
 	private LocalDate dateThatDatesLastUpdated;
-	private SortedSet<LocalDate> availableDates = new TreeSet<>();
+	private final SortedSet<LocalDate> availableDates = new TreeSet<>();
+	private Map<LocalDate, Integer> bookingsPerDate = new HashMap<>();
+
 
 	public RestaurantCache() {
 	}
 
-	@PostConstruct
-	public void postConstruct() {
+	public Map<LocalDate, Integer> getBookingsPerDate() {
+		checkBookingsPerDate();
+		return bookingsPerDate;
 	}
 
-
-	public SortedSet<LocalDate> getAvailableDates() {
-		checkCache();
-		return availableDates;
+	public void addBookingToDate(LocalDate date, Integer numberOfBookings) {
+		checkBookingsPerDate();
+		bookingsPerDate.merge(date, numberOfBookings, Integer::sum);
 	}
 
-	public void addAvailableDate(LocalDate date) {
-		checkCache();
-		availableDates.add(date);
+	private Integer getDifference(Integer value1, Integer value2) {
+		return value1 - value2;
 	}
 
-	public void removeDateIfUnavailable(LocalDate date) {
-		checkCache();
+	public void removeBookingFromDate(LocalDate date, Integer numberOfBookings) {
+		checkBookingsPerDate();
+		bookingsPerDate.merge(date, numberOfBookings, this::getDifference);
+
 		if (!tryBookingOnDate(date)) {
 			availableDates.remove(date);
 		}
 	}
 
-	protected void checkCache() {
-		if (availableDates == null
-		|| availableDates.isEmpty()
-		|| !dateThatDatesLastUpdated.isEqual(LocalDate.now())) {
-			createCache();
+	protected void checkBookingsPerDate() {
+		if (bookingsPerDate == null
+		|| bookingsPerDate.isEmpty()) {
+			createBookingsPerDate();
 		}
 	}
 
-	protected void createCache() {
+	protected void createBookingsPerDate() {
+		bookingsPerDate = bookingRepository.getCountByDayMap();
+	}
+
+	public SortedSet<LocalDate> getAvailableDates() {
+		checkAvailableDatesCache();
+		return availableDates;
+	}
+
+	public void addAvailableDate(LocalDate date) {
+		checkAvailableDatesCache();
+		availableDates.add(date);
+	}
+
+	public void removeDateIfUnavailable(LocalDate date) {
+		checkAvailableDatesCache();
+		if (!tryBookingOnDate(date)) {
+			availableDates.remove(date);
+		}
+	}
+
+	protected void checkAvailableDatesCache() {
+		if (availableDates.isEmpty()
+		|| !dateThatDatesLastUpdated.isEqual(LocalDate.now())) {
+			createAvailableDatesCache();
+		}
+	}
+
+	protected void createAvailableDatesCache() {
 		DateRange dates = restaurant.getBookingDateRange();
 		LocalDate current = dates.getStart();
 		LocalDate end = dates.getEnd().plusDays(1);
-
-		availableDates = new TreeSet<>();
 
 		while (current.isBefore(end)) {
 			if (restaurant.isOpenOnDate(current)

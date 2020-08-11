@@ -10,7 +10,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 @Repository
@@ -35,4 +37,17 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
 	@Query("SELECT b FROM Booking b INNER JOIN b.user u WHERE username = :username")
 	List<Booking> getBookingsByUser(@Param("username") String username);
+
+	@Query("SELECT date, count(b) FROM Booking b GROUP BY b.date")
+	List<Object[]> getCountByDay();
+
+	default HashMap<LocalDate, Integer> getCountByDayMap() {
+		HashMap<LocalDate, Integer> map = new HashMap<>();
+		getCountByDay().forEach(object -> {
+			LocalDate date = LocalDate.parse(String.valueOf(object[0]));
+			Integer count = object[1] == null ? null : Integer.valueOf(String.valueOf(object[1]));
+			map.put(date, count);
+		});
+		return map;
+	}
 }

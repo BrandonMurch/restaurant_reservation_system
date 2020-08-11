@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,5 +84,11 @@ class BookingRepositoryTest {
           bookingRepository.getBookingsByUser(booking.getUser().getEmail());
         assertEquals(1, result.size());
         assertEquals(booking, result.get(0));
+    }
+
+    @Test
+    void getCountByDay() {
+        HashMap<LocalDate, Integer> results = bookingRepository.getCountByDayMap();
+        assertEquals(2, results.get(LocalDate.parse("2020-12-11")));
     }
 }

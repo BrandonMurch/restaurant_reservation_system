@@ -27,9 +27,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -79,7 +81,12 @@ public class BookingController {
 		}
 	}
 
-	//	@GetMapping("/dailyCount"
+	@GetMapping("/dailyCount")
+	public ResponseEntity<?> getBookingsPerDay() {
+		Map<LocalDate, Integer> map = restaurant.getBookingsPerDate();
+		return ResponseEntity.ok(restaurant.getBookingsPerDate());
+	}
+
 	@GetMapping("/{bookingId}")
 	public Booking getBookingById(@PathVariable long bookingId) {
 		return bookingRepository.findById(bookingId)
@@ -108,6 +115,7 @@ public class BookingController {
 			}
 
 			// TODO: update cache for date availability and number of bookings per day
+
 		} else {
 			this.createBooking(
 			new RequestBodyUserBooking(newBooking.getUser(),
@@ -159,8 +167,8 @@ public class BookingController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		restaurant.removeDateIfUnavailable(booking.getStartTime().toLocalDate());
-		// TODO: add booking to date in cache
+		restaurant.removeDateIfUnavailable(result.getStartTime().toLocalDate());
+		restaurant.addBookingToDate(result.getDate(), result.getPartySize());
 	}
 
 	private ResponseEntity<String> buildUriFromBooking(Booking booking) {
@@ -178,4 +186,5 @@ public class BookingController {
 		bookingRepository.deleteById(bookingId);
 		return ResponseEntity.noContent().build();
 	}
+
 }

@@ -57,7 +57,7 @@ class RestaurantCacheTest {
     void addAvailableDate() {
         mockInstanceVariables();
         RestaurantCache spy = spy(cache);
-        Mockito.doNothing().when(spy).checkCache();
+        Mockito.doNothing().when(spy).checkAvailableDatesCache();
         LocalDate twoDays = LocalDate.now().plusDays(2);
         availableDates.add(twoDays);
         spy.addAvailableDate(twoDays);

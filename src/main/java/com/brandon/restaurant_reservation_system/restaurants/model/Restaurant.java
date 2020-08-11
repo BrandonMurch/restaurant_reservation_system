@@ -260,4 +260,16 @@ public class Restaurant implements Serializable {
 		cache.removeDateIfUnavailable(date);
 	}
 
+	public Map<LocalDate, Integer> getBookingsPerDate() {
+		return cache.getBookingsPerDate();
+	}
+
+	public void addBookingToDate(LocalDate date, Integer numberOfBookings) {
+		cache.addBookingToDate(date, numberOfBookings);
+	}
+
+	public void removeBookingFromDate(LocalDate date, Integer numberOfBookings) {
+		cache.removeBookingFromDate(date, numberOfBookings);
+	}
+
 }

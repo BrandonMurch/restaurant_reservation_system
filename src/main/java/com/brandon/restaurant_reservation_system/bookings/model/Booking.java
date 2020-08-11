@@ -15,6 +15,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class Booking {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	private Integer partySize;
+	private LocalDate date;
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	private LocalDateTime startTime;
@@ -49,11 +51,20 @@ public class Booking {
 	               LocalDateTime endTime, User user) {
 		this.partySize = partySize;
 		this.startTime = startTime;
+		date = startTime.toLocalDate();
 		this.endTime = endTime;
 		this.user = user;
 	}
 
 	public Booking() {
+	}
+
+	public LocalDate getDate() {
+		return date;
+	}
+
+	public void setDate(LocalDate date) {
+		this.date = date;
 	}
 
 	public long getId() {
