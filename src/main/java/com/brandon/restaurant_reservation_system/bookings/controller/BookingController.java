@@ -114,30 +114,17 @@ public class BookingController {
 				e.printStackTrace();
 			}
 
-			// TODO: update cache for date availability and number of bookings per day
-
+			Boolean hasDateChanged = !newBooking.getDate().isEqual(booking.getDate());
+			Boolean hasSizeChanged = !newBooking.getPartySize().equals(booking.getPartySize());
+			if (hasDateChanged || hasSizeChanged) {
+				restaurant.removeBookingFromDate(booking.getDate(), booking.getPartySize());
+				restaurant.addBookingToDate(newBooking.getDate(), newBooking.getPartySize());
+			}
 		} else {
 			this.createBooking(
 			new RequestBodyUserBooking(newBooking.getUser(),
 			newBooking), response);
 		}
-	}
-
-	public void sendResponse(HttpServletResponse response, ResponseEntity<?> entity) throws IOException {
-		PrintWriter writer = response.getWriter();
-		response.setStatus(entity.getStatusCodeValue());
-		writer.print(entity.getBody());
-		writer.flush();
-		writer.close();
-	}
-
-	public <T> void sendResponse(HttpServletResponse response, int status,
-								 T body) throws IOException {
-		PrintWriter writer = response.getWriter();
-		response.setStatus(status);
-		writer.print(body);
-		writer.flush();
-		writer.close();
 	}
 
 	@PostMapping("")
@@ -183,8 +170,27 @@ public class BookingController {
 
 	@DeleteMapping("/{bookingId}")
 	public ResponseEntity<String> deleteBooking(@PathVariable long bookingId) {
+		Optional<Booking> booking = bookingRepository.findById(bookingId);
+		booking.ifPresent(booking1 -> restaurant.removeBookingFromDate(booking1.getDate(), booking1.getPartySize()));
 		bookingRepository.deleteById(bookingId);
 		return ResponseEntity.noContent().build();
+	}
+
+	private void sendResponse(HttpServletResponse response, ResponseEntity<?> entity) throws IOException {
+		PrintWriter writer = response.getWriter();
+		response.setStatus(entity.getStatusCodeValue());
+		writer.print(entity.getBody());
+		writer.flush();
+		writer.close();
+	}
+
+	private void sendResponse(HttpServletResponse response, int status,
+							  Object body) throws IOException {
+		PrintWriter writer = response.getWriter();
+		response.setStatus(status);
+		writer.print(body);
+		writer.flush();
+		writer.close();
 	}
 
 }
