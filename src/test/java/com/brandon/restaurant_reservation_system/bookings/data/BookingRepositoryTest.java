@@ -11,7 +11,6 @@ import com.brandon.restaurant_reservation_system.users.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,16 +28,10 @@ class BookingRepositoryTest {
 
     @Autowired
     private BookingRepository bookingRepository;
-
     @Autowired
     private UserRepository userRepository;
-
     private final CreateBookingsForTest createBooking = new CreateBookingsForTest();
     Booking booking = CreateBookingsForTest.createBookingForTwoAt19();
-
-    @Value("${spring.datasource.url}")
-    String jdbcUrl;
-
 
     @BeforeEach
     void setUp() {

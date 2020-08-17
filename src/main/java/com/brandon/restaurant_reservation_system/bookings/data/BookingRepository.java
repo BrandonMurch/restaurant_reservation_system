@@ -38,7 +38,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	@Query("SELECT b FROM Booking b INNER JOIN b.user u WHERE username = :username")
 	List<Booking> getBookingsByUser(@Param("username") String username);
 
-	@Query("SELECT date, count(b) FROM Booking b GROUP BY b.date")
+	@Query("SELECT date, sum(b.partySize) FROM Booking b GROUP BY b.date")
 	List<Object[]> getCountByDay();
 
 	default HashMap<LocalDate, Integer> getCountByDayMap() {
