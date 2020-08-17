@@ -100,11 +100,20 @@ public class BookingController {
 	HttpServletRequest request,
 	HttpServletResponse response
 	) {
-
 		Optional<Booking> result =
 		bookingRepository.findById(bookingId);
 
 		if (result.isPresent()) {
+			Optional<ResponseEntity<ApiError>> bookingValidationException =
+			BookingValidationService.validateBooking(newBooking);
+			if (bookingValidationException.isPresent()) {
+				try {
+					sendResponse(response, bookingValidationException.get());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				return;
+			}
 			Booking booking = result.get();
 			booking.updateBooking(newBooking);
 			try {
