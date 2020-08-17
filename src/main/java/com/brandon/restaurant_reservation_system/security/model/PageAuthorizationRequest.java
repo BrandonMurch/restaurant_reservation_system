@@ -9,11 +9,9 @@ public class PageAuthorizationRequest {
     private String token;
     private String permission;
 
-    // TODO,
     public PageAuthorizationRequest(String token, String permission) {
         this.token = token;
         this.permission = permission;
-
     }
 
     public String getToken() {
