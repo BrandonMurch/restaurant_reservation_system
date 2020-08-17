@@ -5,6 +5,7 @@
 package com.brandon.restaurant_reservation_system.users.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import java.util.ArrayList;
 @Entity
 @Table(name = "users")
 @DiscriminatorValue("USER")
+@JsonIgnoreProperties(ignoreUnknown = true,
+value = {"hibernateLazyInitializer"})
 public class User extends Loginable {
 
 	@Id
