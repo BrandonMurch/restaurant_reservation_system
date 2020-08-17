@@ -36,13 +36,15 @@ public class RestaurantCache {
 	}
 
 	public Map<LocalDate, Integer> getBookingsPerDate() {
-		checkBookingsPerDate();
+		didCountsNeedToBeUpdated();
 		return bookingsPerDate;
 	}
 
 	public void addBookingToDate(LocalDate date, Integer numberOfBookings) {
-		checkBookingsPerDate();
-		bookingsPerDate.merge(date, numberOfBookings, Integer::sum);
+		boolean didCacheUpdate = didCountsNeedToBeUpdated();
+		if (!didCacheUpdate) {
+			bookingsPerDate.merge(date, numberOfBookings, Integer::sum);
+		}
 	}
 
 	private Integer getDifference(Integer value1, Integer value2) {
@@ -50,20 +52,20 @@ public class RestaurantCache {
 	}
 
 	public void removeBookingFromDate(LocalDate date, Integer numberOfBookings) {
-		checkBookingsPerDate();
-		bookingsPerDate.merge(date, numberOfBookings, this::getDifference);
-
-		if (!tryBookingOnDate(date)) {
-			availableDates.remove(date);
+		boolean didCacheUpdate = didCountsNeedToBeUpdated();
+		if (!didCacheUpdate) {
+			bookingsPerDate.merge(date, numberOfBookings, this::getDifference);
 		}
 	}
 
-	protected void checkBookingsPerDate() {
+	protected boolean didCountsNeedToBeUpdated() {
 		if (bookingsPerDate == null
 		|| bookingsPerDate.isEmpty()
 		|| !countsLastUpdated.isEqual(LocalDate.now())) {
 			createBookingsPerDate();
+			return true;
 		}
+		return false;
 	}
 
 	protected void createBookingsPerDate() {
