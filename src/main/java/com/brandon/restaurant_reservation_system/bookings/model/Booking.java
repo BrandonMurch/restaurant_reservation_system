@@ -30,6 +30,8 @@ public class Booking {
 	private long id;
 	private Integer partySize;
 	private LocalDate date;
+	private String userComments;
+	private String restaurantComments;
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	private LocalDateTime startTime;
@@ -48,12 +50,20 @@ public class Booking {
 	private List<RestaurantTable> restaurantTables;
 
 	public Booking(int partySize, LocalDateTime startTime,
-	               LocalDateTime endTime, User user) {
+				   LocalDateTime endTime, User user) {
+		this(partySize, startTime, endTime, user, "", "");
+	}
+
+	public Booking(int partySize, LocalDateTime startTime,
+				   LocalDateTime endTime, User user, String userComments,
+				   String restaurantComments) {
 		this.partySize = partySize;
 		this.startTime = startTime;
 		date = startTime.toLocalDate();
 		this.endTime = endTime;
 		this.user = user;
+		this.userComments = userComments;
+		this.restaurantComments = restaurantComments;
 	}
 
 	public Booking() {
@@ -108,6 +118,22 @@ public class Booking {
 		this.user = user;
 	}
 
+	public String getUserComments() {
+		return userComments;
+	}
+
+	public void setUserComments(String userComments) {
+		this.userComments = userComments;
+	}
+
+	public String getRestaurantComments() {
+		return restaurantComments;
+	}
+
+	public void setRestaurantComments(String restaurantComments) {
+		this.restaurantComments = restaurantComments;
+	}
+
 	public void updateBooking(Booking newBooking) {
 		Integer partySize = newBooking.getPartySize();
 		if (partySize != null) {
@@ -120,6 +146,21 @@ public class Booking {
 		LocalDateTime endTime = newBooking.getEndTime();
 		if (endTime != null) {
 			this.setEndTime(endTime);
+		}
+
+		User user = newBooking.getUser();
+		if (user != null) {
+			this.setUser(user);
+		}
+
+		String comment = newBooking.getRestaurantComments();
+		if (comment != null) {
+			this.setRestaurantComments(comment);
+		}
+
+		comment = newBooking.getUserComments();
+		if (comment != null) {
+			this.setRestaurantComments(comment);
 		}
 	}
 

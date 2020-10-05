@@ -7,6 +7,7 @@ package com.brandon.restaurant_reservation_system.bookings.controller;
 import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotFoundException;
+import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotPossibleException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequestFormatException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.model.RequestBodyUserBooking;
@@ -15,6 +16,8 @@ import com.brandon.restaurant_reservation_system.bookings.services.BookingValida
 import com.brandon.restaurant_reservation_system.errors.ApiError;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
+import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
+import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,6 +33,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,6 +51,8 @@ public class BookingController {
 	private BookingRepository bookingRepository;
 	@Autowired
 	private BookingHandlerService bookingHandler;
+	@Autowired
+	private TableAvailabilityService tableAvailability;
 
 	public BookingController() {
 	}
@@ -91,6 +97,45 @@ public class BookingController {
 	public Booking getBookingById(@PathVariable long bookingId) {
 		return bookingRepository.findById(bookingId)
 		.orElseThrow(() -> new BookingNotFoundException(bookingId));
+	}
+
+	private List<RestaurantTable> splitRestaurantTableNamesAndSearchRepository(String tableNames) {
+		String[] splitTableNames = tableNames.split(",");
+		List<RestaurantTable> tableList = new ArrayList<>();
+		for (String tableName : splitTableNames) {
+			Optional<RestaurantTable> optionalTable = restaurant.getTable(tableName);
+			if (optionalTable.isEmpty()) {
+				throw new BookingNotPossibleException("Table is not found");
+			}
+			tableList.add(optionalTable.get());
+		}
+		return tableList;
+	}
+
+	@PutMapping("{bookingId}/setTable/{tableName}")
+	public void updateBookingWithTable(@PathVariable long bookingId,
+									   @PathVariable String tableNames,
+									   HttpServletResponse response) {
+		Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
+		if (optionalBooking.isEmpty()) {
+			throw new BookingNotFoundException("Booking Id was not found");
+		}
+
+		Booking booking = optionalBooking.get();
+		List<RestaurantTable> tables =
+		splitRestaurantTableNamesAndSearchRepository(tableNames);
+		if (!tableAvailability.areTablesFree(tables,
+		booking.getStartTime(), booking.getEndTime())) {
+			throw new BookingNotPossibleException("Table is already taken");
+		}
+		booking.setTables(tables);
+		try {
+			sendResponse(response, HttpStatus.NO_CONTENT.value(), "Booking " +
+			"table successfully updated.");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	@PutMapping("/{bookingId}")

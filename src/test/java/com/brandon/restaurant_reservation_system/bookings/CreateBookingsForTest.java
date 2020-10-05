@@ -54,7 +54,7 @@ public class CreateBookingsForTest {
 
     }
 
-    public static Booking createBookingForFourAt19() {
+    public static Booking createBookingForFourAt19OnDifferentDate() {
         Booking booking = new Booking(4,
           parseDateTime("2020-10-11T19:00:00.00",
             GlobalVariables.getDateTimeFormat()),
