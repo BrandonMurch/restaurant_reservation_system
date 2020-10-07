@@ -8,10 +8,14 @@ import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Service
+@Transactional
 public class TableAvailabilityService {
     @Autowired
     private BookingRepository bookingRepository;
