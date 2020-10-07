@@ -4,8 +4,6 @@
 
 package com.brandon.restaurant_reservation_system.helpers.json;
 
-import com.brandon.restaurant_reservation_system.users.CreateUsersForTesting;
-import com.brandon.restaurant_reservation_system.users.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 
@@ -14,13 +12,14 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 class JsonConverterTest {
 
+
     @Test
     void objectToJson() {
-        User user = CreateUsersForTesting.createUser1();
-        String userJson = "{\"id\":1,\"username\":\"John.Smith1@email.com\",\"password\":\"alkjelkjfeffe\",\"permissions\":[],\"firstName\":\"John\",\"lastName\":\"Smith\",\"phoneNumber\":\"+22 1234567890\",\"termsAndConditions\":true}";
+        ObjectForTest testObject = new ObjectForTest(4, "john");
+        String expected = "{\"id\":4,\"name\":\"john\"}";
         try {
-            String result = JsonConverter.objectToJson(user);
-            assertEquals(userJson, result);
+            String result = JsonConverter.objectToJson(testObject);
+            assertEquals(expected, result);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             fail();
@@ -30,14 +29,41 @@ class JsonConverterTest {
 
     @Test
     void jsonToObject() {
-        User user = CreateUsersForTesting.createUser1();
-        String userJson = "{\"id\":1,\"username\":\"John.Smith1@email.com\",\"password\":\"alkjelkjfeffe\",\"firstName\":\"John\",\"lastName\":\"Smith\",\"phoneNumber\":\"+22 1234567890\",\"termsAndConditions\":true}";
+        ObjectForTest testObject = new ObjectForTest(4, "john");
+        String json = "{\"id\":4,\"name\":\"john\"}";
         try {
-            User result = JsonConverter.jsonToObject(userJson, User.class);
-            assertEquals(user, result);
+            ObjectForTest result = JsonConverter.jsonToObject(json, ObjectForTest.class);
+            assertEquals(testObject, result);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             fail();
+        }
+    }
+
+
+    private class ObjectForTest {
+        private long id;
+        private String name;
+
+        public ObjectForTest(long id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
         }
     }
 }
