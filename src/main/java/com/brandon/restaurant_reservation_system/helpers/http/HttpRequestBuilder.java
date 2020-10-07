@@ -62,47 +62,4 @@ public class HttpRequestBuilder {
 		}
 		return response.getBody();
 	}
-
-	//	public Optional<String> httpGetJson(String relativePath) {
-	//
-	//		return webClient
-	//		.get().uri(relativePath)
-	//		.retrieve()
-	//		.bodyToMono(String.class)
-	//		.blockOptional();
-	//	}
-	//
-	//	public List<User> httpGetUsers(String relativePath)
-	//	throws UserNotFoundException {
-	//		ResponseEntity<List<User>> response = webClient
-	//		.get().uri(relativePath)
-	//		.retrieve()
-	//		.toEntityList(User.class)
-	//		.block();
-	//
-	//
-	//		if (response == null) {
-	//			throw new RuntimeException("Unexpected Error trying to connect to " + relativePath);
-	//		} else if (!response.getStatusCode().equals(HttpStatus.OK)) {
-	//			throw new UserNotFoundException("Users not found");
-	//		}
-	//		return response.getBody();
-	//	}
-	//
-	//	public List<Booking> httpGetBookings(String relativePath)
-	//	throws BookingNotFoundException {
-	//		ResponseEntity<List<Booking>> response = webClient
-	//		.get().uri(relativePath)
-	//		.retrieve()
-	//		.toEntityList(Booking.class)
-	//		.block();
-	//
-	//
-	//		if (response == null) {
-	//			throw new RuntimeException("Unexpected Error trying to connect to " + relativePath);
-	//		} else if (!response.getStatusCode().equals(HttpStatus.OK)) {
-	//			throw new UserNotFoundException("Bookings not found");
-	//		}
-	//		return response.getBody();
-	//	}
 }
