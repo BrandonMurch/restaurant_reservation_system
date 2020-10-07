@@ -4,9 +4,7 @@
 
 package com.brandon.restaurant_reservation_system.bookings.model;
 
-import com.brandon.restaurant_reservation_system.helpers.date_time.services.CustomDateTimeFormatter;
-import com.brandon.restaurant_reservation_system.helpers.date_time.services.LocalDateTimeDeserializer;
-import com.brandon.restaurant_reservation_system.helpers.date_time.services.LocalDateTimeSerializer;
+import com.brandon.restaurant_reservation_system.helpers.date_time.services.*;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -29,9 +27,11 @@ public class Booking {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	private Integer partySize;
-	private LocalDate date;
 	private String userComments;
 	private String restaurantComments;
+	@JsonDeserialize(using = LocalDateDeserializer.class)
+	@JsonSerialize(using = LocalDateSerializer.class)
+	private LocalDate date;
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
 	private LocalDateTime startTime;
@@ -92,7 +92,6 @@ public class Booking {
 	public void setPartySize(Integer partySize) {
 		this.partySize = partySize;
 	}
-
 
 	public LocalDateTime getStartTime() {
 		return startTime;
