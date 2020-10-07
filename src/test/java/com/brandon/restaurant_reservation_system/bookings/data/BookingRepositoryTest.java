@@ -81,7 +81,15 @@ class BookingRepositoryTest {
 
     @Test
     void getCountByDay() {
+        List<Booking> allBookings = bookingRepository.findAll();
+        LocalDate date = LocalDate.parse("2020-12-11");
+        int count = 0;
+        for (Booking booking : allBookings) {
+            if (booking.getDate().isEqual(date)) {
+                count += booking.getPartySize();
+            }
+        }
         HashMap<LocalDate, Integer> results = bookingRepository.getCountByDayMap();
-        assertEquals(2, results.get(LocalDate.parse("2020-12-11")));
+        assertEquals(count, results.get(LocalDate.parse("2020-12-11")));
     }
 }
