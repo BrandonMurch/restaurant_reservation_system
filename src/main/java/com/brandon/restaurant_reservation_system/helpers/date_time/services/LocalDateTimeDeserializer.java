@@ -27,7 +27,6 @@ public class LocalDateTimeDeserializer extends
 			return LocalDateTime.parse(str);
 		} catch (DateTimeParseException ignored) {
 		}
-
 		return null;
 	}
 }

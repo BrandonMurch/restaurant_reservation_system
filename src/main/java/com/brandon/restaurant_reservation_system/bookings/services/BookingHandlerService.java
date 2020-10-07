@@ -55,7 +55,6 @@ public class BookingHandlerService {
 	}
 
 	private User handleUsersForBooking(User user, LocalDate date) {
-		// TODO: is there a better way instead of directly accessing the repository?
 		Optional<User> dbUser = userRepository.findByEmail(user.getEmail());
 
 		if (dbUser.isEmpty()) {

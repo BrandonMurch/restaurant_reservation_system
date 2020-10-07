@@ -43,7 +43,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         }
     }
 
-    // todo: move this to user handler?
+    // TODO: move this to user handler?
     public User saveUser(UserRegisterRequest newUser) {
         User user = new User(
           newUser.getFirstName(),
