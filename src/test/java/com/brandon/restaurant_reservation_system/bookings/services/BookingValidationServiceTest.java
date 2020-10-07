@@ -1,52 +1,62 @@
 package com.brandon.restaurant_reservation_system.bookings.services;
 
 import com.brandon.restaurant_reservation_system.GlobalVariables;
+import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.errors.ApiError;
-import com.brandon.restaurant_reservation_system.helpers.json.JsonConverter;
-import com.brandon.restaurant_reservation_system.users.model.User;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 import static com.brandon.restaurant_reservation_system.bookings.services.BookingValidationService.validateBooking;
-import static com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler.parseDateTime;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BookingValidationServiceTest {
 	private final DateTimeFormatter timeFormat = GlobalVariables.getDateTimeFormat();
 
 	@Test
-	public void validateBookingTest() throws JsonProcessingException {
-		Booking correctBooking = new Booking(4,
-				parseDateTime("2020-10-11T19:00:00.00", timeFormat),
-				parseDateTime("2020-10-11T23:00:00.00", timeFormat),
-				new User());
+	public void validateIncorrectPartySizeBookingTest() {
+		Booking booking = CreateBookingsForTest.createBookingForTwoAt19();
+		booking.setPartySize(-1);
 
-		String incorrectBookingJson = "{\"id\":0,\"partySize\":-1," +
-				"\"startTime\": \"2020d-10-11T19:00:00\", " +
-				"\"endTime\": \"20s20-10-11T23:00:00\"}";
-		Booking incorrectBooking = JsonConverter
-				.jsonToObject(incorrectBookingJson, Booking.class);
-
-		assertTrue(validateBooking(correctBooking).isEmpty());
-
-		Optional<ResponseEntity<ApiError>> bookingValidationResponse =
-				validateBooking(incorrectBooking);
+		Optional<ApiError> bookingValidationResponse =
+		validateBooking(booking);
 		assertTrue(bookingValidationResponse.isPresent());
 
-		if (bookingValidationResponse.get().getBody() != null) {
-			assertEquals(2,
-					bookingValidationResponse.get()
-							.getBody().getSubErrors().size());
-		} else {
-			fail("The validation response should have a body");
-		}
+		assertEquals(1,
+		bookingValidationResponse.get().getSubErrors().size());
+
+		String expectedMessage = "Party size must be greater than zero";
+
+		assertTrue(bookingValidationResponse.get().getSubErrors().get(0).getMessage().contains(expectedMessage));
+
+	}
+
+	@Test
+	public void validateIncorrectDateBookingTest() {
+		Booking booking = CreateBookingsForTest.createBookingForTwoAt19();
+		booking.setStartTime(null);
+		booking.setEndTime(LocalDateTime.now().minusDays(2));
+		Optional<ApiError> bookingValidationResponse =
+		validateBooking(booking);
+		assertTrue(bookingValidationResponse.isPresent());
+
+		assertEquals(2,
+		bookingValidationResponse.get().getSubErrors().size());
+	}
 
 
+	@Test
+	public void validateCorrectBookingTest() {
+		Booking booking = CreateBookingsForTest.createBookingForTwoAt19();
+
+		Optional<ApiError> bookingValidationResponse =
+		validateBooking(booking);
+
+		assertTrue(validateBooking(booking).isEmpty());
 	}
 
 }
