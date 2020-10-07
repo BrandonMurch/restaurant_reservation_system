@@ -218,7 +218,7 @@ class TableAllocatorServiceTest {
             new RestaurantTable("200", 10)
           ));
         Mockito
-          .when(restaurant.getCombinationsOfTables())
+          .when(restaurant.getAllCombinationsOfTables())
           .thenReturn(comboList);
         Mockito
           .when(restaurant.isBookingTime(any(LocalDateTime.class)))
@@ -329,7 +329,7 @@ class TableAllocatorServiceTest {
     @Test
     void getCombinationBySize() {
         Mockito
-          .when(restaurant.getCombinationsOfTables())
+          .when(restaurant.getAllCombinationsOfTables())
           .thenReturn(comboList);
         List<RestaurantTable> results =
           tableAllocator.getCombinationBySizeAndUpdateMap(new HashMap<>(), 4);
@@ -339,7 +339,7 @@ class TableAllocatorServiceTest {
     @Test
     void updateCombinationsMap() {
         Mockito
-          .when(restaurant.getCombinationsOfTables())
+          .when(restaurant.getAllCombinationsOfTables())
           .thenReturn(Collections.singletonList(comboList.get(0)));
         List<RestaurantTable> results =
           tableAllocator.getCombinationBySizeAndUpdateMap(new HashMap<>(), 50);

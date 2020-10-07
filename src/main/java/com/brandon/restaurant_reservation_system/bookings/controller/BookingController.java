@@ -15,14 +15,17 @@ import com.brandon.restaurant_reservation_system.bookings.services.BookingHandle
 import com.brandon.restaurant_reservation_system.bookings.services.BookingValidationService;
 import com.brandon.restaurant_reservation_system.errors.ApiError;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
+import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNotFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
+import com.brandon.restaurant_reservation_system.restaurants.services.TableHandlerService;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +36,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -53,8 +56,36 @@ public class BookingController {
 	private BookingHandlerService bookingHandler;
 	@Autowired
 	private TableAvailabilityService tableAvailability;
+	@Autowired
+	private TableHandlerService tableHandler;
 
 	public BookingController() {
+	}
+
+	private List<Booking> parseDateTimesAndFindBookings(String start,
+														String end) {
+		LocalDateTime parsedStartTime =
+		DateTimeHandler.parseDateTime(start,
+		dateTimeFormat);
+		LocalDateTime parsedEndTime = DateTimeHandler.parseDateTime(end,
+		dateTimeFormat);
+		return bookingRepository.getBookingsDuringTime(parsedStartTime,
+		parsedEndTime);
+	}
+
+	private List<Booking> parseDateAndFindBookings(String date) {
+		LocalDateTime parsedDateTime = DateTimeHandler.parseDate(date,
+		dateFormat).atStartOfDay();
+		LocalDateTime nextDay = parsedDateTime.plusDays(1);
+
+		return bookingRepository.getBookingsBetweenDates(parsedDateTime,
+		nextDay);
+	}
+
+	private List<Booking> parseStartTimeAndFindBookings(String start) {
+		LocalDateTime parsedStartTime = DateTimeHandler.parseDateTime(
+		start, dateTimeFormat);
+		return bookingRepository.getBookingsByStartTime(parsedStartTime);
 	}
 
 	@GetMapping(value = "")
@@ -63,25 +94,11 @@ public class BookingController {
 	@RequestParam(required = false) String endTime,
 	@RequestParam(required = false) String date) {
 		if (startTime != null && endTime != null) {
-			LocalDateTime parsedStartTime =
-			DateTimeHandler.parseDateTime(startTime,
-			dateTimeFormat);
-			LocalDateTime parsedEndTime = DateTimeHandler.parseDateTime(endTime,
-			dateTimeFormat);
-			return bookingRepository.getBookingsDuringTime(parsedStartTime,
-			parsedEndTime);
+			return parseDateTimesAndFindBookings(startTime, endTime);
 		} else if (startTime != null) {
-			LocalDateTime parsedStartTime = DateTimeHandler.parseDateTime(
-			startTime,
-			dateTimeFormat);
-			return bookingRepository.getBookingsByStartTime(parsedStartTime);
+			return parseStartTimeAndFindBookings(startTime);
 		} else if (date != null) {
-			LocalDateTime parsedDateTime = DateTimeHandler.parseDate(date,
-			dateFormat).atStartOfDay();
-			LocalDateTime nextDay = parsedDateTime.plusDays(1);
-
-			return bookingRepository.getBookingsBetweenDates(parsedDateTime,
-			nextDay);
+			return parseDateAndFindBookings(date);
 		} else {
 			return bookingRepository.findAll();
 		}
@@ -99,20 +116,8 @@ public class BookingController {
 		.orElseThrow(() -> new BookingNotFoundException(bookingId));
 	}
 
-	private List<RestaurantTable> splitRestaurantTableNamesAndSearchRepository(String tableNames) {
-		String[] splitTableNames = tableNames.split(",");
-		List<RestaurantTable> tableList = new ArrayList<>();
-		for (String tableName : splitTableNames) {
-			Optional<RestaurantTable> optionalTable = restaurant.getTable(tableName);
-			if (optionalTable.isEmpty()) {
-				throw new BookingNotPossibleException("Table is not found");
-			}
-			tableList.add(optionalTable.get());
-		}
-		return tableList;
-	}
-
-	@PutMapping("{bookingId}/setTable/{tableName}")
+	// TODO: allow update to be forced, switching tables between bookings if necessary
+	@PutMapping("{bookingId}/setTable/{tableNames}")
 	public void updateBookingWithTable(@PathVariable long bookingId,
 									   @PathVariable String tableNames,
 									   HttpServletResponse response) {
@@ -122,20 +127,31 @@ public class BookingController {
 		}
 
 		Booking booking = optionalBooking.get();
-		List<RestaurantTable> tables =
-		splitRestaurantTableNamesAndSearchRepository(tableNames);
+		if (tableNames.equals("")) {
+			booking.setTables(Collections.emptyList());
+		}
+
+		List<RestaurantTable> tables;
+		try {
+			tables = tableHandler.find(tableNames);
+		} catch (TableNotFoundException exception) {
+			throw new BookingNotPossibleException(exception.getMessage());
+		}
+
 		if (!tableAvailability.areTablesFree(tables,
 		booking.getStartTime(), booking.getEndTime())) {
 			throw new BookingNotPossibleException("Table is already taken");
 		}
 		booking.setTables(tables);
+		bookingRepository.save(booking);
+
 		try {
 			sendResponse(response, HttpStatus.NO_CONTENT.value(), "Booking " +
 			"table successfully updated.");
 		} catch (IOException e) {
 			e.printStackTrace();
+			throw new InternalError("Response sending failed");
 		}
-
 	}
 
 	@PutMapping("/{bookingId}")
@@ -144,21 +160,11 @@ public class BookingController {
 	@PathVariable long bookingId,
 	HttpServletRequest request,
 	HttpServletResponse response
-	) {
+	) throws HttpServerErrorException.InternalServerError {
 		Optional<Booking> result =
 		bookingRepository.findById(bookingId);
 
 		if (result.isPresent()) {
-			Optional<ResponseEntity<ApiError>> bookingValidationException =
-			BookingValidationService.validateBooking(newBooking);
-			if (bookingValidationException.isPresent()) {
-				try {
-					sendResponse(response, bookingValidationException.get());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				return;
-			}
 			Booking booking = result.get();
 			booking.updateBooking(newBooking);
 			try {
@@ -166,6 +172,7 @@ public class BookingController {
 				"updated.");
 			} catch (IOException e) {
 				e.printStackTrace();
+				throw new InternalError("Response sending failed");
 			}
 
 			Boolean hasDateChanged = !newBooking.getDate().isEqual(booking.getDate());
@@ -175,9 +182,9 @@ public class BookingController {
 				restaurant.addBookingToDate(newBooking.getDate(), newBooking.getPartySize());
 			}
 		} else {
-			this.createBooking(
-			new RequestBodyUserBooking(newBooking.getUser(),
-			newBooking), response);
+			createBooking(
+			new RequestBodyUserBooking(newBooking.getUser(), newBooking),
+			response);
 		}
 	}
 
@@ -187,11 +194,13 @@ public class BookingController {
 	HttpServletResponse response) {
 
 		Booking booking = body.getBooking();
-		Optional<ResponseEntity<ApiError>> bookingValidationException =
+		Optional<ApiError> bookingValidationException =
 		BookingValidationService.validateBooking(booking);
 		if (bookingValidationException.isPresent()) {
 			try {
-				sendResponse(response, bookingValidationException.get());
+				ApiError apiError = bookingValidationException.get();
+				sendResponse(response, new ResponseEntity<>(apiError,
+				apiError.getStatus()));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -204,7 +213,7 @@ public class BookingController {
 		}
 		Booking result = bookingHandler.createBooking(booking, user);
 		try {
-			sendResponse(response, 201, buildUriFromBooking(result));
+			sendResponse(response, buildUriFromBooking(result));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -233,7 +242,7 @@ public class BookingController {
 	private void sendResponse(HttpServletResponse response, ResponseEntity<?> entity) throws IOException {
 		PrintWriter writer = response.getWriter();
 		response.setStatus(entity.getStatusCodeValue());
-		writer.print(entity.getBody());
+		writer.print(entity);
 		writer.flush();
 		writer.close();
 	}

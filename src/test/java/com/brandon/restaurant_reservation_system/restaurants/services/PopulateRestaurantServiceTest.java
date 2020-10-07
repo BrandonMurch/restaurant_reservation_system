@@ -118,7 +118,7 @@ class PopulateRestaurantServiceTest {
         assertFalse(tableList.contains(table));
 
 
-        List<CombinationOfTables> comboList = restaurant.getCombinationsOfTables();
+        List<CombinationOfTables> comboList = restaurant.getAllCombinationsOfTables();
         assertEquals(4, comboList.size());
     }
 }

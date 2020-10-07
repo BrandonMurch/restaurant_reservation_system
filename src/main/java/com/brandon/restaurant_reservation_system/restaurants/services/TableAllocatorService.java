@@ -181,7 +181,7 @@ public class TableAllocatorService {
 	Booking> occupiedTables, int size) {
 		availableCombinations = new HashMap<>();
 		for (CombinationOfTables combination :
-		restaurant.getCombinationsOfTables()) {
+		restaurant.getAllCombinationsOfTables()) {
 			boolean foundAOccupiedTable = false;
 
 			for (RestaurantTable restaurantTable : combination.getRestaurantTables()) {

@@ -4,12 +4,15 @@
 
 package com.brandon.restaurant_reservation_system.bookings.controller;
 
+import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.brandon.restaurant_reservation_system.TestWebSecurityConfig;
 import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingHandlerService;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
+import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
+import com.brandon.restaurant_reservation_system.restaurants.services.TableHandlerService;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,6 +52,10 @@ class BookingControllerTest {
 	private BookingHandlerService bookingHandler;
 	@MockBean
 	private Restaurant restaurant;
+	@MockBean
+	private TableAvailabilityService tableAvailability;
+	@MockBean
+	private TableHandlerService tableHandler;
 	@Autowired
 	private MockMvc mvc;
 
@@ -65,10 +72,6 @@ class BookingControllerTest {
 		updatedBooking2 = CreateBookingsForTest.createUpdatedBookingForFour();
 		this.bookings = Arrays.asList(booking1, booking2);
 	}
-
-	//	private List<Booking> initBookings() {
-	//
-	//	}
 
 	@Test
 	void getBookings() throws Exception {
@@ -114,8 +117,7 @@ class BookingControllerTest {
 
 	@Test
 	void getBookingsByStartTime() throws Exception {
-		String start = "2020-10-09T20:00";
-		LocalDateTime startTime = LocalDateTime.parse(start);
+		LocalDateTime startTime = booking1.getStartTime();
 		Mockito.when(bookingRepository
 		.getBookingsByStartTime(startTime))
 		.thenReturn(this.bookings.stream()
@@ -123,10 +125,10 @@ class BookingControllerTest {
 		startTime))
 		.collect(Collectors.toList()));
 
-		String uri = "/bookings?startTime=" + start;
+		String uri = "/bookings?startTime=" + startTime.format(GlobalVariables.getDateTimeFormat());
 		MvcResult result =
-				mvc.perform(MockMvcRequestBuilders.get(uri).contentType(
-						MediaType.APPLICATION_JSON)).andReturn();
+		mvc.perform(MockMvcRequestBuilders.get(uri).contentType(
+		MediaType.APPLICATION_JSON)).andReturn();
 		int status = result.getResponse().getStatus();
 		assertEquals(200, status);
 

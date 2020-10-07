@@ -120,12 +120,16 @@ public class Restaurant implements Serializable {
 
 
 	public boolean hasCombinationsOfTables() {
-		List<CombinationOfTables> combinations = getCombinationsOfTables();
+		List<CombinationOfTables> combinations = getAllCombinationsOfTables();
 		return combinations != null && !combinations.isEmpty();
 	}
 
-	public List<CombinationOfTables> getCombinationsOfTables() {
+	public List<CombinationOfTables> getAllCombinationsOfTables() {
 		return tables.getAllCombinations();
+	}
+
+	public Optional<CombinationOfTables> getCombinationOfTables(String name) {
+		return tables.getCombination(name);
 	}
 
 	public void addTableCombination(List<RestaurantTable> tables) {
