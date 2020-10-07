@@ -10,12 +10,16 @@ import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingHandlerService;
+import com.brandon.restaurant_reservation_system.restaurants.CreateTableForTest;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
+import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableHandlerService;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -31,6 +35,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,6 +51,8 @@ import static org.mockito.ArgumentMatchers.any;
 @Import(TestWebSecurityConfig.class)
 class BookingControllerTest {
 
+	@Captor
+	private ArgumentCaptor<List<RestaurantTable>> listArgumentCaptor;
 	@MockBean
 	private BookingRepository bookingRepository;
 	@MockBean
@@ -217,4 +224,48 @@ class BookingControllerTest {
 
 		assertEquals(204, result.getResponse().getStatus());
 	}
+
+	@Test
+	void updateBookingWithTable() throws Exception {
+		List<RestaurantTable> table =
+		Collections.singletonList(CreateTableForTest.getTable1());
+
+		Mockito.when(bookingRepository.findById(any(Long.class)))
+		.thenReturn(Optional.of(this.updatedBooking2));
+		Mockito.when(tableHandler.find(any(String.class))).thenReturn(table);
+		Mockito.when(tableAvailability.areTablesFree(Mockito.notNull(),
+		any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(true);
+
+		String uri = "/bookings/" + updatedBooking2.getId() + "/setTable/21";
+		MvcResult result =
+		mvc.perform(MockMvcRequestBuilders.put(uri)
+		.accept(MediaType.APPLICATION_JSON)
+		.contentType(MediaType.APPLICATION_JSON))
+		.andReturn();
+
+		assertEquals(204, result.getResponse().getStatus());
+	}
+
+	@Test
+	void updateBookingWithCombination() throws Exception {
+		List<RestaurantTable> tables = Arrays.asList(
+		CreateTableForTest.getTable1(), CreateTableForTest.getTable2(),
+		CreateTableForTest.getTable3());
+
+		Mockito.when(bookingRepository.findById(any(Long.class)))
+		.thenReturn(Optional.of(this.updatedBooking2));
+		Mockito.when(tableHandler.find(any(String.class))).thenReturn(tables);
+		Mockito.when(tableAvailability.areTablesFree(Mockito.notNull(),
+		any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(true);
+
+		String uri = "/bookings/" + updatedBooking2.getId() + "/setTable/21,22,23";
+		MvcResult result =
+		mvc.perform(MockMvcRequestBuilders.put(uri)
+		.accept(MediaType.APPLICATION_JSON)
+		.contentType(MediaType.APPLICATION_JSON))
+		.andReturn();
+
+		assertEquals(204, result.getResponse().getStatus());
+	}
+
 }
