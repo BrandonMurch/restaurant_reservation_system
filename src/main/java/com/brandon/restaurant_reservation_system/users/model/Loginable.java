@@ -5,6 +5,7 @@
 package com.brandon.restaurant_reservation_system.users.model;
 
 import com.brandon.restaurant_reservation_system.users.data.AdminPermissions;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -19,6 +20,7 @@ public abstract class Loginable {
     private long id;
     @Column(unique = true)
     private String username;
+    @JsonIgnore
     private String password;
     @ElementCollection(targetClass = AdminPermissions.class)
     @CollectionTable(name = "admin_permissions")
