@@ -15,25 +15,29 @@ import static org.junit.jupiter.api.Assertions.*;
 class BookingTest {
 
     private Booking booking;
+    private LocalDateTime start;
+    private LocalDateTime end;
     private final User user = new User();
 
     @BeforeEach
     void setUp() {
+        start = LocalDateTime.now();
+        end = LocalDateTime.now().plusHours(2);
         booking = new Booking(
-                2,
-                LocalDateTime.of(2020, 10, 10, 20, 0),
-                LocalDateTime.of(2020, 10, 10, 22, 0),
-                user
+          2,
+          start,
+          end,
+          user
         );
     }
 
     @Test
     void updateBooking() {
         Booking newBooking = new Booking(
-                4,
-                LocalDateTime.of(2020, 9, 10, 20, 0),
-                LocalDateTime.of(2020, 9, 10, 22, 0),
-                user
+          4,
+          start.minusMonths(1),
+          end.minusMonths(1),
+          user
         );
 
         booking.updateBooking(newBooking);
@@ -45,43 +49,42 @@ class BookingTest {
     @Test
     void doTheseBookingsOverlap() {
         Booking bookingDoesOverlap = new Booking(
-                4,
-                LocalDateTime.of(2020, 10, 10, 20, 0),
-                LocalDateTime.of(2020, 10, 10, 22, 0),
-                user
+          4,
+          start,
+          end,
+          user
         );
 
         Booking bookingDoesOverlap2 = new Booking(
-                4,
-                LocalDateTime.of(2020, 10, 10, 21, 0),
-                LocalDateTime.of(2020, 10, 10, 23, 0),
-                user
+          4,
+          start.minusHours(1),
+          end.plusHours(1),
+          user
         );
 
         Booking bookingDoesOverlap3 = new Booking(
-                4,
-                LocalDateTime.of(2020, 10, 10, 19, 0),
-                LocalDateTime.of(2020, 10, 10, 21, 0),
-                user
+          4,
+          start.minusHours(1),
+          end.minusHours(1),
+          user
         );
         Booking bookingDoesNotOverlap = new Booking(
-                4,
-                LocalDateTime.of(2020, 10, 10, 15, 0),
-                LocalDateTime.of(2020, 10, 10, 17, 0),
-                user
+          4,
+          start.minusHours(5),
+          start.minusHours(3),
+          user
         );
         Booking bookingDoesNotOverlap2 = new Booking(
-                4,
-                LocalDateTime.of(2020, 10, 10, 18, 0),
-                LocalDateTime.of(2020, 10, 10, 20, 0),
-                user
+          4,
+          start.minusHours(2),
+          start,
+          user
         );
 
         Booking bookingDoesNotOverlap3 = new Booking(
-                4,
-                LocalDateTime.of(2020, 10, 9, 15, 0),
-                LocalDateTime.of(2020, 10, 9, 17, 0),
-                user
+          4,
+          start.minusDays(1),
+          end.minusDays(1), user
         );
 
         assertTrue(booking.doTheseBookingsOverlap(bookingDoesOverlap));
@@ -95,11 +98,11 @@ class BookingTest {
     @Test
     void isTheBookingDuringThisTime() {
         boolean result = booking.isTheBookingDuringThisTime(
-                LocalDateTime.of(2020, 10, 10, 20, 0),
-                LocalDateTime.of(2020, 10, 10, 22, 0));
+          start,
+          end);
         boolean result2 = booking.isTheBookingDuringThisTime(
-                LocalDateTime.of(2020, 10, 9, 20, 0),
-                LocalDateTime.of(2020, 10, 9, 22, 0));
+          start.minusDays(1),
+          end.minusDays(1));
 
         assertTrue(result);
         assertFalse(result2);
@@ -110,10 +113,9 @@ class BookingTest {
     @Test
     void equals() {
         Booking equalBooking = new Booking(
-                2,
-                LocalDateTime.of(2020, 10, 10, 20, 0),
-                LocalDateTime.of(2020, 10, 10, 22, 0),
-                user
+          2,
+          start, end,
+          user
         );
 
         assertEquals(booking, booking);
