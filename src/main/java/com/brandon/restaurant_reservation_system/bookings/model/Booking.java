@@ -159,7 +159,7 @@ public class Booking {
 
 		comment = newBooking.getUserComments();
 		if (comment != null) {
-			this.setRestaurantComments(comment);
+			this.setUserComments(comment);
 		}
 	}
 
