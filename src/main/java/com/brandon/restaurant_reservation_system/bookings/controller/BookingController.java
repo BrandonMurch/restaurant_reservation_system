@@ -116,7 +116,7 @@ public class BookingController {
 		.orElseThrow(() -> new BookingNotFoundException(bookingId));
 	}
 
-	// TODO: allow update to be forced, switching tables between bookings if necessary
+	// TODO: implement force option, where the checks are overridden
 	@PutMapping("{bookingId}/setTable/{tableNames}")
 	public void updateBookingWithTable(@PathVariable long bookingId,
 									   @PathVariable String tableNames,
@@ -140,8 +140,14 @@ public class BookingController {
 
 		if (!tableAvailability.areTablesFree(tables,
 		booking.getStartTime(), booking.getEndTime())) {
-			throw new BookingNotPossibleException("Table is already taken");
+			throw new BookingNotPossibleException("Table is already taken. \n Please " +
+			"free the table and try again.");
 		}
+
+		if (!tableHandler.willPartyFitOnTable(booking.getPartySize(), tables)) {
+			throw new BookingNotPossibleException("Table is not big enough for party");
+		}
+
 		booking.setTables(tables);
 		bookingRepository.save(booking);
 
@@ -167,6 +173,7 @@ public class BookingController {
 		if (result.isPresent()) {
 			Booking booking = result.get();
 			booking.updateBooking(newBooking);
+			bookingRepository.save(booking);
 			try {
 				sendResponse(response, HttpStatus.NO_CONTENT.value(), "Booking successfully " +
 				"updated.");

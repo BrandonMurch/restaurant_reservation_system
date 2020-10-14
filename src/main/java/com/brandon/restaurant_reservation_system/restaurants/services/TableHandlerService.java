@@ -132,4 +132,13 @@ public class TableHandlerService {
 	public int getLargestTableSize() {
 		return largestTableSize;
 	}
+
+	// Other
+	public boolean willPartyFitOnTable(int partySize, List<RestaurantTable> tables) {
+		int size = 0;
+		for (RestaurantTable table : tables) {
+			size += table.getSeats();
+		}
+		return size >= partySize;
+	}
 }
