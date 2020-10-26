@@ -9,7 +9,9 @@ import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequ
 import com.brandon.restaurant_reservation_system.bookings.exceptions.DuplicateFoundException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -22,6 +24,24 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class RestResponseEntityExceptionHandler extends
 ResponseEntityExceptionHandler {
 
+	@ExceptionHandler(value = {BookingNotPossibleException.class})
+	@ResponseStatus(value = HttpStatus.CONFLICT)
+	protected ResponseEntity<Object> ForcibleConflict(BookingNotPossibleException ex,
+													  WebRequest request) {
+		ApiError apiError = new ApiError(HttpStatus.CONFLICT, ex);
+		HttpHeaders headers = new HttpHeaders();
+		if (ex.isForcible()) {
+			headers.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Forcible-Request");
+			headers.add("Forcible-Request", "true");
+		}
+		return ResponseEntity
+		.status(apiError.getStatus())
+		.headers(headers)
+		.contentType(MediaType.APPLICATION_JSON)
+		.body(apiError);
+	}
+
+
 	@ExceptionHandler(value = {DuplicateFoundException.class})
 	@ResponseStatus(value = HttpStatus.CONFLICT)
 	protected ResponseEntity<Object> HandleConflict(RuntimeException ex,
@@ -32,8 +52,7 @@ ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(value = {IllegalArgumentException.class,
 	IllegalStateException.class,
-	BookingRequestFormatException.class,
-	BookingNotPossibleException.class})
+	BookingRequestFormatException.class})
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
 	protected ResponseEntity<Object> HandleBadRequest(RuntimeException ex,
 													  WebRequest request) {

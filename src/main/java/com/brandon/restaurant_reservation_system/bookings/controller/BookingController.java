@@ -116,21 +116,26 @@ public class BookingController {
 		.orElseThrow(() -> new BookingNotFoundException(bookingId));
 	}
 
-	// TODO: implement force option, where the checks are overridden
+	// TODO: put table name in body. check update down below and if there is a set
+	//  table, redirect to this method
 	@PutMapping("{bookingId}/setTable/{tableNames}")
 	public void updateBookingWithTable(@PathVariable long bookingId,
 									   @PathVariable String tableNames,
+									   HttpServletRequest request,
 									   HttpServletResponse response) {
 		Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
 		if (optionalBooking.isEmpty()) {
 			throw new BookingNotFoundException("Booking Id was not found");
 		}
 
+
 		Booking booking = optionalBooking.get();
 		if (tableNames.equals("")) {
 			booking.setTables(Collections.emptyList());
 		}
 
+		String forceHeader = request.getHeader("Force");
+		boolean isForced = (forceHeader != null && !forceHeader.isEmpty());
 		List<RestaurantTable> tables;
 		try {
 			tables = tableHandler.find(tableNames);
@@ -140,12 +145,19 @@ public class BookingController {
 
 		if (!tableAvailability.areTablesFree(tables,
 		booking.getStartTime(), booking.getEndTime())) {
-			throw new BookingNotPossibleException("Table is already taken. \n Please " +
-			"free the table and try again.");
+			if (isForced) {
+				bookingHandler.freeTables(booking, tables);
+			} else {
+				throw new BookingNotPossibleException("Table is already taken. \n Please " +
+				"free the table and try again.", true);
+			}
 		}
 
 		if (!tableHandler.willPartyFitOnTable(booking.getPartySize(), tables)) {
-			throw new BookingNotPossibleException("Table is not big enough for party");
+			if (!isForced) {
+				throw new BookingNotPossibleException("Table is not big enough for " +
+				"party", true);
+			}
 		}
 
 		booking.setTables(tables);

@@ -17,8 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -31,6 +33,18 @@ public class BookingHandlerService {
 	private TableAllocatorService tableAllocatorService;
 
 	public BookingHandlerService() {
+	}
+
+	public void freeTables(Booking booking, List<RestaurantTable> tables) {
+		Set<Booking> bookingsOccupyingTables =
+		bookingRepository.getBookingsByTimeAndMultipleTables(
+		booking.getStartTime(),
+		booking.getEndTime(),
+		tables);
+		bookingsOccupyingTables.forEach((bookingToEmpty) -> {
+			bookingToEmpty.setTables(Collections.emptyList());
+			bookingRepository.save(bookingToEmpty);
+		});
 	}
 
 	public Booking createBooking(Booking booking, User user) {
