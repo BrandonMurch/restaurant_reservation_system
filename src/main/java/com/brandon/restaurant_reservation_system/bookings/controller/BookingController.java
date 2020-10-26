@@ -116,11 +116,9 @@ public class BookingController {
 		.orElseThrow(() -> new BookingNotFoundException(bookingId));
 	}
 
-	// TODO: put table name in body. check update down below and if there is a set
-	//  table, redirect to this method
-	@PutMapping("{bookingId}/setTable/{tableNames}")
+	@PutMapping("{bookingId}/setTable")
 	public void updateBookingWithTable(@PathVariable long bookingId,
-									   @PathVariable String tableNames,
+									   @RequestBody String tableNames,
 									   HttpServletRequest request,
 									   HttpServletResponse response) {
 		Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
@@ -128,14 +126,11 @@ public class BookingController {
 			throw new BookingNotFoundException("Booking Id was not found");
 		}
 
-
 		Booking booking = optionalBooking.get();
 		if (tableNames.equals("")) {
 			booking.setTables(Collections.emptyList());
 		}
 
-		String forceHeader = request.getHeader("Force");
-		boolean isForced = (forceHeader != null && !forceHeader.isEmpty());
 		List<RestaurantTable> tables;
 		try {
 			tables = tableHandler.find(tableNames);
@@ -143,6 +138,8 @@ public class BookingController {
 			throw new BookingNotPossibleException(exception.getMessage());
 		}
 
+		String forceHeader = request.getHeader("Force");
+		boolean isForced = (forceHeader != null && !forceHeader.isEmpty());
 		if (!tableAvailability.areTablesFree(tables,
 		booking.getStartTime(), booking.getEndTime())) {
 			if (isForced) {
