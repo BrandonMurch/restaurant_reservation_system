@@ -22,13 +22,26 @@ public class BookingValidationService {
 		return LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 	}
 
-	private static Optional<ValidationError> validateDateTime(LocalDateTime time,
-															  String field) {
-		if (time == null || time.isBefore(LocalDateTime.now())) {
+	private static Optional<ValidationError> validateStartTime(LocalDateTime time) {
+		if (time == null) {
 			return Optional.of(
-			new ValidationError(field, "Time must be " +
+			new ValidationError("Start time", "Time must be " +
 			"formatted " + getExampleDateTime()));
+		} else if (time.isBefore(LocalDateTime.now())) {
+			return Optional.of(
+			new ValidationError("Start time", "Time must be in the future"));
 		}
+
+		return Optional.empty();
+	}
+
+	private static Optional<ValidationError> validateEndTime(LocalDateTime start,
+															 LocalDateTime end) {
+		if (start.isAfter(end) || start.isEqual(end)) {
+			return Optional.of(
+			new ValidationError("End Time", "End time must be after start time;"));
+		}
+
 		return Optional.empty();
 	}
 
@@ -50,9 +63,12 @@ public class BookingValidationService {
 	private static List<ApiSubError> validateFields(Booking booking) {
 		List<ApiSubError> subErrors = new ArrayList<>();
 
-		validateDateTime(booking.getStartTime(), "Start time").ifPresent(subErrors::add);
+		validateStartTime(booking.getStartTime()).ifPresent(subErrors::add);
 
-		validateDateTime(booking.getEndTime(), "End time").ifPresent(subErrors::add);
+		if (booking.getEndTime() != null) {
+			validateEndTime(booking.getStartTime(), booking.getEndTime()).ifPresent(subErrors::add);
+
+		}
 
 		validatePartySize(booking.getPartySize()).ifPresent(subErrors::add);
 
