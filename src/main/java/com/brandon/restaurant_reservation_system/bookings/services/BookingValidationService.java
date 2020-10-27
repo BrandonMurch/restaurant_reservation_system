@@ -65,7 +65,7 @@ public class BookingValidationService {
 
 		validateStartTime(booking.getStartTime()).ifPresent(subErrors::add);
 
-		if (booking.getEndTime() != null) {
+		if (booking.getEndTime() != null && booking.getStartTime() != null) {
 			validateEndTime(booking.getStartTime(), booking.getEndTime()).ifPresent(subErrors::add);
 
 		}
