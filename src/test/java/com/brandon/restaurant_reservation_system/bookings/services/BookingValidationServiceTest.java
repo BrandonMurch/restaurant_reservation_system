@@ -44,7 +44,7 @@ class BookingValidationServiceTest {
 		validateBooking(booking);
 		assertTrue(bookingValidationResponse.isPresent());
 
-		assertEquals(2,
+		assertEquals(1,
 		bookingValidationResponse.get().getSubErrors().size());
 	}
 

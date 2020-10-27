@@ -85,6 +85,7 @@ class RestaurantReservationSystemApplicationTests {
 		.bodyValue(body)
 		.exchange()
 		.expectStatus().isCreated()
+//		.expectHeader().exists("Location")
 		.expectBody().isEmpty();
 		testClient
 		.get().uri("/bookings")
