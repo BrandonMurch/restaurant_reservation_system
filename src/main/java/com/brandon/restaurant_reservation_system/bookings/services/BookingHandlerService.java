@@ -6,8 +6,10 @@ package com.brandon.restaurant_reservation_system.bookings.services;
 
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotPossibleException;
+import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequestFormatException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.DuplicateFoundException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
+import com.brandon.restaurant_reservation_system.errors.ApiError;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
 import com.brandon.restaurant_reservation_system.users.data.UserRepository;
@@ -56,6 +58,13 @@ public class BookingHandlerService {
 			throw new Exception("Internal Server Error");
 		}
 		booking.updateBooking(newBooking);
+
+		Optional<ApiError> bookingValidationException =
+		BookingValidationService.validateBooking(booking);
+		if (bookingValidationException.isPresent()) {
+			booking.updateBooking(oldBooking);
+			throw new BookingRequestFormatException(bookingValidationException.get());
+		}
 
 		if (!booking.getStartTime().isEqual(newBooking.getStartTime())) {
 			List<RestaurantTable> tables =

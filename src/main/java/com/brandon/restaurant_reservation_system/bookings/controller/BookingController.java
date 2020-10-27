@@ -211,23 +211,15 @@ public class BookingController {
 		Optional<ApiError> bookingValidationException =
 		BookingValidationService.validateBooking(booking);
 		if (bookingValidationException.isPresent()) {
-			try {
-				ApiError apiError = bookingValidationException.get();
-				sendResponse(response, new ResponseEntity<>(apiError,
-				apiError.getStatus()));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return;
+			throw new BookingRequestFormatException(bookingValidationException.get());
 		}
 
 		User user = new User(body.getUser());
 		if (user.getUsername() == null) {
 			throw new BookingRequestFormatException("Email is a required field");
 		}
-		boolean isForced = isRequestForced(request);
 
-		Booking result = bookingHandler.createBooking(booking, user, isForced);
+		Booking result = bookingHandler.createBooking(booking, user, isRequestForced(request));
 		try {
 			sendResponse(response, buildUriFromBooking(result));
 		} catch (IOException e) {

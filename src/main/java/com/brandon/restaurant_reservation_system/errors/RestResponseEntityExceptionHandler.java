@@ -41,6 +41,13 @@ ResponseEntityExceptionHandler {
 		.body(apiError);
 	}
 
+	@ExceptionHandler(value = {BookingRequestFormatException.class})
+	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+	protected ResponseEntity<Object> HandleConflict(BookingRequestFormatException ex,
+													WebRequest request) {
+		return new ResponseEntity<>(ex.getApiError(), HttpStatus.BAD_REQUEST);
+	}
+
 
 	@ExceptionHandler(value = {DuplicateFoundException.class})
 	@ResponseStatus(value = HttpStatus.CONFLICT)
@@ -51,8 +58,7 @@ ResponseEntityExceptionHandler {
 	}
 
 	@ExceptionHandler(value = {IllegalArgumentException.class,
-	IllegalStateException.class,
-	BookingRequestFormatException.class})
+	IllegalStateException.class})
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
 	protected ResponseEntity<Object> HandleBadRequest(RuntimeException ex,
 													  WebRequest request) {

@@ -25,11 +25,13 @@ public class BookingValidationService {
 	private static Optional<ValidationError> validateStartTime(LocalDateTime time) {
 		if (time == null) {
 			return Optional.of(
-			new ValidationError("Start time", "Time must be " +
+			new ValidationError("Booking", "Start time", null, "Time must be " +
 			"formatted " + getExampleDateTime()));
 		} else if (time.isBefore(LocalDateTime.now())) {
 			return Optional.of(
-			new ValidationError("Start time", "Time must be in the future"));
+			new ValidationError("Booking", "Start time", time.toString(), "Time must be" +
+			" " +
+			"in the future"));
 		}
 
 		return Optional.empty();
@@ -39,7 +41,9 @@ public class BookingValidationService {
 															 LocalDateTime end) {
 		if (start.isAfter(end) || start.isEqual(end)) {
 			return Optional.of(
-			new ValidationError("End Time", "End time must be after start time;"));
+			new ValidationError("Booking", "End Time", end, "End time must be after " +
+			"start " +
+			"time;"));
 		}
 
 		return Optional.empty();
@@ -48,7 +52,8 @@ public class BookingValidationService {
 	private static Optional<ValidationError> validatePartySize(Integer partySize) {
 		if (partySize == null || partySize <= 0) {
 			return Optional.of(
-			new ValidationError("Party size", "Party size must be greater than zero"));
+			new ValidationError("Booking", "Party size", partySize, "Party size must be" +
+			" greater than zero"));
 		}
 		return Optional.empty();
 
