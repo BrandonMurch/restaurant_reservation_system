@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
@@ -138,15 +137,14 @@ public class BookingController {
 			throw new BookingNotPossibleException(exception.getMessage());
 		}
 
-		String forceHeader = request.getHeader("Force");
-		boolean isForced = (forceHeader != null && !forceHeader.isEmpty());
+		boolean isForced = isRequestForced(request);
 		if (!tableAvailability.areTablesFree(tables,
 		booking.getStartTime(), booking.getEndTime())) {
 			if (isForced) {
 				bookingHandler.freeTables(booking, tables);
 			} else {
-				throw new BookingNotPossibleException("Table is already taken. \n Please " +
-				"free the table and try again.", true);
+				throw new BookingNotPossibleException("Table is already taken. \n " +
+				"(Forcing this will remove the desired table from other bookings)", true);
 			}
 		}
 
@@ -170,19 +168,18 @@ public class BookingController {
 	}
 
 	@PutMapping("/{bookingId}")
-	public void updateBooking(
-	@RequestBody Booking newBooking,
-	@PathVariable long bookingId,
-	HttpServletRequest request,
-	HttpServletResponse response
-	) throws HttpServerErrorException.InternalServerError {
+	public void updateBooking(@RequestBody Booking newBooking,
+							  @PathVariable long bookingId,
+							  HttpServletRequest request,
+							  HttpServletResponse response
+	) throws Exception {
 		Optional<Booking> result =
 		bookingRepository.findById(bookingId);
 
 		if (result.isPresent()) {
 			Booking booking = result.get();
-			booking.updateBooking(newBooking);
-			bookingRepository.save(booking);
+			bookingHandler.updateBooking(booking,
+			newBooking, isRequestForced(request));
 			try {
 				sendResponse(response, HttpStatus.NO_CONTENT.value(), "Booking successfully " +
 				"updated.");
@@ -200,13 +197,14 @@ public class BookingController {
 		} else {
 			createBooking(
 			new RequestBodyUserBooking(newBooking.getUser(), newBooking),
-			response);
+			request, response);
 		}
 	}
 
 	@PostMapping("")
 	public void createBooking(
 	@RequestBody RequestBodyUserBooking body,
+	HttpServletRequest request,
 	HttpServletResponse response) {
 
 		Booking booking = body.getBooking();
@@ -227,7 +225,9 @@ public class BookingController {
 		if (user.getUsername() == null) {
 			throw new BookingRequestFormatException("Email is a required field");
 		}
-		Booking result = bookingHandler.createBooking(booking, user);
+		boolean isForced = isRequestForced(request);
+
+		Booking result = bookingHandler.createBooking(booking, user, isForced);
 		try {
 			sendResponse(response, buildUriFromBooking(result));
 		} catch (IOException e) {
@@ -235,6 +235,19 @@ public class BookingController {
 		}
 		restaurant.removeDateIfUnavailable(result.getStartTime().toLocalDate());
 		restaurant.addBookingToDate(result.getDate(), result.getPartySize());
+	}
+
+	@DeleteMapping("/{bookingId}")
+	public ResponseEntity<String> deleteBooking(@PathVariable long bookingId) {
+		Optional<Booking> booking = bookingRepository.findById(bookingId);
+		booking.ifPresent(booking1 -> restaurant.removeBookingFromDate(booking1.getDate(), booking1.getPartySize()));
+		bookingRepository.deleteById(bookingId);
+		return ResponseEntity.noContent().build();
+	}
+
+	private boolean isRequestForced(HttpServletRequest request) {
+		String forceHeader = request.getHeader("Force");
+		return (forceHeader != null && !forceHeader.isEmpty());
 	}
 
 	private ResponseEntity<String> buildUriFromBooking(Booking booking) {
@@ -245,14 +258,6 @@ public class BookingController {
 		.buildAndExpand(booking.getId())
 		.toUri();
 		return ResponseEntity.created(location).build();
-	}
-
-	@DeleteMapping("/{bookingId}")
-	public ResponseEntity<String> deleteBooking(@PathVariable long bookingId) {
-		Optional<Booking> booking = bookingRepository.findById(bookingId);
-		booking.ifPresent(booking1 -> restaurant.removeBookingFromDate(booking1.getDate(), booking1.getPartySize()));
-		bookingRepository.deleteById(bookingId);
-		return ResponseEntity.noContent().build();
 	}
 
 	private void sendResponse(HttpServletResponse response, ResponseEntity<?> entity) throws IOException {

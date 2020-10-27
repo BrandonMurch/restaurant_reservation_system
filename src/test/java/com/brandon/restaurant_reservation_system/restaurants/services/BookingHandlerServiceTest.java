@@ -50,7 +50,7 @@ class BookingHandlerServiceTest {
           .thenReturn(Collections.singletonList(CreateTableForTest.getTable1()));
 
 
-        Booking result = bookingHandler.createBooking(booking, user);
+        Booking result = bookingHandler.createBooking(booking, user, false);
 
         assertEquals(booking, result);
     }
@@ -64,7 +64,7 @@ class BookingHandlerServiceTest {
           .when(tableAllocatorService.getAvailableTable(any(Booking.class)))
           .thenReturn(Collections.singletonList(CreateTableForTest.getTable1()));
 
-        Booking result = bookingHandler.createBooking(booking, user);
+        Booking result = bookingHandler.createBooking(booking, user, false);
 
         assertEquals(booking, result);
     }
@@ -79,7 +79,7 @@ class BookingHandlerServiceTest {
           .thenReturn(Collections.emptyList());
 
         Exception exception = assertThrows(BookingNotPossibleException.class, () -> {
-            Booking result = bookingHandler.createBooking(booking, user);
+            Booking result = bookingHandler.createBooking(booking, user, false);
         });
 
         String expectedMessage = "Requested date is not available";

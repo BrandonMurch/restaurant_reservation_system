@@ -22,7 +22,7 @@ import java.util.Objects;
 import static com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler.formatDateTime;
 
 @Entity
-public class Booking {
+public class Booking implements Cloneable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
@@ -207,9 +207,13 @@ public class Booking {
 		if (!(o instanceof Booking)) return false;
 		Booking booking = (Booking) o;
 		return getId() == booking.getId() &&
-				Objects.equals(getStartTime(), booking.getStartTime()) &&
-				Objects.equals(getEndTime(), booking.getEndTime()) &&
-				Objects.equals(getPartySize(), booking.getPartySize());
+		Objects.equals(getStartTime(), booking.getStartTime()) &&
+		Objects.equals(getEndTime(), booking.getEndTime()) &&
+		Objects.equals(getPartySize(), booking.getPartySize());
+	}
+
+	public Booking clone() throws CloneNotSupportedException {
+		return (Booking) super.clone();
 	}
 
 	@Override
@@ -217,9 +221,9 @@ public class Booking {
 
 
 		String date = formatDateTime(startTime,
-				CustomDateTimeFormatter.READABLE_DATE);
+		CustomDateTimeFormatter.READABLE_DATE);
 		String time = formatDateTime(startTime,
-				CustomDateTimeFormatter.TIME_NO_SECONDS);
+		CustomDateTimeFormatter.TIME_NO_SECONDS);
 
 		return "Booking for " + partySize + " on " + date + " at " + time + ".";
 	}

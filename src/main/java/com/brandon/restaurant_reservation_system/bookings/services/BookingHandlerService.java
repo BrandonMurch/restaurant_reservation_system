@@ -47,7 +47,38 @@ public class BookingHandlerService {
 		});
 	}
 
-	public Booking createBooking(Booking booking, User user) {
+	public Booking updateBooking(Booking booking, Booking newBooking,
+								 boolean isForced) throws Exception {
+		Booking oldBooking;
+		try {
+			oldBooking = booking.clone();
+		} catch (CloneNotSupportedException ex) {
+			throw new Exception("Internal Server Error");
+		}
+		booking.updateBooking(newBooking);
+
+		if (!booking.getStartTime().isEqual(newBooking.getStartTime())) {
+			List<RestaurantTable> tables =
+			tableAllocatorService.getAvailableTable(booking);
+			if (tables.isEmpty()) {
+				if (!isForced) {
+					booking.updateBooking(oldBooking);
+					throw new BookingNotPossibleException("Requested date is not " +
+					"available", true);
+				}
+			}
+			booking.setTables(tables);
+			booking.setDate(booking.getStartTime().toLocalDate());
+
+		}
+
+		bookingRepository.save(booking);
+		return booking;
+
+
+	}
+
+	public Booking createBooking(Booking booking, User user, boolean isForced) {
 
 		User result = handleUsersForBooking(user,
 		booking.getStartTime().toLocalDate());
@@ -56,15 +87,16 @@ public class BookingHandlerService {
 		List<RestaurantTable> tables =
 		tableAllocatorService.getAvailableTable(booking);
 		if (tables.isEmpty()) {
-			throw new BookingNotPossibleException("Requested date is not " +
-			"available");
+			if (!isForced) {
+				throw new BookingNotPossibleException("Requested date is not " +
+				"available", true);
+			}
 		}
 		booking.setTables(tables);
 		tables.forEach((table) -> table.addBooking(booking));
 
-
+		booking.setDate(booking.getStartTime().toLocalDate());
 		bookingRepository.save(booking);
-		LocalDate date = booking.getStartTime().toLocalDate();
 		return booking;
 	}
 

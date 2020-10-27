@@ -189,7 +189,8 @@ class BookingControllerTest {
 	void updateBookingNotPresent() throws Exception {
 		Mockito.when(bookingRepository.findById((long) 1))
 		.thenReturn(Optional.empty());
-		Mockito.when(bookingHandler.createBooking(any(Booking.class), any(User.class)))
+		Mockito.when(bookingHandler.createBooking(any(Booking.class), any(User.class),
+		any(Boolean.class)))
 		.thenReturn(updatedBooking2);
 
 		String uri = "/bookings/" + updatedBooking2.getId();
@@ -230,16 +231,23 @@ class BookingControllerTest {
 		List<RestaurantTable> table =
 		Collections.singletonList(CreateTableForTest.getTable1());
 
-		Mockito.when(bookingRepository.findById(any(Long.class)))
+		Mockito
+		.when(bookingRepository.findById(any(Long.class)))
 		.thenReturn(Optional.of(this.updatedBooking2));
 		Mockito.when(tableHandler.find(any(String.class))).thenReturn(table);
-		Mockito.when(tableAvailability.areTablesFree(Mockito.notNull(),
-		any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(true);
+		Mockito
+		.when(tableAvailability.areTablesFree(Mockito.notNull(),
+		any(LocalDateTime.class), any(LocalDateTime.class)))
+		.thenReturn(true);
+		Mockito
+		.when(tableHandler.willPartyFitOnTable(any(Integer.class), Mockito.notNull()))
+		.thenReturn(true);
 
-		String uri = "/bookings/" + updatedBooking2.getId() + "/setTable/21";
+		String uri = "/bookings/" + updatedBooking2.getId() + "/setTable";
 		MvcResult result =
 		mvc.perform(MockMvcRequestBuilders.put(uri)
 		.accept(MediaType.APPLICATION_JSON)
+		.content("21, 22")
 		.contentType(MediaType.APPLICATION_JSON))
 		.andReturn();
 
@@ -257,11 +265,15 @@ class BookingControllerTest {
 		Mockito.when(tableHandler.find(any(String.class))).thenReturn(tables);
 		Mockito.when(tableAvailability.areTablesFree(Mockito.notNull(),
 		any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(true);
+		Mockito
+		.when(tableHandler.willPartyFitOnTable(any(Integer.class), Mockito.notNull()))
+		.thenReturn(true);
 
-		String uri = "/bookings/" + updatedBooking2.getId() + "/setTable/21,22,23";
+		String uri = "/bookings/" + updatedBooking2.getId() + "/setTable";
 		MvcResult result =
 		mvc.perform(MockMvcRequestBuilders.put(uri)
 		.accept(MediaType.APPLICATION_JSON)
+		.content("21, 22, 23")
 		.contentType(MediaType.APPLICATION_JSON))
 		.andReturn();
 
