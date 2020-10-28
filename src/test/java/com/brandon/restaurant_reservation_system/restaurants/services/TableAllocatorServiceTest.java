@@ -235,7 +235,7 @@ class TableAllocatorServiceTest {
           .thenReturn(Collections.emptyList());
 
 
-        assertEquals(comboList.get(0).getRestaurantTables(), tableAllocator.getAvailableTable(dateTime1,
+        assertEquals(comboList.get(0).getTables(), tableAllocator.getAvailableTable(dateTime1,
           dateTime2, 4
           , false));
     }
@@ -333,7 +333,7 @@ class TableAllocatorServiceTest {
           .thenReturn(comboList);
         List<RestaurantTable> results =
           tableAllocator.getCombinationBySizeAndUpdateMap(new HashMap<>(), 4);
-        assertEquals(comboList.get(0).getRestaurantTables(), results);
+        assertEquals(comboList.get(0).getTables(), results);
     }
 
     @Test
@@ -345,7 +345,7 @@ class TableAllocatorServiceTest {
           tableAllocator.getCombinationBySizeAndUpdateMap(new HashMap<>(), 50);
         assertEquals(Collections.emptyList(), results);
         assertFalse(tableAllocator.getAvailableCombinationsForTest().isEmpty());
-        assertTrue(tableAllocator.getAvailableCombinationsForTest().containsKey(comboList.get(0).getTotalSeats()));
+        assertTrue(tableAllocator.getAvailableCombinationsForTest().containsKey(comboList.get(0).getSeats()));
     }
 
     @Test

@@ -11,53 +11,42 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Entity
-public class CombinationOfTables {
+public class CombinationOfTables extends Sittable {
 
 	@ManyToMany(targetEntity = RestaurantTable.class, cascade =
-			CascadeType.ALL, fetch = FetchType.EAGER)
+	CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinTable(name = "combination_table",
-			joinColumns = @JoinColumn(name = "combination_id"),
-			inverseJoinColumns = @JoinColumn(name = "table_id"))
-	private final List<RestaurantTable> restaurantTables;
-	private int totalSeats;
-	@Id
-	private String name;
+	joinColumns = @JoinColumn(name = "combination_id"),
+	inverseJoinColumns = @JoinColumn(name = "table_id")
+	)
+	private final List<RestaurantTable> restaurantTables = new ArrayList<>();
 
 	public CombinationOfTables() {
-		totalSeats = 0;
-		name = "";
-		restaurantTables = new ArrayList<>();
+		super("", 0);
 	}
 
 	public CombinationOfTables(List<RestaurantTable> restaurantTables) {
 		this();
-		totalSeats = 0;
+		int seats = 0;
 		for (RestaurantTable table : restaurantTables) {
 			this.restaurantTables.add(table);
-			totalSeats += table.getSeats();
+			seats += table.getSeats();
 		}
-		name = calculateName();
+		this.setName(calculateName());
+		this.setSeats(seats);
 	}
 
 	private String calculateName() {
 		return restaurantTables.stream().map(RestaurantTable::getName)
-				.collect(Collectors.joining(", "));
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public List<RestaurantTable> getRestaurantTables() {
-		return this.restaurantTables;
-	}
-
-	public int getTotalSeats() {
-		return this.totalSeats;
+		.collect(Collectors.joining(", "));
 	}
 
 	public void setCustomTotalSeats(int seats) {
-		this.totalSeats = seats;
+		this.setSeats(seats);
+	}
+
+	public List<RestaurantTable> getTables() {
+		return this.restaurantTables;
 	}
 
 	@Override
@@ -65,18 +54,18 @@ public class CombinationOfTables {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		CombinationOfTables that = (CombinationOfTables) o;
-		return getTotalSeats() == that.getTotalSeats() &&
+		return getSeats() == that.getSeats() &&
 		Objects.equals(getName(), that.getName());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(getTotalSeats(), getName());
+		return Objects.hash(getSeats(), getName());
 	}
 
 	@Override
 	public String toString() {
-		return this.name + " - Total seats: "
-		+ this.totalSeats;
+		return this.getName() + " - Total seats: "
+		+ this.getSeats();
 	}
 }

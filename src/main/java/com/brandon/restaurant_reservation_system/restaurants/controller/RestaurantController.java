@@ -8,6 +8,7 @@ import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
 import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
+import com.brandon.restaurant_reservation_system.restaurants.model.Sittable;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler.parseDate;
@@ -67,8 +70,17 @@ public class RestaurantController {
 
 	@GetMapping(value = "/largest-table")
 	public ResponseEntity<?> getTableSizes() {
-
 		return new ResponseEntity<>(restaurant.getLargestTableSize(), HttpStatus.OK);
+	}
+
+	@GetMapping(value = "/all-tables")
+	public ResponseEntity<?> getAllTables() {
+
+		List<Sittable> tables = new ArrayList<>();
+		tables.addAll(restaurant.getAllCombinationsOfTables());
+		tables.addAll(restaurant.getTableList());
+
+		return new ResponseEntity<>(tables, HttpStatus.OK);
 	}
 
 

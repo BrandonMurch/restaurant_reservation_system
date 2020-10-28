@@ -9,45 +9,28 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 @Entity
-public class RestaurantTable {
-
-	@Id
-	private String name;
-	private int seats;
-	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "restaurantTables")
-	@JsonIgnore
-	private final Set<Booking> bookings;
+public class RestaurantTable extends Sittable {
 
 	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "restaurantTables")
 	@JsonIgnore
-	private final Set<CombinationOfTables> combinations;
+	private final Set<Booking> bookings = new HashSet<>();
 
+	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "restaurantTables")
+	@JsonIgnore
+	private final Set<CombinationOfTables> combinations = new HashSet<>();
 
 	public RestaurantTable(String name, int seats) {
-		this();
-		this.name = name;
-		this.seats = seats;
+		super(name, seats);
 	}
 
 	public RestaurantTable() {
-		bookings = new HashSet<>();
-		combinations = new HashSet<>();
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public int getSeats() {
-		return seats;
+		super("", 0);
 	}
 
 	public void addBooking(Booking booking) {
@@ -83,8 +66,8 @@ public class RestaurantTable {
 	@Override
 	public String toString() {
 		return "RestaurantTable{" +
-		"name='" + name + '\'' +
-		", seats=" + seats +
+		"name='" + this.getName() + '\'' +
+		", seats=" + this.getSeats() +
 		'}';
 	}
 }

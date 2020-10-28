@@ -40,7 +40,7 @@ public class TableHandlerService {
 			if (optionalTables.isEmpty()) {
 				throw new TableNotFoundException("Tables were not found");
 			}
-			return optionalTables.get().getRestaurantTables();
+			return optionalTables.get().getTables();
 		}
 		Optional<RestaurantTable> optionalTable =
 		get(splitTableNames[0]);
@@ -78,8 +78,8 @@ public class TableHandlerService {
 		}
 
 		for (CombinationOfTables table : combinationRepository.findAll()) {
-			if (table.getTotalSeats() > this.largestTableSize) {
-				this.largestTableSize = table.getTotalSeats();
+			if (table.getSeats() > this.largestTableSize) {
+				this.largestTableSize = table.getSeats();
 			}
 		}
 	}
@@ -118,7 +118,7 @@ public class TableHandlerService {
 	}
 
 	public void deleteCombination(CombinationOfTables combination) {
-		List<RestaurantTable> tables = combination.getRestaurantTables();
+		List<RestaurantTable> tables = combination.getTables();
 		for (RestaurantTable table : tables) {
 			Optional<RestaurantTable> foundTable =
 			tableRepository.findById(table.getName());

@@ -113,7 +113,7 @@ public class TableAllocatorService {
 		} else if (restaurant.hasCombinationsOfTables()) {
 			if (availableCombinations.containsKey(partySize)) {
 				return availableCombinations.get(
-				partySize).getRestaurantTables();
+				partySize).getTables();
 			}
 		} else if (partySize >= restaurant.getLargestTableSize()) {
 			return Collections.emptyList();
@@ -184,7 +184,7 @@ public class TableAllocatorService {
 		restaurant.getAllCombinationsOfTables()) {
 			boolean foundAOccupiedTable = false;
 
-			for (RestaurantTable restaurantTable : combination.getRestaurantTables()) {
+			for (RestaurantTable restaurantTable : combination.getTables()) {
 				if (occupiedTables.containsKey(restaurantTable)) {
 					foundAOccupiedTable = true;
 					break;
@@ -193,11 +193,11 @@ public class TableAllocatorService {
 
 			if (!foundAOccupiedTable) {
 				if (!availableCombinations.containsKey(
-				combination.getTotalSeats())) {
-					if (combination.getTotalSeats() == size) {
-						return combination.getRestaurantTables();
+				combination.getSeats())) {
+					if (combination.getSeats() == size) {
+						return combination.getTables();
 					}
-					availableCombinations.put(combination.getTotalSeats(),
+					availableCombinations.put(combination.getSeats(),
 					combination);
 				}
 			}
