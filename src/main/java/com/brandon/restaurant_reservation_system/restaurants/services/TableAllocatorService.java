@@ -98,7 +98,7 @@ public class TableAllocatorService {
 			}
 		}
 
-		if (searchGreaterSizes) {
+		if (searchGreaterSizes || partySize % 2 == 1) {
 			return getATableRecursively(partySize + 1);
 		}
 
