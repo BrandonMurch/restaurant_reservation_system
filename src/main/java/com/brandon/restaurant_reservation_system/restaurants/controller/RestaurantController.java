@@ -65,6 +65,13 @@ public class RestaurantController {
 		}
 	}
 
+	@GetMapping(value = "/largest-table")
+	public ResponseEntity<?> getTableSizes() {
+
+		return new ResponseEntity<>(restaurant.getLargestTableSize(), HttpStatus.OK);
+	}
+
+
 	// admin only controller options - to be implemented in future
 	// GET /RESTAURANTS/{RESTAURANT} - get a restaurant
 	// GET /RESTAURANTS/{RESTAURANT}/TABLES - get all tables of a restaurant

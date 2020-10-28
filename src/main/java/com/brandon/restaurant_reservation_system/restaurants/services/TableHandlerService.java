@@ -58,6 +58,7 @@ public class TableHandlerService {
 
 	public void setAll(List<RestaurantTable> restaurantTableList) {
 		tableRepository.saveAll(restaurantTableList);
+		updateLargestTableSize();
 	}
 
 	public Optional<RestaurantTable> get(String name) {
@@ -113,6 +114,7 @@ public class TableHandlerService {
 			}
 		}
 		combinationRepository.save(combination);
+		updateLargestTableSize();
 	}
 
 	public void deleteCombination(CombinationOfTables combination) {
