@@ -164,8 +164,7 @@ public class TableAllocatorService {
 	Booking> occupiedTables, int size) {
 		availableTables = new HashMap<>();
 		for (RestaurantTable restaurantTable : restaurantTableList) {
-			if (!occupiedTables.containsKey(restaurantTable)
-			|| !availableTables.containsKey(restaurantTable.getSeats())) {
+			if (!occupiedTables.containsKey(restaurantTable)) {
 				if (restaurantTable.getSeats() == size) {
 					return Collections.singletonList(restaurantTable);
 				}
