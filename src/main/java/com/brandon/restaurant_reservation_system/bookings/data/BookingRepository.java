@@ -58,8 +58,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 															List<RestaurantTable> tables) {
 		HashSet<Booking> bookings = new HashSet<>();
 		tables.forEach((table) -> bookings.addAll(getBookingsByTimeAndTable(
-		LocalDateTime.parse("2020-10-23T16:00"),
-		LocalDateTime.parse("2020-10-23T23:00"),
+		startTime,
+		endTime,
 		table.getName()
 		)));
 		return bookings;
