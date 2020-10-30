@@ -140,12 +140,7 @@ public class BookingController {
 		boolean isForced = isRequestForced(request);
 		if (!tableAvailability.areTablesFree(tables,
 		booking.getStartTime(), booking.getEndTime())) {
-			if (isForced) {
-				bookingHandler.freeTables(booking, tables);
-			} else {
-				throw new BookingNotPossibleException("Table is already taken. \n " +
-				"(Forcing this will remove the desired table from other bookings)", true);
-			}
+			bookingHandler.freeTablesIfForcedOrSame(booking, tables, isForced);
 		}
 
 		if (!tableHandler.willPartyFitOnTable(booking.getPartySize(), tables)) {

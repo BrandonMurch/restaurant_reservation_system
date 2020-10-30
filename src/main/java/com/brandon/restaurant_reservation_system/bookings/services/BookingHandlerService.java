@@ -37,15 +37,24 @@ public class BookingHandlerService {
 	public BookingHandlerService() {
 	}
 
-	public void freeTables(Booking booking, List<RestaurantTable> tables) {
+	public void freeTablesIfForcedOrSame(Booking booking, List<RestaurantTable> tables,
+										 boolean isForced) {
 		Set<Booking> bookingsOccupyingTables =
 		bookingRepository.getBookingsByTimeAndMultipleTables(
 		booking.getStartTime(),
 		booking.getEndTime(),
 		tables);
 		bookingsOccupyingTables.forEach((bookingToEmpty) -> {
-			bookingToEmpty.setTables(Collections.emptyList());
-			bookingRepository.save(bookingToEmpty);
+			if (!bookingToEmpty.equals(booking)) {
+				if (isForced) {
+					bookingToEmpty.setTables(Collections.emptyList());
+					bookingRepository.save(bookingToEmpty);
+				} else {
+					throw new BookingNotPossibleException("Table is already taken. \n " +
+					"(Forcing this will remove the desired table from other bookings)", true);
+
+				}
+			}
 		});
 	}
 
