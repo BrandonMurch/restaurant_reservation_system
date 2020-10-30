@@ -209,7 +209,9 @@ public class Booking implements Cloneable {
 		return getId() == booking.getId() &&
 		Objects.equals(getStartTime(), booking.getStartTime()) &&
 		Objects.equals(getEndTime(), booking.getEndTime()) &&
-		Objects.equals(getPartySize(), booking.getPartySize());
+		Objects.equals(getPartySize(), booking.getPartySize()) &&
+		Objects.equals(getUser(), booking.getUser());
+
 	}
 
 	public Booking clone() throws CloneNotSupportedException {
