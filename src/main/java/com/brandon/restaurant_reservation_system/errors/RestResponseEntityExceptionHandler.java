@@ -45,7 +45,12 @@ ResponseEntityExceptionHandler {
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
 	protected ResponseEntity<Object> HandleConflict(BookingRequestFormatException ex,
 													WebRequest request) {
-		return new ResponseEntity<>(ex.getApiError(), HttpStatus.BAD_REQUEST);
+		ApiError apiError = ex.getApiError();
+		if (apiError == null) {
+			apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage());
+		}
+		return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+
 	}
 
 
