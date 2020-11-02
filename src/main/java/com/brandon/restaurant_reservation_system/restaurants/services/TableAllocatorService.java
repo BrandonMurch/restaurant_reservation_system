@@ -168,7 +168,7 @@ public class TableAllocatorService {
 				if (restaurantTable.getSeats() == size) {
 					return Collections.singletonList(restaurantTable);
 				}
-				availableTables.put(restaurantTable.getSeats(),
+				availableTables.putIfAbsent(restaurantTable.getSeats(),
 				restaurantTable);
 			}
 		}
