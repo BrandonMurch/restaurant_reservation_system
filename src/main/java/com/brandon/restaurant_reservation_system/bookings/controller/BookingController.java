@@ -208,9 +208,8 @@ public class BookingController {
 		if (bookingValidationException.isPresent()) {
 			throw new BookingRequestFormatException(bookingValidationException.get());
 		}
-
 		User user = new User(body.getUser());
-		if (user.getUsername() == null) {
+		if (user.getUsername() == null || user.getUsername().isEmpty()) {
 			throw new BookingRequestFormatException("Email is a required field");
 		}
 
