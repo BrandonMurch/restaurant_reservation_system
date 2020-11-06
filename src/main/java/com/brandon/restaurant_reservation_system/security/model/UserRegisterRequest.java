@@ -11,6 +11,7 @@ public class UserRegisterRequest {
     private boolean termsAndConditions;
     private String password;
     private String username;
+    private String comments;
 
     public UserRegisterRequest() {
     }
@@ -70,5 +71,13 @@ public class UserRegisterRequest {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getComments() {
+        return comments;
+    }
+
+    public void setComments(String comments) {
+        this.comments = comments;
     }
 }

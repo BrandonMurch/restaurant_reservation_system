@@ -51,7 +51,8 @@ public class JwtUserDetailsService implements UserDetailsService {
           passwordEncoder.encode(newUser.getPassword()),
           newUser.getPhoneNumber(),
           newUser.getUsername(),
-          newUser.isTermsAndConditions()
+          newUser.isTermsAndConditions(),
+          newUser.getComments()
         );
         return userRepository.save(user);
     }

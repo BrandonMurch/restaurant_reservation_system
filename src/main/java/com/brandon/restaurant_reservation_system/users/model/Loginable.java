@@ -44,6 +44,10 @@ public abstract class Loginable {
         this.password = password;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public Collection<AdminPermissions> getPermissions() {
         return permissions;
     }

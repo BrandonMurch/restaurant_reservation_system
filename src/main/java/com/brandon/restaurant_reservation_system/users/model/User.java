@@ -24,6 +24,7 @@ public class User extends Loginable {
 	private String lastName;
 	private String phoneNumber;
 	private boolean termsAndConditions;
+	private String comments;
 
 
 	public User() {
@@ -32,11 +33,19 @@ public class User extends Loginable {
 
 	public User(User newUser) {
 		super(newUser.getUsername(), newUser.getPassword(), new ArrayList<>());
-		this.firstName = newUser.firstName;
-		this.lastName = newUser.lastName;
+		this.firstName = firstLetterToUppercase(newUser.firstName);
+		this.lastName = firstLetterToUppercase(newUser.lastName);
 		this.phoneNumber = newUser.phoneNumber;
 		this.termsAndConditions = newUser.termsAndConditions;
 		this.id = newUser.id;
+		this.comments = newUser.comments;
+	}
+
+	public User(String firstName, String lastName, String password,
+				String phoneNumber, String email, boolean termsAndConditions,
+				String comments) {
+		this(firstName, lastName, password, phoneNumber, email, termsAndConditions);
+		this.comments = comments;
 	}
 
 	public User(String firstName, String lastName, String password,
@@ -67,10 +76,11 @@ public class User extends Loginable {
 	}
 
 	public void updateWith(User updatedUser) {
-		String phone = updatedUser.getPhoneNumber();
-		if (phone != null) {
-			this.setPhoneNumber(phone);
-		}
+		this.firstName = updatedUser.firstName;
+		this.lastName = updatedUser.lastName;
+		this.setPhoneNumber(updatedUser.getPhoneNumber());
+		this.setUsername(updatedUser.getUsername());
+		this.comments = updatedUser.comments;
 	}
 
 	@JsonIgnore
@@ -90,6 +100,10 @@ public class User extends Loginable {
 
 	public boolean getTermsAndConditions() {
 		return termsAndConditions;
+	}
+
+	public String getComments() {
+		return comments;
 	}
 
 	@Override
@@ -149,6 +163,10 @@ public class User extends Loginable {
 	}
 
 	protected String firstLetterToUppercase(String name) {
-		return name.substring(0, 1).toUpperCase() + name.substring(1);
+		if (name.isEmpty()) {
+			return "";
+		} else {
+			return name.substring(0, 1).toUpperCase() + name.substring(1);
+		}
 	}
 }
