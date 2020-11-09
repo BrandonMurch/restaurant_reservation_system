@@ -12,11 +12,15 @@ public abstract class Sittable {
     @Id
     private String name;
     private int seats;
+    private int priority;
 
+    public Sittable() {
+    }
 
-    public Sittable(String name, int seats) {
+    public Sittable(String name, int seats, int priority) {
         this.name = name;
         this.seats = seats;
+        this.priority = priority;
     }
 
     public String getName() {
@@ -35,4 +39,11 @@ public abstract class Sittable {
         this.seats = seats;
     }
 
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
 }

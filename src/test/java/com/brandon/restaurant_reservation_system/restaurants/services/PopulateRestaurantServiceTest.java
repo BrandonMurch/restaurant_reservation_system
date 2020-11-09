@@ -39,38 +39,38 @@ class PopulateRestaurantServiceTest {
     @BeforeEach
     void setUp() {
         tableList = Arrays.asList(
-          new RestaurantTable("k1", 2),
-          new RestaurantTable("k2", 2),
-          new RestaurantTable("b1", 2),
-          new RestaurantTable("b2", 2),
-          new RestaurantTable("1", 4),
-          new RestaurantTable("5", 4),
-          new RestaurantTable("20", 2),
-          new RestaurantTable("21", 2),
-          new RestaurantTable("22", 2),
-          new RestaurantTable("23", 2),
-          new RestaurantTable("24", 2),
-          new RestaurantTable("25", 2)
+          new RestaurantTable("k1", 2, 1),
+          new RestaurantTable("k2", 2, 1),
+          new RestaurantTable("b1", 2, 1),
+          new RestaurantTable("b2", 2, 1),
+          new RestaurantTable("1", 4, 1),
+          new RestaurantTable("5", 4, 1),
+          new RestaurantTable("20", 2, 1),
+          new RestaurantTable("21", 2, 1),
+          new RestaurantTable("22", 2, 1),
+          new RestaurantTable("23", 2, 1),
+          new RestaurantTable("24", 2, 1),
+          new RestaurantTable("25", 2, 1)
         );
 
         comboList = Arrays.asList(
           new CombinationOfTables(Arrays.asList(
-            new RestaurantTable("21", 2),
-            new RestaurantTable("22", 2)
-          )),
+            new RestaurantTable("21", 2, 1),
+            new RestaurantTable("22", 2, 1)
+          ), 1),
           new CombinationOfTables(Arrays.asList(
-            new RestaurantTable("21", 2),
-            new RestaurantTable("22", 2),
-            new RestaurantTable("23", 2)
-          )),
+            new RestaurantTable("21", 2, 1),
+            new RestaurantTable("22", 2, 1),
+            new RestaurantTable("23", 2, 1)
+          ), 1),
           new CombinationOfTables(Arrays.asList(
-            new RestaurantTable("22", 2),
-            new RestaurantTable("23", 2)
-          )),
+            new RestaurantTable("22", 2, 1),
+            new RestaurantTable("23", 2, 1)
+          ), 1),
           new CombinationOfTables(Arrays.asList(
-            new RestaurantTable("1", 4),
-            new RestaurantTable("5", 4)
-          ))
+            new RestaurantTable("1", 4, 1),
+            new RestaurantTable("5", 4, 1)
+          ), 1)
         );
     }
 
@@ -111,10 +111,10 @@ class PopulateRestaurantServiceTest {
         List<RestaurantTable> tableList = restaurant.getTableList();
         assertEquals(12, tableList.size());
 
-        RestaurantTable table = new RestaurantTable("k1", 2);
+        RestaurantTable table = new RestaurantTable("k1", 2, 1);
         assertTrue(tableList.contains(table));
 
-        table = new RestaurantTable("55989", 2);
+        table = new RestaurantTable("55989", 2, 1);
         assertFalse(tableList.contains(table));
 
 

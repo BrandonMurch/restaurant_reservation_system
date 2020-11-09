@@ -96,7 +96,7 @@ class RestaurantCacheTest {
         Mockito
           .when(tableAllocatorService.getAvailableTable(any(LocalDateTime.class), eq(2),
             eq(false)))
-          .thenReturn(Collections.singletonList(new RestaurantTable()));
+          .thenReturn(Collections.singletonList(new RestaurantTable("", 0, 0)));
 
         SortedSet<LocalDate> expected = new TreeSet<>();
         for (int i = 0; i < 3; i++) {

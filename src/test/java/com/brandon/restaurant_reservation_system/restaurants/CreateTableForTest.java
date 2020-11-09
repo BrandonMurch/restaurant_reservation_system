@@ -25,22 +25,22 @@ public class CreateTableForTest {
 	}
 
 	public static RestaurantTable getTable1() {
-		return new RestaurantTable("21", 2);
-	}
+        return new RestaurantTable("21", 2, 1);
+    }
 
 	public static RestaurantTable getTable2() {
-		return new RestaurantTable("22", 2);
-	}
+        return new RestaurantTable("22", 2, 2);
+    }
 
 	public static RestaurantTable getTable3() {
-		return new RestaurantTable("23", 2);
-	}
+        return new RestaurantTable("23", 2, 3);
+    }
 
 	public static RestaurantTable getTable4() {
-		return new RestaurantTable("5", 8);
-	}
+        return new RestaurantTable("5", 8, 4);
+    }
 
 	public static RestaurantTable getTable5() {
-		return new RestaurantTable("k1", 2);
-	}
+        return new RestaurantTable("k1", 2, 5);
+    }
 }

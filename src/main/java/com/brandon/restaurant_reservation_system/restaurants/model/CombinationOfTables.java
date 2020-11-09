@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Entity
+@Entity(name = "combination_of_tables")
 public class CombinationOfTables extends Sittable {
 
 	@ManyToMany(targetEntity = RestaurantTable.class, cascade =
@@ -22,23 +22,13 @@ public class CombinationOfTables extends Sittable {
 	private final List<RestaurantTable> restaurantTables = new ArrayList<>();
 
 	public CombinationOfTables() {
-		super("", 0);
 	}
 
-	public CombinationOfTables(List<RestaurantTable> restaurantTables) {
-		this();
-		int seats = 0;
-		for (RestaurantTable table : restaurantTables) {
-			this.restaurantTables.add(table);
-			seats += table.getSeats();
-		}
-		this.setName(calculateName());
-		this.setSeats(seats);
-	}
-
-	private String calculateName() {
-		return restaurantTables.stream().map(RestaurantTable::getName)
-		.collect(Collectors.joining(", "));
+	public CombinationOfTables(List<RestaurantTable> restaurantTables, int priority) {
+		super();
+		this.setSeats(calculateSeats(restaurantTables));
+		this.setName(calculateName(restaurantTables));
+		this.setPriority(priority);
 	}
 
 	public void setCustomTotalSeats(int seats) {
@@ -47,6 +37,16 @@ public class CombinationOfTables extends Sittable {
 
 	public List<RestaurantTable> getTables() {
 		return this.restaurantTables;
+	}
+
+	private int calculateSeats(List<RestaurantTable> restaurantTables) {
+		return restaurantTables.stream().reduce(0,
+		(previous, current) -> previous + current.getSeats(), Integer::sum);
+	}
+
+	private String calculateName(List<RestaurantTable> restaurantTables) {
+		return restaurantTables.stream().map(RestaurantTable::getName)
+		.collect(Collectors.joining(", "));
 	}
 
 	@Override

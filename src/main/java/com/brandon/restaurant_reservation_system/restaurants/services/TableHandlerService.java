@@ -30,10 +30,11 @@ public class TableHandlerService {
 	public TableHandlerService() {
 	}
 
+	// EITHER TABLES OR COMBINATIONS  ------------------------------------------
+
 	public List<RestaurantTable> find(String tableNames) {
 		String[] splitTableNames = tableNames.split(",");
 		List<RestaurantTable> tableList = new ArrayList<>();
-		// FIXME: if the name isn't in the same order, the search won't work...
 		if (splitTableNames.length > 1) {
 			Optional<CombinationOfTables> optionalTables =
 			getCombination(tableNames);
@@ -66,7 +67,8 @@ public class TableHandlerService {
 	}
 
 	public void add(String name, int seats) {
-		tableRepository.save(new RestaurantTable(name, seats));
+		int length = getTableCount();
+		tableRepository.save(new RestaurantTable(name, seats, length));
 		updateLargestTableSize();
 	}
 
@@ -101,7 +103,8 @@ public class TableHandlerService {
 	}
 
 	public void createCombination(List<RestaurantTable> tables) {
-		CombinationOfTables combination = new CombinationOfTables(tables);
+		int priority = getTableCount();
+		CombinationOfTables combination = new CombinationOfTables(tables, priority);
 
 		for (RestaurantTable table : tables) {
 			Optional<RestaurantTable> foundTable =
@@ -127,6 +130,7 @@ public class TableHandlerService {
 			combination));
 		}
 		combinationRepository.deleteById(combination.getName());
+		updateLargestTableSize();
 	}
 
 	//	Largest RestaurantTable Size  --------------------------------------------------------
@@ -142,5 +146,9 @@ public class TableHandlerService {
 			size += table.getSeats();
 		}
 		return size >= partySize;
+	}
+
+	private int getTableCount() {
+		return (int) tableRepository.count() + (int) combinationRepository.count();
 	}
 }

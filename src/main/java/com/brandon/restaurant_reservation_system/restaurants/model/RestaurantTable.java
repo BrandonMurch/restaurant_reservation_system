@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
+@Entity(name = "restaurant_table")
 public class RestaurantTable extends Sittable {
 
 	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "restaurantTables")
@@ -25,12 +25,11 @@ public class RestaurantTable extends Sittable {
 	@JsonIgnore
 	private final Set<CombinationOfTables> combinations = new HashSet<>();
 
-	public RestaurantTable(String name, int seats) {
-		super(name, seats);
+	public RestaurantTable(String name, int seats, int priority) {
+		super(name, seats, priority);
 	}
 
 	public RestaurantTable() {
-		super("", 0);
 	}
 
 	public void addBooking(Booking booking) {

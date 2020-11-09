@@ -51,6 +51,7 @@ public class PopulateRestaurantService {
 	}
 
 	private static void addTables(Restaurant restaurant) {
+		restaurant.addTable("22", 2);
 		restaurant.addTable("k1", 2);
 		restaurant.addTable("k2", 2);
 		restaurant.addTable("b1", 2);
@@ -59,7 +60,6 @@ public class PopulateRestaurantService {
 		restaurant.addTable("5", 4);
 		restaurant.addTable("20", 2);
 		restaurant.addTable("21", 2);
-		restaurant.addTable("22", 2);
 		restaurant.addTable("23", 2);
 		restaurant.addTable("24", 2);
 		restaurant.addTable("25", 2);

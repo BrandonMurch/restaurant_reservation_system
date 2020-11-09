@@ -23,27 +23,27 @@ public class CreateCombinationsForTest {
 
 	public CombinationOfTables getCombination1() {
 		return new CombinationOfTables(
-				Arrays.asList(
-						this.restaurantTableList.get(0),
-						this.restaurantTableList.get(1),
-						this.restaurantTableList.get(2)
-				));
+		Arrays.asList(
+		this.restaurantTableList.get(0),
+		this.restaurantTableList.get(1),
+		this.restaurantTableList.get(2)
+		), 1);
 	}
 
 	public CombinationOfTables getCombination2() {
 		return new CombinationOfTables(
-				Arrays.asList(
-						this.restaurantTableList.get(0),
-						this.restaurantTableList.get(1)
-				));
+		Arrays.asList(
+		this.restaurantTableList.get(0),
+		this.restaurantTableList.get(1)
+		), 1);
 	}
 
 	public CombinationOfTables getCombination3() {
 		return new CombinationOfTables(
-				Arrays.asList(
-						this.restaurantTableList.get(1),
-						this.restaurantTableList.get(2)
-				));
+		Arrays.asList(
+		this.restaurantTableList.get(1),
+		this.restaurantTableList.get(2)
+		), 1);
 	}
 
 

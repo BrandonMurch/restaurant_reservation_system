@@ -33,8 +33,8 @@ class TableAvailabilityServiceTest {
 
     Booking booking = CreateBookingsForTest.createBookingForTwoAt19();
     Booking booking2 = CreateBookingsForTest.createBookingForFourAt20();
-    RestaurantTable table = new RestaurantTable("K1", 2);
-    RestaurantTable table2 = new RestaurantTable("20", 4);
+    RestaurantTable table = new RestaurantTable("K1", 2, 1);
+    RestaurantTable table2 = new RestaurantTable("20", 4, 2);
     List<Booking> bookings;
 
     @BeforeEach

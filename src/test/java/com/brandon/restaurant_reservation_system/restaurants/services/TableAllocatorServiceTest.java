@@ -42,38 +42,38 @@ class TableAllocatorServiceTest {
     private final LocalDateTime dateTime2 = LocalDateTime.now().plusHours(2);
 
     private final List<RestaurantTable> tableList = Arrays.asList(
-      new RestaurantTable("k1", 2),
-      new RestaurantTable("k2", 2),
-      new RestaurantTable("b1", 2),
-      new RestaurantTable("b2", 2),
-      new RestaurantTable("1", 4),
-      new RestaurantTable("5", 4),
-      new RestaurantTable("20", 2),
-      new RestaurantTable("21", 2),
-      new RestaurantTable("22", 2),
-      new RestaurantTable("23", 2),
-      new RestaurantTable("24", 2),
-      new RestaurantTable("25", 2)
+      new RestaurantTable("k1", 2, 1),
+      new RestaurantTable("k2", 2, 2),
+      new RestaurantTable("b1", 2, 3),
+      new RestaurantTable("b2", 2, 3),
+      new RestaurantTable("1", 4, 3),
+      new RestaurantTable("5", 4, 3),
+      new RestaurantTable("20", 2, 3),
+      new RestaurantTable("21", 2, 3),
+      new RestaurantTable("22", 2, 3),
+      new RestaurantTable("23", 2, 3),
+      new RestaurantTable("24", 2, 3),
+      new RestaurantTable("25", 2, 3)
     );
 
     private final List<CombinationOfTables> comboList = Arrays.asList(
       new CombinationOfTables(Arrays.asList(
-        new RestaurantTable("21", 2),
-        new RestaurantTable("22", 2)
-      )),
+        new RestaurantTable("21", 2, 1),
+        new RestaurantTable("22", 2, 1)
+      ), 1),
       new CombinationOfTables(Arrays.asList(
-        new RestaurantTable("21", 2),
-        new RestaurantTable("22", 2),
-        new RestaurantTable("23", 2)
-      )),
+        new RestaurantTable("21", 2, 1),
+        new RestaurantTable("22", 2, 1),
+        new RestaurantTable("23", 2, 1)
+      ), 1),
       new CombinationOfTables(Arrays.asList(
-        new RestaurantTable("22", 2),
-        new RestaurantTable("23", 2)
-      )),
+        new RestaurantTable("22", 2, 1),
+        new RestaurantTable("23", 2, 1)
+      ), 1),
       new CombinationOfTables(Arrays.asList(
-        new RestaurantTable("1", 4),
-        new RestaurantTable("5", 4)
-      ))
+        new RestaurantTable("1", 4, 1),
+        new RestaurantTable("5", 4, 1)
+      ), 1)
     );
 
     @BeforeEach
@@ -183,7 +183,7 @@ class TableAllocatorServiceTest {
     @Test
     void getAvailableTableGreaterSize() {
         List<RestaurantTable> oneTableList =
-          Collections.singletonList(new RestaurantTable("30", 4));
+          Collections.singletonList(new RestaurantTable("30", 4, 1));
 
         Mockito
           .when(restaurant.getTableList())
@@ -215,7 +215,7 @@ class TableAllocatorServiceTest {
         Mockito
           .when(restaurant.getTableList())
           .thenReturn(Collections.singletonList(
-            new RestaurantTable("200", 10)
+            new RestaurantTable("200", 10, 1)
           ));
         Mockito
           .when(restaurant.getAllCombinationsOfTables())
@@ -288,7 +288,7 @@ class TableAllocatorServiceTest {
     @Test
     void updateTableSizeMap() {
         List<RestaurantTable> oneTableList =
-          Collections.singletonList(new RestaurantTable("30", 4));
+          Collections.singletonList(new RestaurantTable("30", 4, 1));
         ReflectionTestUtils.setField(tableAllocator, "restaurantTableList",
           oneTableList);
         List<RestaurantTable> results =
