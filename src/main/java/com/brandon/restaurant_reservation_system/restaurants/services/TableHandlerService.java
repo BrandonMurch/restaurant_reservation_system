@@ -73,6 +73,12 @@ public class TableHandlerService {
 		tableRepository.saveAll(restaurantTableList);
 	}
 
+	public void update(RestaurantTable existing, RestaurantTable updated) {
+		existing.update(updated);
+		tableRepository.save(existing);
+	}
+
+
 	public int remove(String name) {
 		Optional<RestaurantTable> result = tableRepository.findById(name);
 		return result.map(restaurantTable -> tableRepository.deleteWithAssociatedCombinations(restaurantTable)).orElse(0);

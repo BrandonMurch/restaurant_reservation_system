@@ -55,6 +55,11 @@ public class RestaurantTable {
 		this.priority = Math.max(priority, 0);
 	}
 
+	public void update(RestaurantTable newTable) {
+		setName(newTable.name);
+		setSeats(newTable.seats);
+		setPriority(newTable.priority);
+	}
 
 	@Override
 	public boolean equals(Object o) {

@@ -21,6 +21,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler.parseDate;
@@ -80,6 +81,17 @@ public class RestaurantController {
 	public ResponseEntity<?> createTable(@RequestBody RestaurantTable table) {
 		restaurant.addTable(table);
 		return buildUriFromTable(table);
+	}
+
+	@PutMapping(value = "/tables/{name}")
+	public ResponseEntity<?> updateTable(@RequestBody RestaurantTable newTable, @PathVariable String name) {
+		Optional<RestaurantTable> result = restaurant.getTable(name);
+		if (result.isPresent()) {
+			RestaurantTable table = result.get();
+			restaurant.updateTable(table, newTable);
+			return ResponseEntity.noContent().build();
+		}
+		return ResponseEntity.notFound().build();
 	}
 
 	@DeleteMapping(value = "/tables/{name}")

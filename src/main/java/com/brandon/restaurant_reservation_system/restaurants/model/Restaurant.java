@@ -118,6 +118,10 @@ public class Restaurant implements Serializable {
 		tables.add(table);
 	}
 
+	public void updateTable(RestaurantTable existing, RestaurantTable updated) {
+		tables.update(existing, updated);
+	}
+
 	public int removeTable(String name) {
 		return tables.remove(name);
 	}
