@@ -20,6 +20,9 @@ public class RestaurantTable {
 	private int priority;
 
 	public RestaurantTable() {
+		name = "Unnamed";
+		seats = 0;
+		priority = -1;
 	}
 
 	public RestaurantTable(String name, int seats, int priority) {

@@ -59,16 +59,23 @@ public class TableHandlerService {
 
 	public void add(String name, int seats) {
 		int length = getTableCount();
-		tableRepository.save(new RestaurantTable(name, seats, length));
+		add(new RestaurantTable(name, seats, length));
+	}
+
+	public void add(RestaurantTable table) {
+		if (table.getPriority() == -1) {
+			table.setPriority(getTableCount());
+		}
+		tableRepository.save(table);
 	}
 
 	public void addAll(List<RestaurantTable> restaurantTableList) {
 		tableRepository.saveAll(restaurantTableList);
 	}
 
-	public void remove(String name) {
+	public int remove(String name) {
 		Optional<RestaurantTable> result = tableRepository.findById(name);
-		result.ifPresent(tableRepository::deleteWithAssociatedCombinations);
+		return result.map(restaurantTable -> tableRepository.deleteWithAssociatedCombinations(restaurantTable)).orElse(0);
 	}
 
 	// TABLE COMBINATIONS ------------------------------------------------------
@@ -106,4 +113,6 @@ public class TableHandlerService {
 	private int getTableCount() {
 		return (int) tableRepository.count();
 	}
+
+
 }

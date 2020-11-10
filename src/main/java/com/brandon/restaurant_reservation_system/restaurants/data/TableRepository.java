@@ -18,11 +18,17 @@ String> {
 	@Query("SELECT t FROM restaurant_table t ORDER BY priority ASC")
 	List<RestaurantTable> findAll();
 
-	default void deleteWithAssociatedCombinations(@Param("table") RestaurantTable table) {
-		List<CombinationOfTables> tables = findAssociatedCombinations(table);
-		tables.forEach(CombinationOfTables::deleteTables);
-		this.deleteAll(tables);
-		this.delete(table);
+	int deleteByName(String name);
+
+	default int deleteWithAssociatedCombinations(@Param("table") RestaurantTable table) {
+		if (table instanceof CombinationOfTables) {
+			((CombinationOfTables) table).deleteTables();
+		} else {
+			List<CombinationOfTables> tables = findAssociatedCombinations(table);
+			tables.forEach(CombinationOfTables::deleteTables);
+			this.deleteAll(tables);
+		}
+		return this.deleteByName(table.getName());
 	}
 
 	Optional<CombinationOfTables> findCombinationByName(String name);

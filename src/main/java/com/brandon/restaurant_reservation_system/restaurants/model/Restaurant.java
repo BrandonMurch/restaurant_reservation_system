@@ -114,8 +114,12 @@ public class Restaurant implements Serializable {
 		tables.add(name, seats);
 	}
 
-	public void removeTable(String name) {
-		tables.remove(name);
+	public void addTable(RestaurantTable table) {
+		tables.add(table);
+	}
+
+	public int removeTable(String name) {
+		return tables.remove(name);
 	}
 
 
@@ -134,10 +138,6 @@ public class Restaurant implements Serializable {
 
 	public void addTableCombination(List<RestaurantTable> tables) {
 		this.tables.createCombination(tables);
-	}
-
-	public void removeTableCombination(CombinationOfTables combination) {
-		this.tables.remove(combination.getName());
 	}
 
 	public int getLargestTableSize() {

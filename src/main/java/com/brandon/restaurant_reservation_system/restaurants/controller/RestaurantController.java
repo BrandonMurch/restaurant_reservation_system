@@ -8,16 +8,16 @@ import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
 import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
+import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -76,6 +76,29 @@ public class RestaurantController {
 		return new ResponseEntity<>(restaurant.getTableList(), HttpStatus.OK);
 	}
 
+	@PostMapping(value = "/tables")
+	public ResponseEntity<?> createTable(@RequestBody RestaurantTable table) {
+		restaurant.addTable(table);
+		return buildUriFromTable(table);
+	}
+
+	@DeleteMapping(value = "/tables/{name}")
+	public ResponseEntity<?> deleteTable(@PathVariable String name) {
+		if (restaurant.removeTable(name) == 0) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.noContent().build();
+	}
+
+	private ResponseEntity<String> buildUriFromTable(RestaurantTable table) {
+		URI location = ServletUriComponentsBuilder
+		.fromCurrentRequest()
+		.replacePath("/tables")
+		.path("/{id}")
+		.buildAndExpand(table.getName())
+		.toUri();
+		return ResponseEntity.created(location).build();
+	}
 
 	// admin only controller options - to be implemented in future
 	// GET /RESTAURANTS/{RESTAURANT} - get a restaurant
