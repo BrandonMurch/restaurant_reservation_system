@@ -103,7 +103,7 @@ public class Restaurant implements Serializable {
 	}
 
 	public void setTableList(List<RestaurantTable> restaurantTableList) {
-		tables.setAll(restaurantTableList);
+		tables.addAll(restaurantTableList);
 	}
 
 	public Optional<RestaurantTable> getTable(String name) {
@@ -137,7 +137,7 @@ public class Restaurant implements Serializable {
 	}
 
 	public void removeTableCombination(CombinationOfTables combination) {
-		this.tables.deleteCombination(combination);
+		this.tables.remove(combination.getName());
 	}
 
 	public int getLargestTableSize() {

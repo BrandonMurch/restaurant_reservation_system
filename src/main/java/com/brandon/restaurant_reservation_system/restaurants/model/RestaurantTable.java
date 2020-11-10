@@ -33,7 +33,7 @@ public class RestaurantTable {
 	}
 
 	protected void setName(String name) {
-		this.name = name;
+		this.name = name.isEmpty() ? "UNNAMED" : name;
 	}
 
 	public int getSeats() {
@@ -41,7 +41,7 @@ public class RestaurantTable {
 	}
 
 	protected void setSeats(int seats) {
-		this.seats = seats;
+		this.seats = Math.max(seats, 1);
 	}
 
 	public int getPriority() {
@@ -49,7 +49,7 @@ public class RestaurantTable {
 	}
 
 	public void setPriority(int priority) {
-		this.priority = priority;
+		this.priority = Math.max(priority, 0);
 	}
 
 

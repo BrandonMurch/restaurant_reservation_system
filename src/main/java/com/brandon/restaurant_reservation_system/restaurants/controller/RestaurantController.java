@@ -70,7 +70,7 @@ public class RestaurantController {
 		return new ResponseEntity<>(restaurant.getLargestTableSize(), HttpStatus.OK);
 	}
 
-	@GetMapping(value = "/all-tables")
+	@GetMapping(value = "/tables")
 	public ResponseEntity<?> getAllTables() {
 
 		return new ResponseEntity<>(restaurant.getTableList(), HttpStatus.OK);

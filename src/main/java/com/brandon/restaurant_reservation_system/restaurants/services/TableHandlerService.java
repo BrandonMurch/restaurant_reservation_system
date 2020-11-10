@@ -4,7 +4,6 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
-import com.brandon.restaurant_reservation_system.restaurants.data.CombinationRepository;
 import com.brandon.restaurant_reservation_system.restaurants.data.TableRepository;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNotFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
@@ -23,9 +22,6 @@ import java.util.Optional;
 public class TableHandlerService {
 	@Autowired
 	private TableRepository tableRepository;
-	@Autowired
-	private CombinationRepository combinationRepository;
-	private int largestTableSize = 0;
 
 	public TableHandlerService() {
 	}
@@ -53,59 +49,49 @@ public class TableHandlerService {
 
 	// INDIVIDUAL TABLES -------------------------------------------------------
 
-	public List<RestaurantTable> getAll() {
-		return tableRepository.findAll();
-	}
-
-	public void setAll(List<RestaurantTable> restaurantTableList) {
-		tableRepository.saveAll(restaurantTableList);
-		updateLargestTableSize();
-	}
-
 	public Optional<RestaurantTable> get(String name) {
 		return tableRepository.findById(name);
+	}
+
+	public List<RestaurantTable> getAll() {
+		return tableRepository.findAll();
 	}
 
 	public void add(String name, int seats) {
 		int length = getTableCount();
 		tableRepository.save(new RestaurantTable(name, seats, length));
-		updateLargestTableSize();
+	}
+
+	public void addAll(List<RestaurantTable> restaurantTableList) {
+		tableRepository.saveAll(restaurantTableList);
 	}
 
 	public void remove(String name) {
 		Optional<RestaurantTable> result = tableRepository.findById(name);
 		result.ifPresent(tableRepository::deleteWithAssociatedCombinations);
-		updateLargestTableSize();
 	}
 
 	// TABLE COMBINATIONS ------------------------------------------------------
 
 
 	public List<CombinationOfTables> getAllCombinations() {
-		return combinationRepository.findAll();
+		return tableRepository.findAllCombinations();
 	}
 
 	public Optional<CombinationOfTables> getCombination(String name) {
-		return combinationRepository.findById(name);
+		return tableRepository.findCombinationByName(name);
 	}
 
 	public void createCombination(List<RestaurantTable> tables) {
 		int priority = getTableCount();
 		CombinationOfTables combination = new CombinationOfTables(tables, priority);
 		tableRepository.save(combination);
-		updateLargestTableSize();
-	}
-
-	public void deleteCombination(CombinationOfTables combination) {
-		List<RestaurantTable> tables = combination.getTables();
-		combinationRepository.deleteById(combination.getName());
-		updateLargestTableSize();
 	}
 
 	//	Largest RestaurantTable Size  --------------------------------------------------------
 
 	public int getLargestTableSize() {
-		return largestTableSize;
+		return tableRepository.getLargestTableSize();
 	}
 
 	// Other
@@ -117,21 +103,7 @@ public class TableHandlerService {
 		return size >= partySize;
 	}
 
-	protected void updateLargestTableSize() {
-		for (RestaurantTable restaurantTable : tableRepository.findAll()) {
-			if (restaurantTable.getSeats() > this.largestTableSize) {
-				this.largestTableSize = restaurantTable.getSeats();
-			}
-		}
-
-		for (CombinationOfTables table : combinationRepository.findAll()) {
-			if (table.getSeats() > this.largestTableSize) {
-				this.largestTableSize = table.getSeats();
-			}
-		}
-	}
-
 	private int getTableCount() {
-		return (int) tableRepository.count() + (int) combinationRepository.count();
+		return (int) tableRepository.count();
 	}
 }
