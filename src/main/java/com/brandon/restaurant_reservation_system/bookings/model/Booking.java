@@ -43,8 +43,10 @@ public class Booking implements Cloneable {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-	@JoinColumn(name = "bookings_id")
+	@ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+	@JoinTable(name = "booking_table",
+	joinColumns = @JoinColumn(name = "booking_id")
+	)
 	private List<RestaurantTable> restaurantTables;
 
 	public Booking(int partySize, LocalDateTime startTime,
