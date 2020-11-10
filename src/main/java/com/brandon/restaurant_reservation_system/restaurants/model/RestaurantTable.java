@@ -4,49 +4,54 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
-import com.brandon.restaurant_reservation_system.bookings.model.Booking;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToMany;
-import java.util.HashSet;
+import javax.persistence.*;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity(name = "restaurant_table")
-public class RestaurantTable extends Sittable {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "combination", discriminatorType =
+DiscriminatorType.INTEGER, columnDefinition = "TINYINT(1)")
+@DiscriminatorValue("0")
+public class RestaurantTable {
 
-	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "restaurantTables")
-	@JsonIgnore
-	private final Set<Booking> bookings = new HashSet<>();
-
-	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "restaurantTables")
-	@JsonIgnore
-	private final Set<CombinationOfTables> combinations = new HashSet<>();
-
-	public RestaurantTable(String name, int seats, int priority) {
-		super(name, seats, priority);
-	}
+	@Id
+	private String name;
+	private int seats;
+	private int priority;
 
 	public RestaurantTable() {
 	}
 
-	public void addBooking(Booking booking) {
-		bookings.add(booking);
+	public RestaurantTable(String name, int seats, int priority) {
+		this.name = name;
+		this.seats = seats;
+		this.priority = priority;
 	}
 
-	public void removeBooking(Booking booking) {
-		bookings.remove(booking);
+	public String getName() {
+		return this.name;
 	}
 
-	public void addCombination(CombinationOfTables combination) {
-		combinations.add(combination);
+	protected void setName(String name) {
+		this.name = name;
 	}
 
-	public void removeCombination(CombinationOfTables combination) {
-		combinations.remove(combination);
+	public int getSeats() {
+		return this.seats;
 	}
+
+	protected void setSeats(int seats) {
+		this.seats = seats;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
+
 
 	@Override
 	public boolean equals(Object o) {

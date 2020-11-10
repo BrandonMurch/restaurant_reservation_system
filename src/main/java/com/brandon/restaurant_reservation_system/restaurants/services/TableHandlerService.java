@@ -72,22 +72,9 @@ public class TableHandlerService {
 		updateLargestTableSize();
 	}
 
-	protected void updateLargestTableSize() {
-		for (RestaurantTable restaurantTable : tableRepository.findAll()) {
-			if (restaurantTable.getSeats() > this.largestTableSize) {
-				this.largestTableSize = restaurantTable.getSeats();
-			}
-		}
-
-		for (CombinationOfTables table : combinationRepository.findAll()) {
-			if (table.getSeats() > this.largestTableSize) {
-				this.largestTableSize = table.getSeats();
-			}
-		}
-	}
-
 	public void remove(String name) {
-		tableRepository.deleteById(name);
+		Optional<RestaurantTable> result = tableRepository.findById(name);
+		result.ifPresent(tableRepository::deleteWithAssociatedCombinations);
 		updateLargestTableSize();
 	}
 
@@ -105,30 +92,12 @@ public class TableHandlerService {
 	public void createCombination(List<RestaurantTable> tables) {
 		int priority = getTableCount();
 		CombinationOfTables combination = new CombinationOfTables(tables, priority);
-
-		for (RestaurantTable table : tables) {
-			Optional<RestaurantTable> foundTable =
-			tableRepository.findById(table.getName());
-			if (foundTable.isPresent()) {
-				foundTable.get().addCombination(combination);
-			} else {
-				table.addCombination(combination);
-				tableRepository.save(table);
-			}
-		}
-		combinationRepository.save(combination);
+		tableRepository.save(combination);
 		updateLargestTableSize();
 	}
 
 	public void deleteCombination(CombinationOfTables combination) {
 		List<RestaurantTable> tables = combination.getTables();
-		for (RestaurantTable table : tables) {
-			Optional<RestaurantTable> foundTable =
-			tableRepository.findById(table.getName());
-			foundTable.ifPresent(
-			restaurantTable -> restaurantTable.removeCombination(
-			combination));
-		}
 		combinationRepository.deleteById(combination.getName());
 		updateLargestTableSize();
 	}
@@ -146,6 +115,20 @@ public class TableHandlerService {
 			size += table.getSeats();
 		}
 		return size >= partySize;
+	}
+
+	protected void updateLargestTableSize() {
+		for (RestaurantTable restaurantTable : tableRepository.findAll()) {
+			if (restaurantTable.getSeats() > this.largestTableSize) {
+				this.largestTableSize = restaurantTable.getSeats();
+			}
+		}
+
+		for (CombinationOfTables table : combinationRepository.findAll()) {
+			if (table.getSeats() > this.largestTableSize) {
+				this.largestTableSize = table.getSeats();
+			}
+		}
 	}
 
 	private int getTableCount() {

@@ -11,13 +11,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Entity(name = "combination_of_tables")
-public class CombinationOfTables extends Sittable {
+@DiscriminatorValue("1")
+public class CombinationOfTables extends RestaurantTable {
 
 	@ManyToMany(targetEntity = RestaurantTable.class, cascade =
 	CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinTable(name = "combination_table",
-	joinColumns = @JoinColumn(name = "combination_id"),
-	inverseJoinColumns = @JoinColumn(name = "table_id")
+	joinColumns = @JoinColumn(name = "combination_id")
 	)
 	private final List<RestaurantTable> restaurantTables = new ArrayList<>();
 
@@ -26,6 +26,7 @@ public class CombinationOfTables extends Sittable {
 
 	public CombinationOfTables(List<RestaurantTable> restaurantTables, int priority) {
 		super();
+		this.restaurantTables.addAll(restaurantTables);
 		this.setSeats(calculateSeats(restaurantTables));
 		this.setName(calculateName(restaurantTables));
 		this.setPriority(priority);
@@ -37,6 +38,10 @@ public class CombinationOfTables extends Sittable {
 
 	public List<RestaurantTable> getTables() {
 		return this.restaurantTables;
+	}
+
+	public void deleteTables() {
+		this.restaurantTables.clear();
 	}
 
 	private int calculateSeats(List<RestaurantTable> restaurantTables) {

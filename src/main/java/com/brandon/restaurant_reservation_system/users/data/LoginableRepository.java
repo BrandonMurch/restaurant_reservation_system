@@ -15,11 +15,9 @@ import java.util.Optional;
 
 public interface LoginableRepository extends JpaRepository<Loginable, Long> {
 
-    //    @Query("SELECT l FROM loginable l WHERE l.username = :username")
     Optional<Loginable> findByUsername(
       @Param("username") String username);
 
-    //    @Query("SELECT t from loginable t WHERE ROLE_TYPE(t) = 'ADMINISTRATOR'")
     @Query(value = "SELECT * from loginable WHERE ROLE_TYPE = 'ADMINISTRATOR'",
       nativeQuery = true)
     List<Administrator> findAllAdmins();

@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.*;
 import java.util.ArrayList;
 
+import static com.brandon.restaurant_reservation_system.helpers.strings.Checks.isNotEmptyString;
+
 @Entity
 @Table(name = "users")
 @DiscriminatorValue("USER")
@@ -76,8 +78,8 @@ public class User extends Loginable {
 	}
 
 	public void updateWith(User updatedUser) {
-		this.firstName = updatedUser.firstName;
-		this.lastName = updatedUser.lastName;
+		this.firstName = firstLetterToUppercase(updatedUser.firstName);
+		this.lastName = firstLetterToUppercase(updatedUser.lastName);
 		this.setPhoneNumber(updatedUser.getPhoneNumber());
 		this.setUsername(updatedUser.getUsername());
 		this.comments = updatedUser.comments;
@@ -163,10 +165,10 @@ public class User extends Loginable {
 	}
 
 	protected String firstLetterToUppercase(String name) {
-		if (name.isEmpty()) {
-			return "";
-		} else {
+		if (isNotEmptyString(name)) {
 			return name.substring(0, 1).toUpperCase() + name.substring(1);
+		} else {
+			return "";
 		}
 	}
 }

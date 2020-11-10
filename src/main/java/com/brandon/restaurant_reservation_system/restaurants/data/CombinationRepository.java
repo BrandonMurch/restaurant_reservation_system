@@ -14,4 +14,5 @@ extends JpaRepository<CombinationOfTables, String> {
 	@NonNull
 	@Query("SELECT t FROM combination_of_tables t ORDER BY priority ASC")
 	List<CombinationOfTables> findAll();
+
 }

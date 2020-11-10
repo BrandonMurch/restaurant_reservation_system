@@ -111,7 +111,6 @@ public class BookingHandlerService {
 			}
 		}
 		booking.setTables(tables);
-		tables.forEach((table) -> table.addBooking(booking));
 
 		booking.setDate(booking.getStartTime().toLocalDate());
 		bookingRepository.save(booking);
