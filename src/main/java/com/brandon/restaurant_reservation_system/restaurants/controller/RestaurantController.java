@@ -21,6 +21,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -81,6 +82,12 @@ public class RestaurantController {
 	public ResponseEntity<?> createTable(@RequestBody RestaurantTable table) {
 		restaurant.addTable(table);
 		return buildUriFromTable(table);
+	}
+
+	@PutMapping(value = "/tables")
+	public ResponseEntity<?> updateTablePriorities(@RequestBody List<RestaurantTable> updatedTables) {
+		restaurant.updateAllTables(updatedTables);
+		return ResponseEntity.noContent().build();
 	}
 
 	@PutMapping(value = "/tables/{name}")

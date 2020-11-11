@@ -4,6 +4,7 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
+import com.brandon.restaurant_reservation_system.bookings.services.BookingHandlerService;
 import com.brandon.restaurant_reservation_system.restaurants.data.TableRepository;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNotFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
@@ -22,6 +23,8 @@ import java.util.Optional;
 public class TableHandlerService {
 	@Autowired
 	private TableRepository tableRepository;
+	@Autowired
+	private BookingHandlerService bookingHandler;
 
 	public TableHandlerService() {
 	}
@@ -76,6 +79,10 @@ public class TableHandlerService {
 	public void update(RestaurantTable existing, RestaurantTable updated) {
 		existing.update(updated);
 		tableRepository.save(existing);
+	}
+
+	public int updateAll(List<RestaurantTable> tables) {
+		return tableRepository.updateMultipleTables(tables);
 	}
 
 
