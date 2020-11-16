@@ -103,7 +103,8 @@ public class RestaurantController {
 
 	@DeleteMapping(value = "/tables/{name}")
 	public ResponseEntity<?> deleteTable(@PathVariable String name) {
-		if (restaurant.removeTable(name) == 0) {
+		int result = restaurant.removeTable(name);
+		if (result == 0) {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.noContent().build();

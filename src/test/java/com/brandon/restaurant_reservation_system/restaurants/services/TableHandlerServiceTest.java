@@ -4,22 +4,36 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
+import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
+import com.brandon.restaurant_reservation_system.bookings.model.Booking;
+import com.brandon.restaurant_reservation_system.bookings.services.BookingHandlerService;
 import com.brandon.restaurant_reservation_system.restaurants.data.TableRepository;
+import com.brandon.restaurant_reservation_system.restaurants.exceptions.NoTableBookingsCreatedException;
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class TableHandlerServiceTest {
 
     @Mock
     private TableRepository tableRepository;
+    @Mock
+    private BookingHandlerService bookingHandler;
     @InjectMocks
     private TableHandlerService tableHandlerService;
 
@@ -28,6 +42,8 @@ class TableHandlerServiceTest {
     RestaurantTable table20 = new RestaurantTable("20", 2, 3);
     RestaurantTable table21 = new RestaurantTable("21", 2, 4);
     RestaurantTable table22 = new RestaurantTable("22", 2, 5);
+
+    Booking booking = CreateBookingsForTest.createBookingForTwoAt19();
 
 
     private final List<RestaurantTable> tableList = Arrays.asList(
@@ -48,5 +64,26 @@ class TableHandlerServiceTest {
         table1, table5
       ), 9)
     );
+
+    @Test
+    void removeTableWhenNoExtraTables() {
+        Mockito
+          .when(tableRepository.findById(any(String.class)))
+          .thenReturn(Optional.of(table1));
+        Mockito
+          .when(tableRepository.findAssociatedCombinations(Mockito.notNull()))
+          .thenReturn(Collections.emptyList());
+        Mockito
+          .when(bookingHandler.freeTableFromBookings(Mockito.notNull()))
+          .thenReturn(Collections.singletonList(booking));
+
+        NoTableBookingsCreatedException exception = assertThrows(NoTableBookingsCreatedException.class, () -> tableHandlerService.remove(table1.getName()));
+
+        String expected = "Bookings have been left without a table";
+        String actual = exception.getApiError().getMessage();
+
+        assertEquals(expected, actual);
+        assertEquals(1, exception.getApiError().getSubErrors().size());
+    }
 
 }

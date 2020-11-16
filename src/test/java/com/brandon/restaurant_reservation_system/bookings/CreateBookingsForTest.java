@@ -13,9 +13,6 @@ import static com.brandon.restaurant_reservation_system.users.CreateUsersForTest
 
 public class CreateBookingsForTest {
 
-    public CreateBookingsForTest() {
-    }
-
     private static LocalDate getNextSaturday() {
         LocalDate now = LocalDate.now();
         int daysToAddToBecomeSaturday = 6 - now.getDayOfWeek().getValue();
@@ -61,7 +58,7 @@ public class CreateBookingsForTest {
         return booking;
     }
 
-    public Booking createBookingOnDifferentDate() {
+    public static Booking createBookingOnDifferentDate() {
         Booking booking = new Booking(4,
           getNextSaturday().plusWeeks(1).atTime(20, 0),
           getNextSaturday().plusWeeks(1).atTime(23, 0),

@@ -45,7 +45,8 @@ public class Booking implements Cloneable {
 
 	@ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
 	@JoinTable(name = "booking_table",
-	joinColumns = @JoinColumn(name = "booking_id")
+	joinColumns = @JoinColumn(name = "booking_id"),
+	inverseJoinColumns = @JoinColumn(name = "table_id")
 	)
 	private List<RestaurantTable> restaurantTables;
 
@@ -227,6 +228,8 @@ public class Booking implements Cloneable {
 		String time = formatDateTime(startTime,
 		CustomDateTimeFormatter.TIME_NO_SECONDS);
 
-		return "Booking for " + partySize + " on " + date + " at " + time + ".";
+		return "Booking for " + user.getFirstName()
+		+ " " + user.getLastName() + "(" + partySize + ") on "
+		+ date + " " + "at " + time + ".";
 	}
 }

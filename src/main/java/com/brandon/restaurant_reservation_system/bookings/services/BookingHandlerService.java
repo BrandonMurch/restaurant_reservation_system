@@ -19,10 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Transactional
@@ -58,8 +55,25 @@ public class BookingHandlerService {
 		});
 	}
 
-	public Booking updateBooking(Booking booking, Booking newBooking,
-								 boolean isForced) throws Exception {
+	public List<Booking> freeTableFromBookings(List<RestaurantTable> tables) {
+		List<Booking> bookings = new ArrayList<>();
+		List<Booking> bookingsThatCannotBeReassigned = new ArrayList<>();
+		tables.forEach((table) -> bookings.addAll(bookingRepository.getFutureBookingsByTable(table.getName())));
+		bookings.forEach((booking) -> {
+			booking.setTables(Collections.emptyList());
+			List<RestaurantTable> availableTables =
+			tableAllocatorService.getAvailableTable(booking);
+			if (availableTables.isEmpty()) {
+				bookingsThatCannotBeReassigned.add(booking);
+			} else {
+				booking.setTables(tables);
+			}
+		});
+		return bookingsThatCannotBeReassigned;
+	}
+
+	public void updateBooking(Booking booking, Booking newBooking,
+							  boolean isForced) throws Exception {
 		Booking oldBooking;
 		try {
 			oldBooking = booking.clone();
@@ -91,7 +105,6 @@ public class BookingHandlerService {
 		}
 
 		bookingRepository.save(booking);
-		return booking;
 
 
 	}

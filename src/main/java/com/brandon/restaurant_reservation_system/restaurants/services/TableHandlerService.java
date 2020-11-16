@@ -4,12 +4,18 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
+import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingHandlerService;
+import com.brandon.restaurant_reservation_system.errors.ApiError;
+import com.brandon.restaurant_reservation_system.errors.ApiSubError;
+import com.brandon.restaurant_reservation_system.errors.subErrorMessage;
 import com.brandon.restaurant_reservation_system.restaurants.data.TableRepository;
+import com.brandon.restaurant_reservation_system.restaurants.exceptions.NoTableBookingsCreatedException;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNotFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +31,8 @@ public class TableHandlerService {
 	private TableRepository tableRepository;
 	@Autowired
 	private BookingHandlerService bookingHandler;
+	@Autowired
+	TableAllocatorService tableAllocator;
 
 	public TableHandlerService() {
 	}
@@ -88,7 +96,26 @@ public class TableHandlerService {
 
 	public int remove(String name) {
 		Optional<RestaurantTable> result = tableRepository.findById(name);
-		return result.map(restaurantTable -> tableRepository.deleteWithAssociatedCombinations(restaurantTable)).orElse(0);
+		if (result.isPresent()) {
+			RestaurantTable table = result.get();
+			List<RestaurantTable> tablesAndCombinations = new ArrayList<>();
+			tablesAndCombinations.add(table);
+			tablesAndCombinations.addAll(tableRepository.findAssociatedCombinations(table));
+			List<Booking> bookings =
+			bookingHandler.freeTableFromBookings(tablesAndCombinations);
+			if (!bookings.isEmpty()) {
+				ApiError apiError = new ApiError();
+				apiError.setMessage("Bookings have been left without a table");
+				apiError.setStatus(HttpStatus.CONFLICT);
+				List<ApiSubError> subErrors = new ArrayList<>();
+				bookings.forEach((booking) -> subErrors.add(new subErrorMessage(booking.toString(),
+				" was not able to be reassigned")));
+				apiError.setSubErrors(subErrors);
+				throw new NoTableBookingsCreatedException(apiError);
+			}
+		}
+
+		return result.map(tableRepository::deleteWithAssociatedCombinations).orElse(0);
 	}
 
 	// TABLE COMBINATIONS ------------------------------------------------------
