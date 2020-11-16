@@ -7,6 +7,7 @@ package com.brandon.restaurant_reservation_system.errors;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotPossibleException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequestFormatException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.DuplicateFoundException;
+import com.brandon.restaurant_reservation_system.restaurants.exceptions.NoTableBookingsCreatedException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -41,15 +42,16 @@ ResponseEntityExceptionHandler {
 		.body(apiError);
 	}
 
-	@ExceptionHandler(value = {BookingRequestFormatException.class})
-	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
-	protected ResponseEntity<Object> HandleConflict(BookingRequestFormatException ex,
-													WebRequest request) {
+	@ExceptionHandler(value = {BookingRequestFormatException.class,
+	NoTableBookingsCreatedException.class})
+	//	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+	protected ResponseEntity<Object> HandleConflictWithApiError(RuntimeExceptionWithApIError ex,
+																WebRequest request) {
 		ApiError apiError = ex.getApiError();
 		if (apiError == null) {
 			apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage());
 		}
-		return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(apiError, apiError.getStatus());
 
 	}
 
