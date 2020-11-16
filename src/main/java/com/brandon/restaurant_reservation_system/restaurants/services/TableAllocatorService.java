@@ -115,7 +115,9 @@ public class TableAllocatorService {
 				return availableCombinations.get(
 				partySize).getTables();
 			}
-		} else if (partySize >= restaurant.getLargestTableSize()) {
+		}
+
+		if (partySize >= restaurant.getLargestTableSize()) {
 			return Collections.emptyList();
 		}
 		return getATableRecursively(partySize + 1);
