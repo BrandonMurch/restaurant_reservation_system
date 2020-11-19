@@ -43,7 +43,7 @@ public class Booking implements Cloneable {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	@ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+	@ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(name = "booking_table",
 	joinColumns = @JoinColumn(name = "booking_id"),
 	inverseJoinColumns = @JoinColumn(name = "table_id")
@@ -171,7 +171,6 @@ public class Booking implements Cloneable {
 	public void setTables(List<RestaurantTable> restaurantTables) {
 		if (restaurantTables != null) {
 			this.restaurantTables = new ArrayList<>(restaurantTables);
-
 		}
 	}
 
