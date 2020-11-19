@@ -126,8 +126,8 @@ public class Restaurant implements Serializable {
 		this.tables.updateAll(tables);
 	}
 
-	public int removeTable(String name) {
-		return tables.remove(name);
+	public void removeTable(String name) {
+		tables.remove(name);
 	}
 
 
