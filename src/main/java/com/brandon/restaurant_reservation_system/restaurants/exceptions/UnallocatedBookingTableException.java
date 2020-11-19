@@ -7,9 +7,9 @@ package com.brandon.restaurant_reservation_system.restaurants.exceptions;
 import com.brandon.restaurant_reservation_system.errors.ApiError;
 import com.brandon.restaurant_reservation_system.errors.RuntimeExceptionWithApIError;
 
-public class NoTableBookingsCreatedException extends RuntimeExceptionWithApIError {
+public class UnallocatedBookingTableException extends RuntimeExceptionWithApIError {
 
-    public NoTableBookingsCreatedException(ApiError apiError) {
+    public UnallocatedBookingTableException(ApiError apiError) {
         super(apiError);
     }
 
