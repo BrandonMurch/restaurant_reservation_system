@@ -55,22 +55,23 @@ public class BookingHandlerService {
 		});
 	}
 
-	public List<Booking> freeTableFromBookings(List<RestaurantTable> tables) {
+	public List<Booking> freeTablesFromBookings(List<RestaurantTable> tablesToFree) {
 		List<Booking> bookings = new ArrayList<>();
 		List<Booking> bookingsThatCannotBeReassigned = new ArrayList<>();
-		tables.forEach((table) -> bookings.addAll(bookingRepository.getFutureBookingsByTable(table.getName())));
+		tablesToFree.forEach((table) -> bookings.addAll(bookingRepository.getFutureBookingsByTable(table.getName())));
 		bookings.forEach((booking) -> {
-			booking.setTables(Collections.emptyList());
 			List<RestaurantTable> availableTables =
 			tableAllocatorService.getAvailableTable(booking);
 			if (availableTables.isEmpty()) {
 				bookingsThatCannotBeReassigned.add(booking);
 			} else {
-				booking.setTables(tables);
+				booking.setTables(availableTables);
 			}
 		});
+
 		return bookingsThatCannotBeReassigned;
 	}
+
 
 	public void updateBooking(Booking booking, Booking newBooking,
 							  boolean isForced) throws Exception {

@@ -8,7 +8,7 @@ import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingHandlerService;
 import com.brandon.restaurant_reservation_system.restaurants.data.TableRepository;
-import com.brandon.restaurant_reservation_system.restaurants.exceptions.NoTableBookingsCreatedException;
+import com.brandon.restaurant_reservation_system.restaurants.exceptions.UnallocatedBookingTableException;
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import org.junit.jupiter.api.Test;
@@ -74,10 +74,10 @@ class TableHandlerServiceTest {
           .when(tableRepository.findAssociatedCombinations(Mockito.notNull()))
           .thenReturn(Collections.emptyList());
         Mockito
-          .when(bookingHandler.freeTableFromBookings(Mockito.notNull()))
+          .when(bookingHandler.freeTablesFromBookings(Mockito.notNull()))
           .thenReturn(Collections.singletonList(booking));
 
-        NoTableBookingsCreatedException exception = assertThrows(NoTableBookingsCreatedException.class, () -> tableHandlerService.remove(table1.getName()));
+        UnallocatedBookingTableException exception = assertThrows(UnallocatedBookingTableException.class, () -> tableHandlerService.remove(table1.getName()));
 
         String expected = "Bookings have been left without a table";
         String actual = exception.getApiError().getMessage();

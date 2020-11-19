@@ -4,13 +4,13 @@
 
 package com.brandon.restaurant_reservation_system.errors;
 
-public class subErrorMessage extends ApiSubError {
+public class SubErrorMessage extends ApiSubError {
     private final String object;
     private final String field;
     private final String rejectedValue;
     private final String message;
 
-    public subErrorMessage(String object, String message) {
+    public SubErrorMessage(String object, String message) {
         this.object = object;
         this.message = message;
         this.field = null;

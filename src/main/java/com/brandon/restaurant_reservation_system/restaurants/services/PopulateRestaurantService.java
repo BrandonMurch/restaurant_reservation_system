@@ -30,9 +30,9 @@ public class PopulateRestaurantService {
 
 	private static void setConfig(Restaurant restaurant) {
 		RestaurantConfig config = new RestaurantConfig();
-		config.setCapacity(20);
+		config.setCapacity(40);
 		config.setStandardBookingDuration(120);
-		config.setCanABookingOccupyALargerTable(false);
+		config.setCanABookingOccupyALargerTable(true);
 		config.setPeoplePerInterval(0);
 		restaurant.setConfig(config);
 	}
@@ -51,31 +51,32 @@ public class PopulateRestaurantService {
 	}
 
 	private static void addTables(Restaurant restaurant) {
-		restaurant.addTable("k1", 2);
-		restaurant.addTable("k2", 2);
-		restaurant.addTable("b1", 2);
-		restaurant.addTable("b2", 2);
-		restaurant.addTable("1", 4);
-		restaurant.addTable("5", 4);
-		restaurant.addTable("20", 2);
-		restaurant.addTable("21", 2);
-		restaurant.addTable("22", 2);
-		restaurant.addTable("23", 2);
+		//		restaurant.addTable("k1", 2);
+		//		restaurant.addTable("k2", 2);
+		//		restaurant.addTable("b1", 2);
+		//		restaurant.addTable("b2", 2);
+		//		restaurant.addTable("1", 4);
+		//		restaurant.addTable("5", 4);
+		//		restaurant.addTable("20", 2);
+		//		restaurant.addTable("21", 2);
+		//		restaurant.addTable("22", 2);
+		//		restaurant.addTable("23", 2);
 		restaurant.addTable("24", 2);
 		restaurant.addTable("25", 2);
 	}
 
+	//
 	private static void addCombinations(List<RestaurantTable> tables,
 										Restaurant restaurant) {
 
 		restaurant.addTableCombination(
-		Arrays.asList(tables.get(7), tables.get(8)));
-		restaurant.addTableCombination(Arrays.asList(tables.get(7),
-		tables.get(8), tables.get(9)));
-		restaurant.addTableCombination(Arrays.asList(tables.get(9),
-		tables.get(8)));
-		restaurant.addTableCombination(Arrays.asList(tables.get(4),
-		tables.get(5)));
+		Arrays.asList(tables.get(1), tables.get(0)));
+		//		restaurant.addTableCombination(Arrays.asList(tables.get(7),
+		//		tables.get(8), tables.get(9)));
+		//		restaurant.addTableCombination(Arrays.asList(tables.get(9),
+		//		tables.get(8)));
+		//		restaurant.addTableCombination(Arrays.asList(tables.get(4),
+		//		tables.get(5)));
 	}
 
 	private List<LocalTime> getBookingTimes() {
