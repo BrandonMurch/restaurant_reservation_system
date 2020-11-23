@@ -4,6 +4,7 @@
 
 package com.brandon.restaurant_reservation_system.restaurants;
 
+import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 
@@ -33,14 +34,18 @@ public class CreateTableForTest {
     }
 
 	public static RestaurantTable getTable3() {
-        return new RestaurantTable("23", 2, 3);
-    }
+		return new RestaurantTable("23", 2, 3);
+	}
 
 	public static RestaurantTable getTable4() {
-        return new RestaurantTable("5", 8, 4);
-    }
+		return new RestaurantTable("5", 8, 4);
+	}
 
 	public static RestaurantTable getTable5() {
-        return new RestaurantTable("k1", 2, 5);
-    }
+		return new RestaurantTable("k1", 2, 5);
+	}
+
+	public static CombinationOfTables getCombination1() {
+		return new CombinationOfTables(Arrays.asList(getTable1(), getTable2()), 1);
+	}
 }
