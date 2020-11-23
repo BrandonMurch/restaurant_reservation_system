@@ -77,9 +77,10 @@ class TableHandlerServiceTest {
           .when(bookingHandler.freeTablesFromBookings(Mockito.notNull()))
           .thenReturn(Collections.singletonList(booking));
 
-        UnallocatedBookingTableException exception = assertThrows(UnallocatedBookingTableException.class, () -> tableHandlerService.remove(table1.getName()));
+        var exception = assertThrows(UnallocatedBookingTableException.class,
+          () -> tableHandlerService.remove(table1.getName()));
 
-        String expected = "Bookings have been left without a table";
+        String expected = "Bookings have been left without a table.";
         String actual = exception.getApiError().getMessage();
 
         assertEquals(expected, actual);

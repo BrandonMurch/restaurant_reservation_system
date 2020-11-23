@@ -83,13 +83,17 @@ public class TableHandlerService {
 		tableRepository.saveAll(restaurantTableList);
 	}
 
-	public void update(RestaurantTable existing, RestaurantTable updated) {
+	public void update(String name, RestaurantTable updated) {
+		var result = tableRepository.findById(name);
+		if (result.isEmpty()) {
+			throw new TableNotFoundException(name);
+		}
+		RestaurantTable existing = result.get();
 		existing.update(updated);
-		tableRepository.save(existing);
 	}
 
-	public int updateAll(List<RestaurantTable> tables) {
-		return tableRepository.updateMultipleTables(tables);
+	public void updateAll(List<RestaurantTable> tables) {
+		tables.forEach(table -> this.update(table.getName(), table));
 	}
 
 	public void remove(String name) {

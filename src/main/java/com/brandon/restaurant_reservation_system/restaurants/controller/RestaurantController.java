@@ -22,7 +22,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler.parseDate;
@@ -92,13 +91,8 @@ public class RestaurantController {
 
 	@PutMapping(value = "/tables/{name}")
 	public ResponseEntity<?> updateTable(@RequestBody RestaurantTable newTable, @PathVariable String name) {
-		Optional<RestaurantTable> result = restaurant.getTable(name);
-		if (result.isPresent()) {
-			RestaurantTable table = result.get();
-			restaurant.updateTable(table, newTable);
-			return ResponseEntity.noContent().build();
-		}
-		return ResponseEntity.notFound().build();
+		restaurant.updateTable(name, newTable);
+		return ResponseEntity.noContent().build();
 	}
 
 	@DeleteMapping(value = "/tables/{name}")
@@ -119,11 +113,7 @@ public class RestaurantController {
 
 	// admin only controller options - to be implemented in future
 	// GET /RESTAURANTS/{RESTAURANT} - get a restaurant
-	// GET /RESTAURANTS/{RESTAURANT}/TABLES - get all tables of a restaurant
-	// GET /RESTAURANTS/{RESTAURANT}/TABLES/{ID} - get one table
 	// POST /RESTAURANTS/ - create a restaurant
-	// POST /RESTAURANTS/{RESTAURANT}/ TABLES - create  a table
 	// PUT /RESTAURANTS/{RESTAURANT} - update a restaurant
-	// PUT /RESTAURANTS/{RESTAURANT}/TABLES/{TABLE} - update a table
 
 }
