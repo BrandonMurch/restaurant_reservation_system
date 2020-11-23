@@ -36,7 +36,7 @@ public class RestaurantTable {
 	}
 
 	protected void setName(String name) {
-		this.name = name.isEmpty() ? "UNNAMED" : name;
+		this.name = name.isEmpty() ? this.name : name;
 	}
 
 	public int getSeats() {
