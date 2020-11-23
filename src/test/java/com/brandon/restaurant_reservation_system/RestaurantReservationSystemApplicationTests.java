@@ -9,6 +9,7 @@ import com.brandon.restaurant_reservation_system.bookings.controller.BookingCont
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.model.RequestBodyUserBooking;
 import com.brandon.restaurant_reservation_system.restaurants.controller.RestaurantController;
+import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.users.CreateUsersForTesting;
 import com.brandon.restaurant_reservation_system.users.controller.UserController;
 import com.brandon.restaurant_reservation_system.users.model.User;
@@ -68,7 +69,8 @@ class RestaurantReservationSystemApplicationTests {
 		.get().uri("/bookings")
 		.exchange()
 		.expectStatus().isOk()
-		.expectBodyList(Booking.class).returnResult().getResponseBody();
+		.expectBodyList(Booking.class)
+		.returnResult().getResponseBody();
 
 		int size = 0;
 		if (bookings != null) {
@@ -85,8 +87,9 @@ class RestaurantReservationSystemApplicationTests {
 		.bodyValue(body)
 		.exchange()
 		.expectStatus().isCreated()
-//		.expectHeader().exists("Location")
+		.expectHeader().exists("Location")
 		.expectBody().isEmpty();
+
 		testClient
 		.get().uri("/bookings")
 		.exchange()
@@ -144,7 +147,6 @@ class RestaurantReservationSystemApplicationTests {
 			size = users.size();
 		}
 		User user = CreateUsersForTesting.createUser2();
-		System.out.println(size);
 
 		testClient
 		.post().uri("/users")
@@ -183,6 +185,68 @@ class RestaurantReservationSystemApplicationTests {
 		.get().uri("/users")
 		.exchange()
 		.expectBodyList(Booking.class).hasSize(size - 1);
+	}
+
+	@Test
+	void getTables() {
+		List<RestaurantTable> tables = testClient
+		.get().uri("/restaurant/tables")
+		.exchange()
+		.expectStatus().isOk()
+		.expectBodyList(RestaurantTable.class).returnResult().getResponseBody();
+
+		if (tables != null) {
+			assertTrue(tables.size() > 0);
+		} else {
+			fail("List has not been properly initialized");
+		}
+	}
+
+	@Test
+	void createTable() {
+		RestaurantTable table = new RestaurantTable("newTableName", 100, 1000000);
+
+		testClient
+		.post().uri("/restaurant/tables")
+		.contentType(MediaType.APPLICATION_JSON)
+		.accept(MediaType.APPLICATION_JSON)
+		.bodyValue(table)
+		.exchange()
+		.expectStatus().isCreated()
+		.expectBody().isEmpty();
+		testClient
+		.get().uri("/restaurant/tables")
+		.exchange()
+		.expectBodyList(RestaurantTable.class).contains(table);
+
+	}
+
+	@Test
+	void deleteTable() {
+		RestaurantTable table = new RestaurantTable("newTableName", 100, 1000000);
+
+		testClient
+		.post().uri("/restaurant/tables")
+		.contentType(MediaType.APPLICATION_JSON)
+		.accept(MediaType.APPLICATION_JSON)
+		.bodyValue(table)
+		.exchange();
+
+		testClient
+		.get().uri("/restaurant/tables")
+		.exchange()
+		.expectStatus().isOk()
+		.expectBodyList(RestaurantTable.class).contains(table);
+
+		testClient
+		.delete().uri("/restaurant/tables/" + table.getName())
+		.exchange()
+		.expectStatus().is2xxSuccessful();
+
+		testClient
+		.get().uri("/restaurant/tables")
+		.exchange()
+		.expectBodyList(RestaurantTable.class).doesNotContain(table);
 	}
 
 

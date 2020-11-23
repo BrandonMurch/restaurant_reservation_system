@@ -249,7 +249,11 @@ public class BookingController {
 	private void sendResponse(HttpServletResponse response, ResponseEntity<?> entity) throws IOException {
 		PrintWriter writer = response.getWriter();
 		response.setStatus(entity.getStatusCodeValue());
-		writer.print(entity);
+		entity.getHeaders().forEach((key, value) -> response.setHeader(key,
+		value.toString()));
+		if (entity.getBody() != null) {
+			writer.print(entity.getBody());
+		}
 		writer.flush();
 		writer.close();
 	}

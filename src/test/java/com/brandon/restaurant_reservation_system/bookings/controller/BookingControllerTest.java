@@ -42,8 +42,7 @@ import java.util.stream.Collectors;
 
 import static com.brandon.restaurant_reservation_system.helpers.json.JsonConverter.jsonToObject;
 import static com.brandon.restaurant_reservation_system.helpers.json.JsonConverter.objectToJson;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
 @ActiveProfiles("Test")
@@ -72,7 +71,6 @@ class BookingControllerTest {
 
 	@BeforeEach
 	void setUp() {
-		CreateBookingsForTest createBooking = new CreateBookingsForTest();
 		booking1 = CreateBookingsForTest.createBookingForTwoAt19();
 		User user = booking1.getUser();
 		Booking booking2 = CreateBookingsForTest.createBookingForFourAt20();
@@ -204,9 +202,8 @@ class BookingControllerTest {
 		.getResponse();
 
 		assertEquals(201, response.getStatus());
-		String expected = "<201 CREATED Created,[Location:\"http://localhost/bookings/"
-		+ updatedBooking2.getId() + "\"]>";
-		assertEquals(expected, response.getContentAsString());
+		assertTrue(response.getContentAsString().isEmpty());
+		assertNotNull(response.getHeader("Location"));
 	}
 
 	@Test
