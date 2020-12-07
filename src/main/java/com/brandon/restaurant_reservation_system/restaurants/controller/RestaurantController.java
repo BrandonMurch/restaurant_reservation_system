@@ -6,6 +6,7 @@ package com.brandon.restaurant_reservation_system.restaurants.controller;
 
 import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
+import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
@@ -81,6 +82,12 @@ public class RestaurantController {
 	public ResponseEntity<?> createTable(@RequestBody RestaurantTable table) {
 		restaurant.addTable(table);
 		return buildUriFromTable(table);
+	}
+
+	@PostMapping(value = "/combinations")
+	public ResponseEntity<?> createCombination(@RequestBody String tables) {
+		CombinationOfTables created = restaurant.addTableCombination(tables);
+		return buildUriFromTable(created);
 	}
 
 	@PutMapping(value = "/tables")

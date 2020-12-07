@@ -77,7 +77,7 @@ class PopulateRestaurantServiceTest {
     @Test
     void populateRestaurantTest() {
         populateRestaurant(restaurant);
-        assertEquals(20, restaurant.getCapacity());
+        assertEquals(40, restaurant.getCapacity());
         LocalDateTime dateTime = LocalDate.now().atTime(20, 0);
         while (dateTime.getDayOfWeek() != DayOfWeek.SATURDAY) {
             dateTime = dateTime.plusDays(1);

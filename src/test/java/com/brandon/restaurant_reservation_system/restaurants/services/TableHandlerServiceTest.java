@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,6 +27,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
 class TableHandlerServiceTest {
@@ -85,6 +87,28 @@ class TableHandlerServiceTest {
 
         assertEquals(expected, actual);
         assertEquals(1, exception.getApiError().getSubErrors().size());
+    }
+
+    @Test
+    void createCombinationOfTablesFromString() {
+        Mockito
+          .when(tableRepository.findById(eq("1")))
+          .thenReturn(Optional.ofNullable(table1));
+        Mockito
+          .when(tableRepository.findById(eq("5")))
+          .thenReturn(Optional.ofNullable(table5));
+        Mockito
+          .when(tableRepository.save(any(CombinationOfTables.class)))
+          .thenAnswer((Answer<CombinationOfTables>) invocation -> {
+              Object[] args = invocation.getArguments();
+              return (CombinationOfTables) args[0];
+          });
+
+        CombinationOfTables combination = tableHandlerService
+          .createCombination("1, 5");
+
+        assertEquals(table1.getSeats() + table5.getSeats(), combination.getSeats());
+        assertEquals("1, 5", combination.getName());
     }
 
 }

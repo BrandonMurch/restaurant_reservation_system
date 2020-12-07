@@ -141,6 +141,18 @@ public class TableHandlerService {
 		tableRepository.save(combination);
 	}
 
+	public CombinationOfTables createCombination(String tableNames) {
+		String[] splitTableNames = tableNames.split(", ");
+		List<RestaurantTable> tables = new ArrayList<>();
+		for (String tableName : splitTableNames) {
+			var result = tableRepository.findById(tableName);
+			result.ifPresent(tables::add);
+		}
+		int priority = getTableCount();
+		CombinationOfTables combination = new CombinationOfTables(tables, priority);
+		return tableRepository.save(combination);
+	}
+
 	//	Largest RestaurantTable Size  --------------------------------------------------------
 
 	public int getLargestTableSize() {

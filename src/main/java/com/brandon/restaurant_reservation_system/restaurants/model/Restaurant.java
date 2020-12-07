@@ -148,6 +148,10 @@ public class Restaurant implements Serializable {
 		this.tables.createCombination(tables);
 	}
 
+	public CombinationOfTables addTableCombination(String tables) {
+		return this.tables.createCombination(tables);
+	}
+
 	public int getLargestTableSize() {
 		return tables.getLargestTableSize();
 	}
