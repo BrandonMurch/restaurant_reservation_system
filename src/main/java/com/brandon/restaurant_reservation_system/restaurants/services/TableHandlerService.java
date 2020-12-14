@@ -9,6 +9,7 @@ import com.brandon.restaurant_reservation_system.bookings.services.BookingHandle
 import com.brandon.restaurant_reservation_system.errors.ApiError;
 import com.brandon.restaurant_reservation_system.errors.SubErrorMessage;
 import com.brandon.restaurant_reservation_system.restaurants.data.TableRepository;
+import com.brandon.restaurant_reservation_system.restaurants.exceptions.DuplicateTableFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNotFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.UnallocatedBookingTableException;
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
@@ -18,10 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -143,13 +141,20 @@ public class TableHandlerService {
 
 	public CombinationOfTables createCombination(String tableNames) {
 		String[] splitTableNames = tableNames.split(", ");
+		Arrays.sort(splitTableNames);
 		List<RestaurantTable> tables = new ArrayList<>();
 		for (String tableName : splitTableNames) {
 			var result = tableRepository.findById(tableName);
-			result.ifPresent(tables::add);
+			result.ifPresentOrElse(tables::add, () -> {
+				throw new TableNotFoundException(tableName);
+			});
 		}
 		int priority = getTableCount();
 		CombinationOfTables combination = new CombinationOfTables(tables, priority);
+		var result = tableRepository.findById(combination.getName());
+		if (result.isPresent()) {
+			throw new DuplicateTableFoundException(combination.getName());
+		}
 		return tableRepository.save(combination);
 	}
 
