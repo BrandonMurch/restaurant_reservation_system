@@ -7,6 +7,7 @@ package com.brandon.restaurant_reservation_system.errors;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotPossibleException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequestFormatException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.DuplicateFoundException;
+import com.brandon.restaurant_reservation_system.restaurants.exceptions.DuplicateTableFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNotFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.UnallocatedBookingTableException;
 import org.springframework.core.Ordered;
@@ -45,7 +46,8 @@ ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(value = {BookingRequestFormatException.class,
 	UnallocatedBookingTableException.class,
-	TableNotFoundException.class})
+	TableNotFoundException.class,
+	DuplicateTableFoundException.class})
 	protected ResponseEntity<Object> HandleConflictWithApiError(RuntimeExceptionWithApIError ex,
 																WebRequest request) {
 		ApiError apiError = ex.getApiError();
