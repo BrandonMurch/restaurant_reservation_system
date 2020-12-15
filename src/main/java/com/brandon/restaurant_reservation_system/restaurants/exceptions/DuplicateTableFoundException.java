@@ -10,16 +10,15 @@ import org.springframework.http.HttpStatus;
 
 public class DuplicateTableFoundException extends RuntimeExceptionWithApIError {
 
-    private final ApiError apiError;
+  private static final long serialVersionUID = 8305734761535986611L;
+  private final ApiError apiError;
 
-    public DuplicateTableFoundException(String name) {
-        super("Table " + name + " exists already.");
-        apiError = new ApiError(HttpStatus.CONFLICT, "Table " + name + " exists already.");
-    }
+  public DuplicateTableFoundException(String name) {
+    super("Table " + name + " exists already.");
+    apiError = new ApiError(HttpStatus.CONFLICT, "Table " + name + " exists already.");
+  }
 
-    public ApiError getApiError() {
-        return apiError;
-    }
-
-    private static final long serialVersionUID = 8305734761535986611L;
+  public ApiError getApiError() {
+    return apiError;
+  }
 }

@@ -32,207 +32,206 @@ import org.springframework.stereotype.Component;
 @Component
 public class Restaurant implements Serializable {
 
-	private static final long serialVersionUID = 2993992281945949085L;
+  private static final long serialVersionUID = 2993992281945949085L;
 
-	@Autowired
-	private transient RestaurantCache cache;
-	@Autowired
-	private transient TableService tableService;
-	private String name;
-	private BookingTimes bookingTimes = new BookingTimes();
-	private transient BookingDateRange bookingDateRange = new BookingDateRange(0);
-	private RestaurantConfig config;
+  @Autowired
+  private transient RestaurantCache cache;
+  @Autowired
+  private transient TableService tableService;
+  private String name;
+  private BookingTimes bookingTimes = new BookingTimes();
+  private transient BookingDateRange bookingDateRange = new BookingDateRange(0);
+  private RestaurantConfig config;
 
-	public Restaurant() {
-	}
+  public Restaurant() {
+  }
 
-	public Restaurant(String name,
-					  RestaurantConfig restaurantConfig,
-					  int minutesBetweenBookingSlots) {
-		this(name, restaurantConfig);
-		this.bookingTimes = new BookingTimes(minutesBetweenBookingSlots);
-		serialize();
-	}
+  public Restaurant(String name,
+      RestaurantConfig restaurantConfig,
+      int minutesBetweenBookingSlots) {
+    this(name, restaurantConfig);
+    this.bookingTimes = new BookingTimes(minutesBetweenBookingSlots);
+    serialize();
+  }
 
-	private Restaurant(String name,
-					   RestaurantConfig restaurantConfig) {
-		this.name = name;
-		this.config = restaurantConfig;
-		bookingDateRange = new BookingDateRange(120);
-	}
+  private Restaurant(String name,
+      RestaurantConfig restaurantConfig) {
+    this.name = name;
+    this.config = restaurantConfig;
+    bookingDateRange = new BookingDateRange(120);
+  }
 
-	public Restaurant(String name,
-					  RestaurantConfig restaurantConfig,
-					  List<LocalTime> bookingTimes) {
-		this(name, restaurantConfig);
-		this.bookingTimes = new BookingTimes(bookingTimes);
-		serialize();
-	}
+  public Restaurant(String name,
+      RestaurantConfig restaurantConfig,
+      List<LocalTime> bookingTimes) {
+    this(name, restaurantConfig);
+    this.bookingTimes = new BookingTimes(bookingTimes);
+    serialize();
+  }
 
-	@PostConstruct
-	private void postConstruct() {
-		// TODO: remove this when in production
-		//		boolean isDeserializeSuccess = deserialize();
+  @PostConstruct
+  private void postConstruct() {
+    // TODO: remove this when in production
+    //		boolean isDeserializeSuccess = deserialize();
 
-		//		if (!isDeserializeSuccess) {
-		PopulateRestaurantService.populateRestaurant(this);
-		//		}
-		// TODO: Remove this when database is created.
-		PopulateRestaurantService.populateRestaurantTables(this);
-	}
+    //		if (!isDeserializeSuccess) {
+    PopulateRestaurantService.populateRestaurant(this);
+    //		}
+    // TODO: Remove this when database is created.
+    PopulateRestaurantService.populateRestaurantTables(this);
+  }
 
-	// Name --------------------------------------------------------------------
+  // Name --------------------------------------------------------------------
 
-	public String getName() {
-		return name;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-		serialize();
-	}
+  public void setName(String name) {
+    this.name = name;
+    serialize();
+  }
 
-	// Capacity ----------------------------------------------------------------
+  // Capacity ----------------------------------------------------------------
 
-	public int getCapacity() {
-		return config.getCapacity();
-	}
+  public int getCapacity() {
+    return config.getCapacity();
+  }
 
-	public void setCapacity(int capacity) {
-		config.setCapacity(capacity);
-		serialize();
-	}
+  public void setCapacity(int capacity) {
+    config.setCapacity(capacity);
+    serialize();
+  }
 
-	// Config ------------------------------------------------------------------
+  // Config ------------------------------------------------------------------
 
-	public boolean canABookingOccupyALargerTable() {
-		return config.canABookingOccupyALargerTable();
-	}
+  public boolean canABookingOccupyALargerTable() {
+    return config.canABookingOccupyALargerTable();
+  }
 
-	public Duration getStandardBookingDuration() {
-		return config.getStandardBookingDuration();
-	}
+  public Duration getStandardBookingDuration() {
+    return config.getStandardBookingDuration();
+  }
 
-	// Booking times -----------------------------------------------------------
+  // Booking times -----------------------------------------------------------
 
-	public boolean isOpenOnDate(LocalDate date) {
-		return bookingTimes.isOpenOnDate(date);
-	}
+  public boolean isOpenOnDate(LocalDate date) {
+    return bookingTimes.isOpenOnDate(date);
+  }
 
-	public Map<DayOfWeek, Day> getOpeningHours() {
-		return bookingTimes.getOpeningHours();
-	}
+  public Map<DayOfWeek, Day> getOpeningHours() {
+    return bookingTimes.getOpeningHours();
+  }
 
-	public List<LocalTime> getBookingTimes() {
-		return getBookingTimes(LocalDate.now());
-	}
+  public void setOpeningHours(Map<DayOfWeek, Day> openingHours) {
+    bookingTimes.setOpeningHours(openingHours);
+    serialize();
+  }
 
-	public List<LocalTime> getBookingTimes(LocalDate date) {
-		return bookingTimes.getBookingTimes(date);
-	}
+  public List<LocalTime> getBookingTimes() {
+    return getBookingTimes(LocalDate.now());
+  }
 
-	public boolean isBookingTime(LocalDateTime dateTime) {
-		if (bookingTimes == null) {
-			throw new RestaurantConfigurationException("booking times");
-		}
-		return bookingTimes.isBookingTime(dateTime);
-	}
+  public List<LocalTime> getBookingTimes(LocalDate date) {
+    return bookingTimes.getBookingTimes(date);
+  }
 
-	public void setConfig(RestaurantConfig config) {
-		this.config = config;
-	}
+  public boolean isBookingTime(LocalDateTime dateTime) {
+    if (bookingTimes == null) {
+      throw new RestaurantConfigurationException("booking times");
+    }
+    return bookingTimes.isBookingTime(dateTime);
+  }
 
-	public void setOpeningHours(Map<DayOfWeek, Day> openingHours) {
-		bookingTimes.setOpeningHours(openingHours);
-		serialize();
-	}
+  public void setConfig(RestaurantConfig config) {
+    this.config = config;
+  }
 
-	public void allowBookingPerTimeInterval(int bookingIntervalInMinutes) {
-		bookingTimes.allowBookingPerTimeInterval(bookingIntervalInMinutes);
-		serialize();
-	}
+  public void allowBookingPerTimeInterval(int bookingIntervalInMinutes) {
+    bookingTimes.allowBookingPerTimeInterval(bookingIntervalInMinutes);
+    serialize();
+  }
 
-
-	// Date Range    -----------------------------------------------------------
-
-
-	public DateRange getBookingDateRange() {
-		return bookingDateRange.getBookingRange();
-	}
-
-	public void setBookingDateRange(int bookingHorizonInDays) {
-		bookingDateRange.setBookingRange(bookingHorizonInDays);
-		serialize();
-	}
-
-	public void setBookingDateRange(LocalDate start, LocalDate end) {
-		bookingDateRange = new BookingDateRange(new DateRange(start, end));
-		serialize();
-	}
-
-	public void allowBookingsOnlyAtCertainTimes(List<LocalTime> times) {
-		bookingTimes.allowBookingsOnlyAtCertainTimes(times);
-		serialize();
-	}
-
-	// Serialization & Deserialization ----------------------------------------
+  // Date Range    -----------------------------------------------------------
 
 
-	private void serialize() {
+  public DateRange getBookingDateRange() {
+    return bookingDateRange.getBookingRange();
+  }
 
-		try {
-			FileOutputStream fileOut = new FileOutputStream("restaurant.ser");
-			ObjectOutputStream out = new ObjectOutputStream(fileOut);
-			out.writeObject(this);
-			out.close();
-			fileOut.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+  public void setBookingDateRange(int bookingHorizonInDays) {
+    bookingDateRange.setBookingRange(bookingHorizonInDays);
+    serialize();
+  }
 
-	private boolean deserialize() {
-		try {
-			FileInputStream fileIn = new FileInputStream("restaurant.ser");
-			ObjectInputStream in = new ObjectInputStream(fileIn);
-			Restaurant restaurant = (Restaurant) in.readObject();
+  public void setBookingDateRange(LocalDate start, LocalDate end) {
+    bookingDateRange = new BookingDateRange(new DateRange(start, end));
+    serialize();
+  }
 
-			this.name = restaurant.name;
-			this.bookingTimes = restaurant.bookingTimes;
-			this.bookingDateRange = restaurant.bookingDateRange;
-			this.config = restaurant.config;
-			in.close();
-			fileIn.close();
-			return true;
-		} catch (IOException | ClassNotFoundException e) {
-			return false;
-		}
-	}
+  public void allowBookingsOnlyAtCertainTimes(List<LocalTime> times) {
+    bookingTimes.allowBookingsOnlyAtCertainTimes(times);
+    serialize();
+  }
 
-	// Cache -------------------------------------------------------------------
+  // Serialization & Deserialization ----------------------------------------
 
-	public SortedSet<LocalDate> getAvailableDates() {
-		return cache.getAvailableDates();
-	}
 
-	public void addAvailableDate(LocalDate date) {
-		cache.addAvailableDate(date);
-	}
+  private void serialize() {
 
-	public void removeDateIfUnavailable(LocalDate date) {
-		cache.removeDateIfUnavailable(date);
-	}
+    try {
+      FileOutputStream fileOut = new FileOutputStream("restaurant.ser");
+      ObjectOutputStream out = new ObjectOutputStream(fileOut);
+      out.writeObject(this);
+      out.close();
+      fileOut.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
-	public Map<LocalDate, Integer> getBookingsPerDate() {
-		return cache.getBookingsPerDate();
-	}
+  private boolean deserialize() {
+    try {
+      FileInputStream fileIn = new FileInputStream("restaurant.ser");
+      ObjectInputStream in = new ObjectInputStream(fileIn);
+      Restaurant restaurant = (Restaurant) in.readObject();
 
-	public void addBookingToDate(LocalDate date, Integer numberOfBookings) {
-		cache.addBookingToDate(date, numberOfBookings);
-	}
+      this.name = restaurant.name;
+      this.bookingTimes = restaurant.bookingTimes;
+      this.bookingDateRange = restaurant.bookingDateRange;
+      this.config = restaurant.config;
+      in.close();
+      fileIn.close();
+      return true;
+    } catch (IOException | ClassNotFoundException e) {
+      return false;
+    }
+  }
 
-	public void removeBookingFromDate(LocalDate date, Integer numberOfBookings) {
-		cache.removeBookingFromDate(date, numberOfBookings);
-	}
+  // Cache -------------------------------------------------------------------
+
+  public SortedSet<LocalDate> getAvailableDates() {
+    return cache.getAvailableDates();
+  }
+
+  public void addAvailableDate(LocalDate date) {
+    cache.addAvailableDate(date);
+  }
+
+  public void removeDateIfUnavailable(LocalDate date) {
+    cache.removeDateIfUnavailable(date);
+  }
+
+  public Map<LocalDate, Integer> getBookingsPerDate() {
+    return cache.getBookingsPerDate();
+  }
+
+  public void addBookingToDate(LocalDate date, Integer numberOfBookings) {
+    cache.addBookingToDate(date, numberOfBookings);
+  }
+
+  public void removeBookingFromDate(LocalDate date, Integer numberOfBookings) {
+    cache.removeBookingFromDate(date, numberOfBookings);
+  }
 
 }

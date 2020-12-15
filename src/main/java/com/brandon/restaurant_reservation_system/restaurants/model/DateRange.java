@@ -5,28 +5,28 @@ import java.time.LocalDate;
 
 public class DateRange implements Serializable {
 
-	private static final long serialVersionUID = -723804918732788990L;
-	private LocalDate start;
-	private LocalDate end;
+  private static final long serialVersionUID = -723804918732788990L;
+  private LocalDate start;
+  private LocalDate end;
 
-	public DateRange(LocalDate start, LocalDate end) {
-		this.start = start;
-		this.end = end;
-	}
+  public DateRange(LocalDate start, LocalDate end) {
+    this.start = start;
+    this.end = end;
+  }
 
-	public LocalDate getStart() {
-		return start;
-	}
+  public LocalDate getStart() {
+    return start;
+  }
 
-	public void setStartDate(LocalDate reservationStartDate) {
-		this.start = reservationStartDate;
-	}
+  public void setStartDate(LocalDate reservationStartDate) {
+    this.start = reservationStartDate;
+  }
 
-	public LocalDate getEnd() {
-		return end;
-	}
+  public LocalDate getEnd() {
+    return end;
+  }
 
-	public void setEndDate(LocalDate reservationEndDate) {
-		this.end = reservationEndDate;
-	}
+  public void setEndDate(LocalDate reservationEndDate) {
+    this.end = reservationEndDate;
+  }
 }

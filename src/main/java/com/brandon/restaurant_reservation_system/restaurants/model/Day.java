@@ -13,76 +13,76 @@ import java.util.Optional;
 
 public class Day implements Serializable {
 
-	private static final long serialVersionUID = -1607064466422474736L;
-	// instance variables
-	private final DayOfWeek dayOfWeek;
-	private boolean isOpen;
-	private final List<OpeningClosingPair> hoursOfOperation;
+  private static final long serialVersionUID = -1607064466422474736L;
+  // instance variables
+  private final DayOfWeek dayOfWeek;
+  private final List<OpeningClosingPair> hoursOfOperation;
+  private boolean isOpen;
 
-	//constructors
-	public Day(DayOfWeek dayOfWeek, boolean isOpen) {
-		this.dayOfWeek = dayOfWeek;
-		hoursOfOperation = new ArrayList<>();
-		this.isOpen = isOpen;
-	}
+  //constructors
+  public Day(DayOfWeek dayOfWeek, boolean isOpen) {
+    this.dayOfWeek = dayOfWeek;
+    hoursOfOperation = new ArrayList<>();
+    this.isOpen = isOpen;
+  }
 
-	public Day(DayOfWeek dayOfWeek,
-			   List<OpeningClosingPair> hoursOfOperation) {
-		this.dayOfWeek = dayOfWeek;
-		this.hoursOfOperation = new ArrayList<>(hoursOfOperation);
-		this.isOpen = true;
-	}
+  public Day(DayOfWeek dayOfWeek,
+      List<OpeningClosingPair> hoursOfOperation) {
+    this.dayOfWeek = dayOfWeek;
+    this.hoursOfOperation = new ArrayList<>(hoursOfOperation);
+    this.isOpen = true;
+  }
 
-	public DayOfWeek getDayOfWeek() {
-		return dayOfWeek;
-	}
+  public DayOfWeek getDayOfWeek() {
+    return dayOfWeek;
+  }
 
-	public String getDayOfWeekAsString() {
-		return dayOfWeek.toString();
-	}
+  public String getDayOfWeekAsString() {
+    return dayOfWeek.toString();
+  }
 
-	public boolean isOpen() {
-		return isOpen;
-	}
+  public boolean isOpen() {
+    return isOpen;
+  }
 
-	public void setOpen(boolean open) {
-		isOpen = open;
-	}
+  public void setOpen(boolean open) {
+    isOpen = open;
+  }
 
-	public List<OpeningClosingPair> getOpeningPairs() {
-		return hoursOfOperation;
-	}
+  public List<OpeningClosingPair> getOpeningPairs() {
+    return hoursOfOperation;
+  }
 
-	public void addOpeningAndClosing(LocalTime opening, LocalTime closing) {
-		this.hoursOfOperation.add(new OpeningClosingPair(opening, closing));
-	}
+  public void addOpeningAndClosing(LocalTime opening, LocalTime closing) {
+    this.hoursOfOperation.add(new OpeningClosingPair(opening, closing));
+  }
 
-	public void removeOpeningAndClosing(LocalTime opening, LocalTime closing) {
-		hoursOfOperation.remove(new OpeningClosingPair(opening, closing));
-		//		Iterator<OpeningClosingPair> itr = this.hoursOfOperation.iterator();
-		//		while (itr.hasNext()) {
-		//			OpeningClosingPair nextPair = itr.next();
-		//			if (opening.equals(nextPair.getOpening())
-		//					&& closing.equals(nextPair.getClosing())) {
-		//				itr.remove();
-		//				break;
-		//			}
-		//		}
-	}
+  public void removeOpeningAndClosing(LocalTime opening, LocalTime closing) {
+    hoursOfOperation.remove(new OpeningClosingPair(opening, closing));
+    //		Iterator<OpeningClosingPair> itr = this.hoursOfOperation.iterator();
+    //		while (itr.hasNext()) {
+    //			OpeningClosingPair nextPair = itr.next();
+    //			if (opening.equals(nextPair.getOpening())
+    //					&& closing.equals(nextPair.getClosing())) {
+    //				itr.remove();
+    //				break;
+    //			}
+    //		}
+  }
 
-	public Optional<OpeningClosingPair> getPairThatContainsTime(LocalTime time) {
-		for (OpeningClosingPair pair : this.hoursOfOperation) {
-			if (time.isAfter(pair.getOpening()) && time.isBefore(pair.getClosing())) {
-				return Optional.of(pair);
-			}
-		}
-		return Optional.empty();
+  public Optional<OpeningClosingPair> getPairThatContainsTime(LocalTime time) {
+    for (OpeningClosingPair pair : this.hoursOfOperation) {
+      if (time.isAfter(pair.getOpening()) && time.isBefore(pair.getClosing())) {
+        return Optional.of(pair);
+      }
+    }
+    return Optional.empty();
 
-	}
+  }
 
 
-	@Override
-	public String toString() {
-		return dayOfWeek + ": " + (isOpen() ? "Open" : "Closed");
-	}
+  @Override
+  public String toString() {
+    return dayOfWeek + ": " + (isOpen() ? "Open" : "Closed");
+  }
 }

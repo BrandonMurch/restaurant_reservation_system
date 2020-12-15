@@ -2,13 +2,13 @@ package com.brandon.restaurant_reservation_system.bookings.exceptions;
 
 public class BookingNotFoundException extends RuntimeException {
 
-	public BookingNotFoundException(long id) {
-		super(String.format("Booking id not found: %d", id));
-	}
+  private static final long serialVersionUID = 8305734761535986611L;
 
-	public BookingNotFoundException(String message) {
-		super(message);
-	}
+  public BookingNotFoundException(long id) {
+    super(String.format("Booking id not found: %d", id));
+  }
 
-	private static final long serialVersionUID = 8305734761535986611L;
+  public BookingNotFoundException(String message) {
+    super(message);
+  }
 }

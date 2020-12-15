@@ -35,205 +35,209 @@ import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 public class Booking implements Cloneable {
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
-	private Integer partySize;
-	private String userComments;
-	private String restaurantComments;
-	@JsonDeserialize(using = LocalDateDeserializer.class)
-	@JsonSerialize(using = LocalDateSerializer.class)
-	private LocalDate date;
-	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
-	@JsonSerialize(using = LocalDateTimeSerializer.class)
-	private LocalDateTime startTime;
-	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
-	@JsonSerialize(using = LocalDateTimeSerializer.class)
-	private LocalDateTime endTime;
-	@OnDelete(action = OnDeleteAction.CASCADE)
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
-	private User user;
 
-	@ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-	@JoinTable(name = "booking_table",
-	joinColumns = @JoinColumn(name = "booking_id"),
-	inverseJoinColumns = @JoinColumn(name = "table_id")
-	)
-	private List<RestaurantTable> restaurantTables;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private long id;
+  private Integer partySize;
+  private String userComments;
+  private String restaurantComments;
+  @JsonDeserialize(using = LocalDateDeserializer.class)
+  @JsonSerialize(using = LocalDateSerializer.class)
+  private LocalDate date;
+  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @JsonSerialize(using = LocalDateTimeSerializer.class)
+  private LocalDateTime startTime;
+  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+  @JsonSerialize(using = LocalDateTimeSerializer.class)
+  private LocalDateTime endTime;
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
+  private User user;
 
-	public Booking(int partySize, LocalDateTime startTime,
-				   LocalDateTime endTime, User user) {
-		this(partySize, startTime, endTime, user, "", "");
-	}
+  @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+  @JoinTable(name = "booking_table",
+      joinColumns = @JoinColumn(name = "booking_id"),
+      inverseJoinColumns = @JoinColumn(name = "table_id")
+  )
+  private List<RestaurantTable> restaurantTables;
 
-	public Booking(int partySize, LocalDateTime startTime,
-				   LocalDateTime endTime, User user, String userComments,
-				   String restaurantComments) {
-		this.partySize = partySize;
-		this.startTime = startTime;
-		date = startTime.toLocalDate();
-		this.endTime = endTime;
-		this.user = user;
-		this.userComments = userComments;
-		this.restaurantComments = restaurantComments;
-	}
+  public Booking(int partySize, LocalDateTime startTime,
+      LocalDateTime endTime, User user) {
+    this(partySize, startTime, endTime, user, "", "");
+  }
 
-	public Booking() {
-	}
+  public Booking(int partySize, LocalDateTime startTime,
+      LocalDateTime endTime, User user, String userComments,
+      String restaurantComments) {
+    this.partySize = partySize;
+    this.startTime = startTime;
+    date = startTime.toLocalDate();
+    this.endTime = endTime;
+    this.user = user;
+    this.userComments = userComments;
+    this.restaurantComments = restaurantComments;
+  }
 
-	public LocalDate getDate() {
-		return date;
-	}
+  public Booking() {
+  }
 
-	public void setDate(LocalDate date) {
-		this.date = date;
-	}
+  public LocalDate getDate() {
+    return date;
+  }
 
-	public long getId() {
-		return id;
-	}
+  public void setDate(LocalDate date) {
+    this.date = date;
+  }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+  public long getId() {
+    return id;
+  }
 
-	public Integer getPartySize() {
-		return partySize;
-	}
+  public void setId(long id) {
+    this.id = id;
+  }
 
-	public void setPartySize(Integer partySize) {
-		this.partySize = partySize;
-	}
+  public Integer getPartySize() {
+    return partySize;
+  }
 
-	public LocalDateTime getStartTime() {
-		return startTime;
-	}
+  public void setPartySize(Integer partySize) {
+    this.partySize = partySize;
+  }
 
-	public void setStartTime(LocalDateTime startTime) {
-		this.startTime = startTime;
-	}
+  public LocalDateTime getStartTime() {
+    return startTime;
+  }
 
-	public LocalDateTime getEndTime() {
-		return endTime;
-	}
+  public void setStartTime(LocalDateTime startTime) {
+    this.startTime = startTime;
+  }
 
-	public void setEndTime(LocalDateTime endTime) {
-		this.endTime = endTime;
-	}
+  public LocalDateTime getEndTime() {
+    return endTime;
+  }
 
-	public User getUser() {
-		return user;
-	}
+  public void setEndTime(LocalDateTime endTime) {
+    this.endTime = endTime;
+  }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+  public User getUser() {
+    return user;
+  }
 
-	public String getUserComments() {
-		return userComments;
-	}
+  public void setUser(User user) {
+    this.user = user;
+  }
 
-	public void setUserComments(String userComments) {
-		this.userComments = userComments;
-	}
+  public String getUserComments() {
+    return userComments;
+  }
 
-	public String getRestaurantComments() {
-		return restaurantComments;
-	}
+  public void setUserComments(String userComments) {
+    this.userComments = userComments;
+  }
 
-	public void setRestaurantComments(String restaurantComments) {
-		this.restaurantComments = restaurantComments;
-	}
+  public String getRestaurantComments() {
+    return restaurantComments;
+  }
 
-	public void update(Booking newBooking) {
-		Integer partySize = newBooking.getPartySize();
-		if (partySize != null) {
-			this.setPartySize(partySize);
+  public void setRestaurantComments(String restaurantComments) {
+    this.restaurantComments = restaurantComments;
+  }
+
+  public void update(Booking newBooking) {
+    Integer partySize = newBooking.getPartySize();
+    if (partySize != null) {
+      this.setPartySize(partySize);
+    }
+    LocalDateTime startTime = newBooking.getStartTime();
+    if (startTime != null) {
+      this.setStartTime(startTime);
+    }
+    LocalDateTime endTime = newBooking.getEndTime();
+    if (endTime != null) {
+      this.setEndTime(endTime);
+    }
+
+    User user = newBooking.getUser();
+    if (user != null) {
+      this.setUser(user);
+    }
+
+    String comment = newBooking.getRestaurantComments();
+    if (comment != null) {
+      this.setRestaurantComments(comment);
+    }
+
+    comment = newBooking.getUserComments();
+    if (comment != null) {
+      this.setUserComments(comment);
+    }
+  }
+
+  public List<RestaurantTable> getTables() {
+    return restaurantTables;
+  }
+
+  public void setTables(List<RestaurantTable> restaurantTables) {
+    if (restaurantTables != null) {
+      this.restaurantTables = new ArrayList<>(restaurantTables);
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getId(), getStartTime(), getEndTime());
+  }
+
+  public boolean doesOverlap(Booking otherBooking) {
+    return isTheBookingDuringThisTime(otherBooking.getStartTime(),
+        otherBooking.getEndTime());
+  }
+
+  public boolean isTheBookingDuringThisTime(LocalDateTime startTime,
+      LocalDateTime endTime) {
+    if (this.getStartTime().isAfter(endTime)
+        || this.getStartTime().isEqual(endTime)) {
+      return false;
+    }
+    return !(this.getEndTime().isBefore(startTime)
+        || this.getEndTime().isEqual(startTime));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+		if (this == o) {
+			return true;
 		}
-		LocalDateTime startTime = newBooking.getStartTime();
-		if (startTime != null) {
-			this.setStartTime(startTime);
-		}
-		LocalDateTime endTime = newBooking.getEndTime();
-		if (endTime != null) {
-			this.setEndTime(endTime);
-		}
-
-		User user = newBooking.getUser();
-		if (user != null) {
-			this.setUser(user);
-		}
-
-		String comment = newBooking.getRestaurantComments();
-		if (comment != null) {
-			this.setRestaurantComments(comment);
-		}
-
-		comment = newBooking.getUserComments();
-		if (comment != null) {
-			this.setUserComments(comment);
-		}
-	}
-
-	public List<RestaurantTable> getTables() {
-		return restaurantTables;
-	}
-
-	public void setTables(List<RestaurantTable> restaurantTables) {
-		if (restaurantTables != null) {
-			this.restaurantTables = new ArrayList<>(restaurantTables);
-		}
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(getId(), getStartTime(), getEndTime());
-	}
-
-	public boolean doesOverlap(Booking otherBooking) {
-		return isTheBookingDuringThisTime(otherBooking.getStartTime(),
-				otherBooking.getEndTime());
-	}
-
-	public boolean isTheBookingDuringThisTime(LocalDateTime startTime,
-			LocalDateTime endTime) {
-		if (this.getStartTime().isAfter(endTime)
-				|| this.getStartTime().isEqual(endTime)) {
+		if (!(o instanceof Booking)) {
 			return false;
 		}
-			return !(this.getEndTime().isBefore(startTime)
-					|| this.getEndTime().isEqual(startTime));
-		}
+    Booking booking = (Booking) o;
+    return getId() == booking.getId() &&
+        Objects.equals(getStartTime(), booking.getStartTime()) &&
+        Objects.equals(getEndTime(), booking.getEndTime()) &&
+        Objects.equals(getPartySize(), booking.getPartySize()) &&
+        Objects.equals(getUser(), booking.getUser());
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof Booking)) return false;
-		Booking booking = (Booking) o;
-		return getId() == booking.getId() &&
-		Objects.equals(getStartTime(), booking.getStartTime()) &&
-		Objects.equals(getEndTime(), booking.getEndTime()) &&
-		Objects.equals(getPartySize(), booking.getPartySize()) &&
-		Objects.equals(getUser(), booking.getUser());
+  }
 
-	}
+  public Booking clone() throws CloneNotSupportedException {
+    return (Booking) super.clone();
+  }
 
-	public Booking clone() throws CloneNotSupportedException {
-		return (Booking) super.clone();
-	}
+  @Override
+  public String toString() {
 
-	@Override
-	public String toString() {
+    String date = formatDateTime(startTime,
+        CustomDateTimeFormatter.READABLE_DATE);
+    String time = formatDateTime(startTime,
+        CustomDateTimeFormatter.TIME_NO_SECONDS);
 
-
-		String date = formatDateTime(startTime,
-		CustomDateTimeFormatter.READABLE_DATE);
-		String time = formatDateTime(startTime,
-		CustomDateTimeFormatter.TIME_NO_SECONDS);
-
-		return "Booking for " + user.getFirstName()
-		+ " " + user.getLastName() + "(" + partySize + ") on "
-		+ date + " " + "at " + time + ".";
-	}
+    return "Booking for " + user.getFirstName()
+        + " " + user.getLastName() + "(" + partySize + ") on "
+        + date + " " + "at " + time + ".";
+  }
 }

@@ -4,8 +4,15 @@
 
 package com.brandon.restaurant_reservation_system.security;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import com.brandon.restaurant_reservation_system.security.service.JwtTokenUtil;
 import com.brandon.restaurant_reservation_system.security.service.JwtUserDetailsService;
+import java.io.IOException;
+import java.util.ArrayList;
+import javax.servlet.ServletException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,63 +25,55 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.userdetails.User;
 
-import javax.servlet.ServletException;
-import java.io.IOException;
-import java.util.ArrayList;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 @ExtendWith(MockitoExtension.class)
 class JwtRequestFilterTest {
 
-    @Mock
-    private JwtUserDetailsService userDetailsService;
-    @Mock
-    private JwtTokenUtil tokenUtil;
-    @InjectMocks
-    private JwtRequestFilter filterUnderTest;
-    private MockFilterChain mockFilterChain;
-    private MockHttpServletRequest request;
-    private MockHttpServletResponse response;
+  @Mock
+  private JwtUserDetailsService userDetailsService;
+  @Mock
+  private JwtTokenUtil tokenUtil;
+  @InjectMocks
+  private JwtRequestFilter filterUnderTest;
+  private MockFilterChain mockFilterChain;
+  private MockHttpServletRequest request;
+  private MockHttpServletResponse response;
 
 
-    @BeforeEach
-    void setUp() {
-        mockFilterChain = new MockFilterChain();
-        request =
-          new MockHttpServletRequest();
-        response = new MockHttpServletResponse();
-    }
+  @BeforeEach
+  void setUp() {
+    mockFilterChain = new MockFilterChain();
+    request =
+        new MockHttpServletRequest();
+    response = new MockHttpServletResponse();
+  }
 
-    @Test
-    void doFilterInternal() throws ServletException, IOException {
-        Mockito
-          .when(tokenUtil.getUsernameFromToken(any(String.class)))
-          .thenReturn("user");
-        Mockito
-          .when(userDetailsService.loadUserByUsername(any(String.class)))
-          .thenReturn(
+  @Test
+  void doFilterInternal() throws ServletException, IOException {
+    Mockito
+        .when(tokenUtil.getUsernameFromToken(any(String.class)))
+        .thenReturn("user");
+    Mockito
+        .when(userDetailsService.loadUserByUsername(any(String.class)))
+        .thenReturn(
             new User("user", "pass", new ArrayList<>())
-          );
-        Mockito
-          .when(tokenUtil.validateTokenWithUser(any(String.class), any(User.class),
+        );
+    Mockito
+        .when(tokenUtil.validateTokenWithUser(any(String.class), any(User.class),
             any(String.class)))
-          .thenReturn(true);
+        .thenReturn(true);
 
-        // token must have Bearer as its first word for the filter to recognize it.
-        String token = "Bearer This is a token!";
-        request.addHeader("Authorization", token);
+    // token must have Bearer as its first word for the filter to recognize it.
+    String token = "Bearer This is a token!";
+    request.addHeader("Authorization", token);
 
-        filterUnderTest.doFilterInternal(request, response, mockFilterChain);
+    filterUnderTest.doFilterInternal(request, response, mockFilterChain);
 
-        verify(tokenUtil, times(1))
-          .getUsernameFromToken(any(String.class));
-        verify(tokenUtil, times(1))
-          .validateTokenWithUser(any(String.class), any(User.class),
+    verify(tokenUtil, times(1))
+        .getUsernameFromToken(any(String.class));
+    verify(tokenUtil, times(1))
+        .validateTokenWithUser(any(String.class), any(User.class),
             any(String.class));
-        verify(userDetailsService, times(1))
-          .loadUserByUsername(any(String.class));
-    }
+    verify(userDetailsService, times(1))
+        .loadUserByUsername(any(String.class));
+  }
 }

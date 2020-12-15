@@ -9,18 +9,18 @@ import com.brandon.restaurant_reservation_system.errors.RuntimeExceptionWithApIE
 
 public class BookingRequestFormatException extends RuntimeExceptionWithApIError {
 
-    private static final long serialVersionUID = -8457339865555401532L;
+  private static final long serialVersionUID = -8457339865555401532L;
 
 
-    public BookingRequestFormatException() {
-        this("Improperly formatted request");
-    }
+  public BookingRequestFormatException() {
+    this("Improperly formatted request");
+  }
 
-    public BookingRequestFormatException(String message) {
-        super(message);
-    }
+  public BookingRequestFormatException(String message) {
+    super(message);
+  }
 
-    public BookingRequestFormatException(ApiError apiError) {
-        super(apiError);
-    }
+  public BookingRequestFormatException(ApiError apiError) {
+    super(apiError);
+  }
 }

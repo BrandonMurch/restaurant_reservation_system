@@ -29,97 +29,95 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class PopulateRestaurantServiceTest {
 
-    @Mock
-    private TableService tableService;
-    @InjectMocks
-    private final Restaurant restaurant = new Restaurant();
+  @InjectMocks
+  private final Restaurant restaurant = new Restaurant();
+  @Mock
+  private TableService tableService;
+  private List<RestaurantTable> tableList;
+  private List<CombinationOfTables> comboList;
 
-    private List<RestaurantTable> tableList;
-    private List<CombinationOfTables> comboList;
+  @BeforeEach
+  void setUp() {
+    tableList = Arrays.asList(
+        new RestaurantTable("k1", 2, 1),
+        new RestaurantTable("k2", 2, 1),
+        new RestaurantTable("b1", 2, 1),
+        new RestaurantTable("b2", 2, 1),
+        new RestaurantTable("1", 4, 1),
+        new RestaurantTable("5", 4, 1),
+        new RestaurantTable("20", 2, 1),
+        new RestaurantTable("21", 2, 1),
+        new RestaurantTable("22", 2, 1),
+        new RestaurantTable("23", 2, 1),
+        new RestaurantTable("24", 2, 1),
+        new RestaurantTable("25", 2, 1)
+    );
 
-    @BeforeEach
-    void setUp() {
-        tableList = Arrays.asList(
-          new RestaurantTable("k1", 2, 1),
-          new RestaurantTable("k2", 2, 1),
-          new RestaurantTable("b1", 2, 1),
-          new RestaurantTable("b2", 2, 1),
-          new RestaurantTable("1", 4, 1),
-          new RestaurantTable("5", 4, 1),
-          new RestaurantTable("20", 2, 1),
-          new RestaurantTable("21", 2, 1),
-          new RestaurantTable("22", 2, 1),
-          new RestaurantTable("23", 2, 1),
-          new RestaurantTable("24", 2, 1),
-          new RestaurantTable("25", 2, 1)
-        );
-
-        comboList = Arrays.asList(
-          new CombinationOfTables(Arrays.asList(
+    comboList = Arrays.asList(
+        new CombinationOfTables(Arrays.asList(
             new RestaurantTable("21", 2, 1),
             new RestaurantTable("22", 2, 1)
-          ), 1),
-          new CombinationOfTables(Arrays.asList(
+        ), 1),
+        new CombinationOfTables(Arrays.asList(
             new RestaurantTable("21", 2, 1),
             new RestaurantTable("22", 2, 1),
             new RestaurantTable("23", 2, 1)
-          ), 1),
-          new CombinationOfTables(Arrays.asList(
+        ), 1),
+        new CombinationOfTables(Arrays.asList(
             new RestaurantTable("22", 2, 1),
             new RestaurantTable("23", 2, 1)
-          ), 1),
-          new CombinationOfTables(Arrays.asList(
+        ), 1),
+        new CombinationOfTables(Arrays.asList(
             new RestaurantTable("1", 4, 1),
             new RestaurantTable("5", 4, 1)
-          ), 1)
-        );
+        ), 1)
+    );
+  }
+
+  @Test
+  void populateRestaurantTest() {
+    populateRestaurant(restaurant);
+    assertEquals(40, restaurant.getCapacity());
+    LocalDateTime dateTime = LocalDate.now().atTime(20, 0);
+    while (dateTime.getDayOfWeek() != DayOfWeek.SATURDAY) {
+      dateTime = dateTime.plusDays(1);
     }
+    boolean result = restaurant.isBookingTime(dateTime);
+    assertTrue(result);
 
-    @Test
-    void populateRestaurantTest() {
-        populateRestaurant(restaurant);
-        assertEquals(40, restaurant.getCapacity());
-        LocalDateTime dateTime = LocalDate.now().atTime(20, 0);
-        while (dateTime.getDayOfWeek() != DayOfWeek.SATURDAY) {
-            dateTime = dateTime.plusDays(1);
-        }
-        boolean result = restaurant.isBookingTime(dateTime);
-        assertTrue(result);
+    dateTime = dateTime.toLocalDate().atTime(9, 0);
+    result = restaurant.isBookingTime(dateTime);
+    assertFalse(result);
 
-        dateTime = dateTime.toLocalDate().atTime(9, 0);
-        result = restaurant.isBookingTime(dateTime);
-        assertFalse(result);
-
-        dateTime = LocalDate.now().atTime(20, 0);
-        while (dateTime.getDayOfWeek() != DayOfWeek.MONDAY) {
-            dateTime = dateTime.plusDays(1);
-        }
-        result = restaurant.isBookingTime(dateTime);
-        assertFalse(result);
+    dateTime = LocalDate.now().atTime(20, 0);
+    while (dateTime.getDayOfWeek() != DayOfWeek.MONDAY) {
+      dateTime = dateTime.plusDays(1);
     }
+    result = restaurant.isBookingTime(dateTime);
+    assertFalse(result);
+  }
 
-    @Test
-    void populateRestaurantTablesTest() {
-        Mockito
-          .when(tableService.getAll())
-          .thenReturn(tableList);
-        Mockito
-          .when(tableService.getAllCombinations())
-          .thenReturn(comboList);
-        populateRestaurant(restaurant);
-        populateRestaurantTables(restaurant);
+  @Test
+  void populateRestaurantTablesTest() {
+    Mockito
+        .when(tableService.getAll())
+        .thenReturn(tableList);
+    Mockito
+        .when(tableService.getAllCombinations())
+        .thenReturn(comboList);
+    populateRestaurant(restaurant);
+    populateRestaurantTables(restaurant);
 
-        List<RestaurantTable> tableList = restaurant.getTableList();
-        assertEquals(12, tableList.size());
+    List<RestaurantTable> tableList = restaurant.getTableList();
+    assertEquals(12, tableList.size());
 
-        RestaurantTable table = new RestaurantTable("k1", 2, 1);
-        assertTrue(tableList.contains(table));
+    RestaurantTable table = new RestaurantTable("k1", 2, 1);
+    assertTrue(tableList.contains(table));
 
-        table = new RestaurantTable("55989", 2, 1);
-        assertFalse(tableList.contains(table));
+    table = new RestaurantTable("55989", 2, 1);
+    assertFalse(tableList.contains(table));
 
-
-        List<CombinationOfTables> comboList = restaurant.getAllCombinationsOfTables();
-        assertEquals(4, comboList.size());
-    }
+    List<CombinationOfTables> comboList = restaurant.getAllCombinationsOfTables();
+    assertEquals(4, comboList.size());
+  }
 }

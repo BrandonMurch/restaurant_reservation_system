@@ -25,54 +25,54 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends
-ResponseEntityExceptionHandler {
+    ResponseEntityExceptionHandler {
 
-	@ExceptionHandler(value = {BookingNotPossibleException.class})
-	@ResponseStatus(value = HttpStatus.CONFLICT)
-	protected ResponseEntity<Object> ForcibleConflict(BookingNotPossibleException ex,
-													  WebRequest request) {
-		ApiError apiError = new ApiError(HttpStatus.CONFLICT, ex);
-		HttpHeaders headers = new HttpHeaders();
-		if (ex.isForcible()) {
-			headers.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Forcible-Request");
-			headers.add("Forcible-Request", "true");
-		}
-		return ResponseEntity
-		.status(apiError.getStatus())
-		.headers(headers)
-		.contentType(MediaType.APPLICATION_JSON)
-		.body(apiError);
-	}
+  @ExceptionHandler(value = {BookingNotPossibleException.class})
+  @ResponseStatus(value = HttpStatus.CONFLICT)
+  protected ResponseEntity<Object> ForcibleConflict(BookingNotPossibleException ex,
+      WebRequest request) {
+    ApiError apiError = new ApiError(HttpStatus.CONFLICT, ex);
+    HttpHeaders headers = new HttpHeaders();
+    if (ex.isForcible()) {
+      headers.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Forcible-Request");
+      headers.add("Forcible-Request", "true");
+    }
+    return ResponseEntity
+        .status(apiError.getStatus())
+        .headers(headers)
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(apiError);
+  }
 
-	@ExceptionHandler(value = {BookingRequestFormatException.class,
-	UnallocatedBookingTableException.class,
-	TableNotFoundException.class,
-	DuplicateTableFoundException.class})
-	protected ResponseEntity<Object> HandleConflictWithApiError(RuntimeExceptionWithApIError ex,
-																WebRequest request) {
-		ApiError apiError = ex.getApiError();
-		if (apiError == null) {
-			apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage());
-		}
-		return new ResponseEntity<>(apiError, apiError.getStatus());
+  @ExceptionHandler(value = {BookingRequestFormatException.class,
+      UnallocatedBookingTableException.class,
+      TableNotFoundException.class,
+      DuplicateTableFoundException.class})
+  protected ResponseEntity<Object> HandleConflictWithApiError(RuntimeExceptionWithApIError ex,
+      WebRequest request) {
+    ApiError apiError = ex.getApiError();
+    if (apiError == null) {
+      apiError = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+    return new ResponseEntity<>(apiError, apiError.getStatus());
 
-	}
+  }
 
 
-	@ExceptionHandler(value = {DuplicateFoundException.class})
-	@ResponseStatus(value = HttpStatus.CONFLICT)
-	protected ResponseEntity<Object> HandleConflict(RuntimeException ex,
-													WebRequest request) {
-		ApiError apiError = new ApiError(HttpStatus.CONFLICT, ex);
-		return new ResponseEntity<>(apiError, apiError.getStatus());
-	}
+  @ExceptionHandler(value = {DuplicateFoundException.class})
+  @ResponseStatus(value = HttpStatus.CONFLICT)
+  protected ResponseEntity<Object> HandleConflict(RuntimeException ex,
+      WebRequest request) {
+    ApiError apiError = new ApiError(HttpStatus.CONFLICT, ex);
+    return new ResponseEntity<>(apiError, apiError.getStatus());
+  }
 
-	@ExceptionHandler(value = {IllegalArgumentException.class,
-	IllegalStateException.class})
-	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
-	protected ResponseEntity<Object> HandleBadRequest(RuntimeException ex,
-													  WebRequest request) {
-		ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex);
-		return new ResponseEntity<>(apiError, apiError.getStatus());
-	}
+  @ExceptionHandler(value = {IllegalArgumentException.class,
+      IllegalStateException.class})
+  @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+  protected ResponseEntity<Object> HandleBadRequest(RuntimeException ex,
+      WebRequest request) {
+    ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST, ex);
+    return new ResponseEntity<>(apiError, apiError.getStatus());
+  }
 }

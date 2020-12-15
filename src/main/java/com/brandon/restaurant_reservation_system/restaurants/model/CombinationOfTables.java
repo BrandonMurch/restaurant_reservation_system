@@ -19,40 +19,40 @@ import javax.persistence.ManyToMany;
 @DiscriminatorValue("1")
 public class CombinationOfTables extends RestaurantTable {
 
-	@ManyToMany(targetEntity = SingleTable.class, cascade =
-			CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinTable(name = "combination_table",
-			joinColumns = @JoinColumn(name = "combination_id")
-	)
-	private final List<RestaurantTable> restaurantTables = new ArrayList<>();
+  @ManyToMany(targetEntity = SingleTable.class, cascade =
+      CascadeType.ALL, fetch = FetchType.EAGER)
+  @JoinTable(name = "combination_table",
+      joinColumns = @JoinColumn(name = "combination_id")
+  )
+  private final List<RestaurantTable> restaurantTables = new ArrayList<>();
 
-	public CombinationOfTables() {
-	}
+  public CombinationOfTables() {
+  }
 
-	public CombinationOfTables(List<RestaurantTable> restaurantTables, int priority) {
-		super();
-		this.restaurantTables.addAll(restaurantTables);
-		this.setSeats(calculateSeats(restaurantTables));
-		this.setName(calculateName(restaurantTables));
-		this.setPriority(priority);
-	}
+  public CombinationOfTables(List<RestaurantTable> restaurantTables, int priority) {
+    super();
+    this.restaurantTables.addAll(restaurantTables);
+    this.setSeats(calculateSeats(restaurantTables));
+    this.setName(calculateName(restaurantTables));
+    this.setPriority(priority);
+  }
 
-	public List<RestaurantTable> getAssociatedTables() {
-		return this.restaurantTables;
-	}
+  public List<RestaurantTable> getAssociatedTables() {
+    return this.restaurantTables;
+  }
 
-	public void removeAssociatedTables() {
-		this.restaurantTables.clear();
-	}
+  public void removeAssociatedTables() {
+    this.restaurantTables.clear();
+  }
 
-	private int calculateSeats(List<RestaurantTable> restaurantTables) {
-		return restaurantTables.stream().reduce(0,
-				(previous, current) -> previous + current.getSeats(), Integer::sum);
-	}
+  private int calculateSeats(List<RestaurantTable> restaurantTables) {
+    return restaurantTables.stream().reduce(0,
+        (previous, current) -> previous + current.getSeats(), Integer::sum);
+  }
 
-	private String calculateName(List<RestaurantTable> restaurantTables) {
-		return restaurantTables.stream().map(RestaurantTable::getName)
-		.collect(Collectors.joining(", "));
-	}
+  private String calculateName(List<RestaurantTable> restaurantTables) {
+    return restaurantTables.stream().map(RestaurantTable::getName)
+        .collect(Collectors.joining(", "));
+  }
 
 }

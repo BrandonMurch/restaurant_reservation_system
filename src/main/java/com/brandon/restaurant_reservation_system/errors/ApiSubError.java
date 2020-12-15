@@ -1,20 +1,21 @@
 package com.brandon.restaurant_reservation_system.errors;
 
 public abstract class ApiSubError {
-	public abstract String getObject();
 
-	public abstract void setObject(String object);
+  public abstract String getObject();
 
-	public abstract String getField();
+  public abstract void setObject(String object);
 
-	public abstract void setField(String field);
+  public abstract String getField();
 
-	public abstract Object getRejectedValue();
+  public abstract void setField(String field);
 
-	public abstract void setRejectedValue(Object rejectedValue);
+  public abstract Object getRejectedValue();
 
-	public abstract String getMessage();
+  public abstract void setRejectedValue(Object rejectedValue);
 
-	public abstract void setMessage(String message);
+  public abstract String getMessage();
+
+  public abstract void setMessage(String message);
 }
 

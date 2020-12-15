@@ -14,16 +14,16 @@ import javax.persistence.Entity;
 
 public class SingleTable extends RestaurantTable {
 
-    public SingleTable(String name, int seats, int priority) {
-        super(name, seats, priority);
-    }
+  public SingleTable(String name, int seats, int priority) {
+    super(name, seats, priority);
+  }
 
-    @Override
-    public List<RestaurantTable> getAssociatedTables() {
-        return Collections.singletonList(this);
-    }
+  @Override
+  public List<RestaurantTable> getAssociatedTables() {
+    return Collections.singletonList(this);
+  }
 
-    @Override
-    public void removeAssociatedTables() {
-    }
+  @Override
+  public void removeAssociatedTables() {
+  }
 }

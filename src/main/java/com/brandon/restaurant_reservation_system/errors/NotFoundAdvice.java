@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 public class NotFoundAdvice {
 
-	@ResponseBody
-	@ExceptionHandler({UserNotFoundException.class,
-			BookingNotFoundException.class})
-	@ResponseStatus(HttpStatus.NOT_FOUND)
-	String notFoundHandler(RuntimeException ex) {
-		return ex.getLocalizedMessage();
-	}
+  @ResponseBody
+  @ExceptionHandler({UserNotFoundException.class,
+      BookingNotFoundException.class})
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  String notFoundHandler(RuntimeException ex) {
+    return ex.getLocalizedMessage();
+  }
 
 }

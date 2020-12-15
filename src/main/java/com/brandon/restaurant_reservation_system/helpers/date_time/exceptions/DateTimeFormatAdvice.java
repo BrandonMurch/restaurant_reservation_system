@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ControllerAdvice
 public class DateTimeFormatAdvice {
 
-	@ResponseBody
-	@ExceptionHandler(DateTimeFormatException.class)
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	String DateFormatExceptionHandler(DateTimeFormatException ex) {
-		return ex.getLocalizedMessage();
-	}
+  @ResponseBody
+  @ExceptionHandler(DateTimeFormatException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  String DateFormatExceptionHandler(DateTimeFormatException ex) {
+    return ex.getLocalizedMessage();
+  }
 }

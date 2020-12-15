@@ -9,42 +9,47 @@ import java.time.LocalTime;
 import java.util.Objects;
 
 public class OpeningClosingPair implements Serializable {
-	private static final long serialVersionUID = -296054023821005011L;
-	private LocalTime opening;
-	private LocalTime closing;
 
-	public OpeningClosingPair(LocalTime opening, LocalTime closing) {
-		this.opening = opening;
-		this.closing = closing;
-	}
+  private static final long serialVersionUID = -296054023821005011L;
+  private LocalTime opening;
+  private LocalTime closing;
 
-	public LocalTime getOpening() {
-		return opening;
-	}
+  public OpeningClosingPair(LocalTime opening, LocalTime closing) {
+    this.opening = opening;
+    this.closing = closing;
+  }
 
-	public void setOpening(LocalTime opening) {
-		this.opening = opening;
-	}
+  public LocalTime getOpening() {
+    return opening;
+  }
 
-	public LocalTime getClosing() {
-		return closing;
-	}
+  public void setOpening(LocalTime opening) {
+    this.opening = opening;
+  }
 
-	public void setClosing(LocalTime closing) {
-		this.closing = closing;
-	}
+  public LocalTime getClosing() {
+    return closing;
+  }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		OpeningClosingPair that = (OpeningClosingPair) o;
-		return Objects.equals(getOpening(), that.getOpening()) &&
-		Objects.equals(getClosing(), that.getClosing());
-	}
+  public void setClosing(LocalTime closing) {
+    this.closing = closing;
+  }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(getOpening(), getClosing());
-	}
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    OpeningClosingPair that = (OpeningClosingPair) o;
+    return Objects.equals(getOpening(), that.getOpening()) &&
+        Objects.equals(getClosing(), that.getClosing());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getOpening(), getClosing());
+  }
 }

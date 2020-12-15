@@ -29,64 +29,62 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class BookingServiceTest {
 
-    @Mock
-    private BookingRepository bookingRepository;
-    @Mock
-    private UserRepository userRepository;
-    @Mock
-    private TableAllocatorService tableAllocatorService;
-    @Mock
-    private HttpRequestBuilder httpRequestBuilder;
-    @InjectMocks
-    private BookingService bookingHandler;
+  private final CreateBookingsForTest createBooking = new CreateBookingsForTest();
+  @Mock
+  private BookingRepository bookingRepository;
+  @Mock
+  private UserRepository userRepository;
+  @Mock
+  private TableAllocatorService tableAllocatorService;
+  @Mock
+  private HttpRequestBuilder httpRequestBuilder;
+  @InjectMocks
+  private BookingService bookingHandler;
 
-    private final CreateBookingsForTest createBooking = new CreateBookingsForTest();
+  @Test
+  void createBooking() {
+    Booking booking = CreateBookingsForTest.createBookingForFourAt20();
+    User user = booking.getUser();
 
-    @Test
-    void createBooking() {
-        Booking booking = CreateBookingsForTest.createBookingForFourAt20();
-        User user = booking.getUser();
+    Mockito
+        .when(tableAllocatorService.getAvailableTable(any(Booking.class)))
+        .thenReturn(Collections.singletonList(CreateTableForTest.getTable1()));
 
-        Mockito
-          .when(tableAllocatorService.getAvailableTable(any(Booking.class)))
-          .thenReturn(Collections.singletonList(CreateTableForTest.getTable1()));
+    Booking result = bookingHandler.createBooking(booking, user, false);
 
+    assertEquals(booking, result);
+  }
 
-        Booking result = bookingHandler.createBooking(booking, user, false);
+  @Test
+  void createBookingNewUser() {
+    Booking booking = CreateBookingsForTest.createBookingForFourAt20();
+    User user = booking.getUser();
 
-        assertEquals(booking, result);
-    }
+    Mockito
+        .when(tableAllocatorService.getAvailableTable(any(Booking.class)))
+        .thenReturn(Collections.singletonList(CreateTableForTest.getTable1()));
 
-    @Test
-    void createBookingNewUser() {
-        Booking booking = CreateBookingsForTest.createBookingForFourAt20();
-        User user = booking.getUser();
+    Booking result = bookingHandler.createBooking(booking, user, false);
 
-        Mockito
-          .when(tableAllocatorService.getAvailableTable(any(Booking.class)))
-          .thenReturn(Collections.singletonList(CreateTableForTest.getTable1()));
+    assertEquals(booking, result);
+  }
 
-        Booking result = bookingHandler.createBooking(booking, user, false);
+  @Test()
+  void createBookingNotAvailable() {
+    Booking booking = CreateBookingsForTest.createBookingForFourAt20();
+    User user = booking.getUser();
 
-        assertEquals(booking, result);
-    }
+    Mockito
+        .when(tableAllocatorService.getAvailableTable(any(Booking.class)))
+        .thenReturn(Collections.emptyList());
 
-    @Test()
-    void createBookingNotAvailable() {
-        Booking booking = CreateBookingsForTest.createBookingForFourAt20();
-        User user = booking.getUser();
+    Exception exception = assertThrows(BookingNotPossibleException.class, () -> {
+      Booking result = bookingHandler.createBooking(booking, user, false);
+    });
 
-        Mockito
-          .when(tableAllocatorService.getAvailableTable(any(Booking.class)))
-          .thenReturn(Collections.emptyList());
+    String expectedMessage = "Requested date is not available";
+    String actualMessage = exception.getMessage();
 
-        Exception exception = assertThrows(BookingNotPossibleException.class, () -> {
-            Booking result = bookingHandler.createBooking(booking, user, false);
-        });
-
-        String expectedMessage = "Requested date is not available";
-        String actualMessage = exception.getMessage();
-
-        assertTrue(actualMessage.contains(expectedMessage));
-    }
+    assertTrue(actualMessage.contains(expectedMessage));
+  }
 }

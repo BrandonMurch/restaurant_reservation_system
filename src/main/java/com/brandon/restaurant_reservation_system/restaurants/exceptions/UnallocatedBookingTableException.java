@@ -9,9 +9,9 @@ import com.brandon.restaurant_reservation_system.errors.RuntimeExceptionWithApIE
 
 public class UnallocatedBookingTableException extends RuntimeExceptionWithApIError {
 
-    public UnallocatedBookingTableException(ApiError apiError) {
-        super(apiError);
-    }
+  private static final long serialVersionUID = 718701918334021620L;
 
-    private static final long serialVersionUID = 718701918334021620L;
+  public UnallocatedBookingTableException(ApiError apiError) {
+    super(apiError);
+  }
 }

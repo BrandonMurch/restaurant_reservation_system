@@ -26,55 +26,56 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @Profile("!Test")
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
-    @Autowired
-    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    @Autowired
-    private UserDetailsService userDetailsService;
 
-    @Override
-    public void configure(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(authenticationProvider());
-    }
+  @Autowired
+  private JwtRequestFilter jwtRequestFilter;
+  @Autowired
+  private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+  @Autowired
+  private UserDetailsService userDetailsService;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new UserPasswordEncoder();
-    }
+  @Override
+  public void configure(AuthenticationManagerBuilder auth) {
+    auth.authenticationProvider(authenticationProvider());
+  }
 
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider =
-          new DaoAuthenticationProvider();
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
-        authenticationProvider.setUserDetailsService(userDetailsService);
-        return authenticationProvider;
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new UserPasswordEncoder();
+  }
 
-    @SuppressWarnings("EmptyMethod")
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
-    }
+  @Bean
+  public DaoAuthenticationProvider authenticationProvider() {
+    DaoAuthenticationProvider authenticationProvider =
+        new DaoAuthenticationProvider();
+    authenticationProvider.setPasswordEncoder(passwordEncoder());
+    authenticationProvider.setUserDetailsService(userDetailsService);
+    return authenticationProvider;
+  }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-          .csrf().disable()
-          // TODO: remove /test, /h2-console/* when done testing and set permitAll to
-          //  authorize
-          .authorizeRequests()
-          .antMatchers("/authenticate", "/validate", "/test", "/test/*", "/register",
+  @SuppressWarnings("EmptyMethod")
+  @Bean
+  @Override
+  public AuthenticationManager authenticationManagerBean() throws Exception {
+    return super.authenticationManagerBean();
+  }
+
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http
+        .csrf().disable()
+        // TODO: remove /test, /h2-console/* when done testing and set permitAll to
+        //  authorize
+        .authorizeRequests()
+        .antMatchers("/authenticate", "/validate", "/test", "/test/*", "/register",
             "/h2-console/*").permitAll()
-          .anyRequest().permitAll()
-          .and().exceptionHandling()
-          .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-          .and().sessionManagement()
-          .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.addFilterBefore(jwtRequestFilter,
-          UsernamePasswordAuthenticationFilter.class);
-        http.headers().frameOptions().disable();
-    }
+        .anyRequest().permitAll()
+        .and().exceptionHandling()
+        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+        .and().sessionManagement()
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    http.addFilterBefore(jwtRequestFilter,
+        UsernamePasswordAuthenticationFilter.class);
+    http.headers().frameOptions().disable();
+  }
 }

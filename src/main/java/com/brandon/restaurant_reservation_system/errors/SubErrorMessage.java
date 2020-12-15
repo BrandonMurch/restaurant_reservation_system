@@ -5,55 +5,56 @@
 package com.brandon.restaurant_reservation_system.errors;
 
 public class SubErrorMessage extends ApiSubError {
-    private final String object;
-    private final String field;
-    private final String rejectedValue;
-    private final String message;
 
-    public SubErrorMessage(String object, String message) {
-        this.object = object;
-        this.message = message;
-        this.field = null;
-        this.rejectedValue = null;
-    }
+  private final String object;
+  private final String field;
+  private final String rejectedValue;
+  private final String message;
 
-    @Override
-    public String getObject() {
-        return object;
-    }
+  public SubErrorMessage(String object, String message) {
+    this.object = object;
+    this.message = message;
+    this.field = null;
+    this.rejectedValue = null;
+  }
 
-    @Override
-    public void setObject(String object) {
+  @Override
+  public String getObject() {
+    return object;
+  }
 
-    }
+  @Override
+  public void setObject(String object) {
 
-    @Override
-    public String getField() {
-        return null;
-    }
+  }
 
-    @Override
-    public void setField(String field) {
+  @Override
+  public String getField() {
+    return null;
+  }
 
-    }
+  @Override
+  public void setField(String field) {
 
-    @Override
-    public Object getRejectedValue() {
-        return null;
-    }
+  }
 
-    @Override
-    public void setRejectedValue(Object rejectedValue) {
+  @Override
+  public Object getRejectedValue() {
+    return null;
+  }
 
-    }
+  @Override
+  public void setRejectedValue(Object rejectedValue) {
 
-    @Override
-    public String getMessage() {
-        return message;
-    }
+  }
 
-    @Override
-    public void setMessage(String message) {
+  @Override
+  public String getMessage() {
+    return message;
+  }
 
-    }
+  @Override
+  public void setMessage(String message) {
+
+  }
 }

@@ -87,152 +87,152 @@ class BookingControllerTest {
   }
 
   @Test
-	void getBookings() throws Exception {
-		Mockito.when(bookingRepository.findAll()).thenReturn(this.bookings);
+  void getBookings() throws Exception {
+    Mockito.when(bookingRepository.findAll()).thenReturn(this.bookings);
 
-		String uri = "/bookings";
-		MvcResult result =
-		mvc.perform(MockMvcRequestBuilders
-		.get(uri)
-		.contentType(MediaType.APPLICATION_JSON))
-		.andReturn();
-		int status = result.getResponse().getStatus();
-		assertEquals(200, status);
+    String uri = "/bookings";
+    MvcResult result =
+        mvc.perform(MockMvcRequestBuilders
+            .get(uri)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+    int status = result.getResponse().getStatus();
+    assertEquals(200, status);
 
-		String content = result.getResponse().getContentAsString();
-		Booking[] bookings = jsonToObject(content, Booking[].class);
-		assertTrue(bookings.length > 0);
-		assertEquals(2, bookings[0].getPartySize());
-	}
+    String content = result.getResponse().getContentAsString();
+    Booking[] bookings = jsonToObject(content, Booking[].class);
+    assertTrue(bookings.length > 0);
+    assertEquals(2, bookings[0].getPartySize());
+  }
 
-	@Test
-	void getBookingsByTime() throws Exception {
+  @Test
+  void getBookingsByTime() throws Exception {
 
-		String start = "2020-10-11T18:00:00.00";
-		String end = "2020-10-11T21:00:00.00";
-		LocalDateTime startTime = LocalDateTime.parse(start);
-		LocalDateTime endTime = LocalDateTime.parse(end);
-		Mockito.when(bookingRepository
-				.getBookingsDuringTime(startTime, endTime))
-				.thenReturn(this.bookings);
+    String start = "2020-10-11T18:00:00.00";
+    String end = "2020-10-11T21:00:00.00";
+    LocalDateTime startTime = LocalDateTime.parse(start);
+    LocalDateTime endTime = LocalDateTime.parse(end);
+    Mockito.when(bookingRepository
+        .getBookingsDuringTime(startTime, endTime))
+        .thenReturn(this.bookings);
 
-		String uri = "/bookings?startTime=" + start + "&endTime=" + end;
-		MvcResult result =
-				mvc.perform(MockMvcRequestBuilders.get(uri).contentType(
-						MediaType.APPLICATION_JSON)).andReturn();
-		int status = result.getResponse().getStatus();
-		assertEquals(200, status);
+    String uri = "/bookings?startTime=" + start + "&endTime=" + end;
+    MvcResult result =
+        mvc.perform(MockMvcRequestBuilders.get(uri).contentType(
+            MediaType.APPLICATION_JSON)).andReturn();
+    int status = result.getResponse().getStatus();
+    assertEquals(200, status);
 
-		String content = result.getResponse().getContentAsString();
-		Booking[] bookings = jsonToObject(content, Booking[].class);
-		assertEquals(2, bookings.length);
-	}
+    String content = result.getResponse().getContentAsString();
+    Booking[] bookings = jsonToObject(content, Booking[].class);
+    assertEquals(2, bookings.length);
+  }
 
-	@Test
-	void getBookingsByStartTime() throws Exception {
-		LocalDateTime startTime = booking1.getStartTime();
-		Mockito.when(bookingRepository
-		.getBookingsByStartTime(startTime))
-		.thenReturn(this.bookings.stream()
-		.filter(booking -> booking.getStartTime().equals(
-		startTime))
-		.collect(Collectors.toList()));
+  @Test
+  void getBookingsByStartTime() throws Exception {
+    LocalDateTime startTime = booking1.getStartTime();
+    Mockito.when(bookingRepository
+        .getBookingsByStartTime(startTime))
+        .thenReturn(this.bookings.stream()
+            .filter(booking -> booking.getStartTime().equals(
+                startTime))
+            .collect(Collectors.toList()));
 
-		String uri = "/bookings?startTime=" + startTime.format(GlobalVariables.getDateTimeFormat());
-		MvcResult result =
-		mvc.perform(MockMvcRequestBuilders.get(uri).contentType(
-		MediaType.APPLICATION_JSON)).andReturn();
-		int status = result.getResponse().getStatus();
-		assertEquals(200, status);
+    String uri = "/bookings?startTime=" + startTime.format(GlobalVariables.getDateTimeFormat());
+    MvcResult result =
+        mvc.perform(MockMvcRequestBuilders.get(uri).contentType(
+            MediaType.APPLICATION_JSON)).andReturn();
+    int status = result.getResponse().getStatus();
+    assertEquals(200, status);
 
-		String content = result.getResponse().getContentAsString();
-		Booking[] bookings = jsonToObject(content, Booking[].class);
-		assertEquals(1, bookings.length);
-	}
+    String content = result.getResponse().getContentAsString();
+    Booking[] bookings = jsonToObject(content, Booking[].class);
+    assertEquals(1, bookings.length);
+  }
 
-	@Test
-	void getBookingsByDate() throws Exception {
-		String date = "2020-12-11";
-		LocalDateTime startDate = LocalDate.parse(date).atStartOfDay();
-		LocalDateTime endDate = startDate.plusDays(1);
-		Mockito.when(bookingRepository
-				.getBookingsBetweenDates(startDate, endDate))
-				.thenReturn(this.bookings);
+  @Test
+  void getBookingsByDate() throws Exception {
+    String date = "2020-12-11";
+    LocalDateTime startDate = LocalDate.parse(date).atStartOfDay();
+    LocalDateTime endDate = startDate.plusDays(1);
+    Mockito.when(bookingRepository
+        .getBookingsBetweenDates(startDate, endDate))
+        .thenReturn(this.bookings);
 
-		String uri = "/bookings?date=" + date;
-		MvcResult result =
-				mvc.perform(MockMvcRequestBuilders.get(uri).contentType(
-						MediaType.APPLICATION_JSON)).andReturn();
-		int status = result.getResponse().getStatus();
-		assertEquals(200, status);
+    String uri = "/bookings?date=" + date;
+    MvcResult result =
+        mvc.perform(MockMvcRequestBuilders.get(uri).contentType(
+            MediaType.APPLICATION_JSON)).andReturn();
+    int status = result.getResponse().getStatus();
+    assertEquals(200, status);
 
-		String content = result.getResponse().getContentAsString();
-		Booking[] bookings = jsonToObject(content, Booking[].class);
-		assertEquals(2, bookings.length);
+    String content = result.getResponse().getContentAsString();
+    Booking[] bookings = jsonToObject(content, Booking[].class);
+    assertEquals(2, bookings.length);
 
-	}
+  }
 
 
-	@Test
-	void getBookingById() throws Exception {
-		Mockito.when(bookingRepository.findById((long) 1)).thenReturn(
-				Optional.ofNullable(this.booking1));
+  @Test
+  void getBookingById() throws Exception {
+    Mockito.when(bookingRepository.findById((long) 1)).thenReturn(
+        Optional.ofNullable(this.booking1));
 
-		String uri = "/bookings/1";
-		MvcResult result =
-				mvc.perform(MockMvcRequestBuilders.get(uri).contentType(
-						MediaType.APPLICATION_JSON)).andReturn();
-		int status = result.getResponse().getStatus();
-		assertEquals(200, status);
+    String uri = "/bookings/1";
+    MvcResult result =
+        mvc.perform(MockMvcRequestBuilders.get(uri).contentType(
+            MediaType.APPLICATION_JSON)).andReturn();
+    int status = result.getResponse().getStatus();
+    assertEquals(200, status);
 
-		String content = result.getResponse().getContentAsString();
-		Booking booking = jsonToObject(content, Booking.class);
-		assertEquals(booking.getPartySize(), booking1.getPartySize());
+    String content = result.getResponse().getContentAsString();
+    Booking booking = jsonToObject(content, Booking.class);
+    assertEquals(booking.getPartySize(), booking1.getPartySize());
 
-	}
+  }
 
-	@Test
-	void updateBookingNotPresent() throws Exception {
-		Mockito.when(bookingRepository.findById((long) 1))
-		.thenReturn(Optional.empty());
-		Mockito.when(bookingHandler.createBooking(any(Booking.class), any(User.class),
-		any(Boolean.class)))
-		.thenReturn(updatedBooking2);
+  @Test
+  void updateBookingNotPresent() throws Exception {
+    Mockito.when(bookingRepository.findById((long) 1))
+        .thenReturn(Optional.empty());
+    Mockito.when(bookingHandler.createBooking(any(Booking.class), any(User.class),
+        any(Boolean.class)))
+        .thenReturn(updatedBooking2);
 
-		String uri = "/bookings/" + updatedBooking2.getId();
-		String bookingJson = objectToJson(updatedBooking2);
-		MockHttpServletResponse response =
-		mvc.perform(MockMvcRequestBuilders.put(uri)
-		.accept(MediaType.APPLICATION_JSON)
-		.content(bookingJson)
-		.contentType(MediaType.APPLICATION_JSON))
-		.andReturn()
-		.getResponse();
+    String uri = "/bookings/" + updatedBooking2.getId();
+    String bookingJson = objectToJson(updatedBooking2);
+    MockHttpServletResponse response =
+        mvc.perform(MockMvcRequestBuilders.put(uri)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(bookingJson)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andReturn()
+            .getResponse();
 
-		assertEquals(201, response.getStatus());
-		assertTrue(response.getContentAsString().isEmpty());
-		assertNotNull(response.getHeader("Location"));
-	}
+    assertEquals(201, response.getStatus());
+    assertTrue(response.getContentAsString().isEmpty());
+    assertNotNull(response.getHeader("Location"));
+  }
 
-	@Test
-	void updateBookingAlreadyPresent() throws Exception {
-		Mockito.when(bookingRepository.findById(any(Long.class)))
-		.thenReturn(Optional.of(this.updatedBooking2));
+  @Test
+  void updateBookingAlreadyPresent() throws Exception {
+    Mockito.when(bookingRepository.findById(any(Long.class)))
+        .thenReturn(Optional.of(this.updatedBooking2));
 
-		String uri = "/bookings/" + updatedBooking2.getId();
-		String bookingJson = objectToJson(updatedBooking2);
-		MvcResult result =
-		mvc.perform(MockMvcRequestBuilders.put(uri)
-		.accept(MediaType.APPLICATION_JSON)
-		.content(bookingJson)
-		.contentType(MediaType.APPLICATION_JSON))
-		.andReturn();
+    String uri = "/bookings/" + updatedBooking2.getId();
+    String bookingJson = objectToJson(updatedBooking2);
+    MvcResult result =
+        mvc.perform(MockMvcRequestBuilders.put(uri)
+            .accept(MediaType.APPLICATION_JSON)
+            .content(bookingJson)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
 
-		assertEquals(204, result.getResponse().getStatus());
-	}
+    assertEquals(204, result.getResponse().getStatus());
+  }
 
-	@Test
-	void updateBookingWithTable() throws Exception {
+  @Test
+  void updateBookingWithTable() throws Exception {
     Mockito
         .when(bookingRepository.findById(any(Long.class)))
         .thenReturn(Optional.of(this.updatedBooking2));
