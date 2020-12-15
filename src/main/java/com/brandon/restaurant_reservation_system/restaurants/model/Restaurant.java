@@ -10,17 +10,24 @@ import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantCach
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.RestaurantConfigurationException;
 import com.brandon.restaurant_reservation_system.restaurants.services.PopulateRestaurantService;
-import com.brandon.restaurant_reservation_system.restaurants.services.TableHandlerService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
-import java.io.*;
-import java.time.*;
+import com.brandon.restaurant_reservation_system.restaurants.services.TableService;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.SortedSet;
+import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class Restaurant implements Serializable {
@@ -30,7 +37,7 @@ public class Restaurant implements Serializable {
 	@Autowired
 	private transient RestaurantCache cache;
 	@Autowired
-	private transient TableHandlerService tables;
+	private transient TableService tableService;
 	private String name;
 	private BookingTimes bookingTimes = new BookingTimes();
 	private transient BookingDateRange bookingDateRange = new BookingDateRange(0);
@@ -94,66 +101,6 @@ public class Restaurant implements Serializable {
 	public void setCapacity(int capacity) {
 		config.setCapacity(capacity);
 		serialize();
-	}
-
-	// Tables ------------------------------------------------------------------
-
-	public List<RestaurantTable> getTableList() {
-		return tables.getAll();
-	}
-
-	public void setTableList(List<RestaurantTable> restaurantTableList) {
-		tables.addAll(restaurantTableList);
-	}
-
-	public Optional<RestaurantTable> getTable(String name) {
-		return tables.get(name);
-	}
-
-	public void addTable(String name, int seats) {
-		tables.add(name, seats);
-	}
-
-	public void addTable(RestaurantTable table) {
-		tables.add(table);
-	}
-
-	public void updateTable(String tableName, RestaurantTable updated) {
-		tables.update(tableName, updated);
-	}
-
-	public void updateAllTables(List<RestaurantTable> tables) {
-		this.tables.updateAll(tables);
-	}
-
-	public void removeTable(String name) {
-		tables.remove(name);
-	}
-
-
-	public boolean hasCombinationsOfTables() {
-		List<CombinationOfTables> combinations = getAllCombinationsOfTables();
-		return combinations != null && !combinations.isEmpty();
-	}
-
-	public List<CombinationOfTables> getAllCombinationsOfTables() {
-		return tables.getAllCombinations();
-	}
-
-	public Optional<CombinationOfTables> getCombinationOfTables(String name) {
-		return tables.getCombination(name);
-	}
-
-	public void addTableCombination(List<RestaurantTable> tables) {
-		this.tables.createCombination(tables);
-	}
-
-	public CombinationOfTables addTableCombination(String tables) {
-		return this.tables.createCombination(tables);
-	}
-
-	public int getLargestTableSize() {
-		return tables.getLargestTableSize();
 	}
 
 	// Config ------------------------------------------------------------------

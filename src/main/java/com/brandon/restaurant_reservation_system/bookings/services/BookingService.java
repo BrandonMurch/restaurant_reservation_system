@@ -5,37 +5,90 @@
 package com.brandon.restaurant_reservation_system.bookings.services;
 
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
+import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotFoundException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotPossibleException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequestFormatException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.DuplicateFoundException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.errors.ApiError;
+import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNotFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
+import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
+import com.brandon.restaurant_reservation_system.restaurants.services.TableService;
 import com.brandon.restaurant_reservation_system.users.data.UserRepository;
 import com.brandon.restaurant_reservation_system.users.model.User;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.*;
-
 @Service
 @Transactional
-public class BookingHandlerService {
+public class BookingService {
+
 	@Autowired
 	private BookingRepository bookingRepository;
 	@Autowired
 	private UserRepository userRepository;
 	@Autowired
 	private TableAllocatorService tableAllocatorService;
+	@Autowired
+	private TableService tableService;
+	@Autowired
+	private TableAvailabilityService tableAvailabilityService;
 
-	public BookingHandlerService() {
+	public BookingService() {
+	}
+
+	public Booking find(Long id) {
+		Optional<Booking> booking = bookingRepository.findById(id);
+		if (booking.isEmpty()) {
+			throw new BookingNotFoundException(id);
+		}
+		return booking.get();
+	}
+
+	public void updateTable(Booking booking, String tableName) {
+		updateTable(booking, tableName, false);
+	}
+
+
+	public void updateTable(Booking booking, String tableName, Boolean isForced) {
+		if (tableName.equals("")) {
+			booking.setTables(Collections.emptyList());
+		} else {
+			RestaurantTable table;
+			try {
+				table = tableService.find(tableName);
+			} catch (TableNotFoundException exception) {
+				throw new BookingNotPossibleException(exception.getMessage());
+			}
+
+			if (!tableAvailabilityService.areTablesFree(table.getAssociatedTables(),
+			booking.getStartTime(), booking.getEndTime())) {
+				freeTablesIfForcedOrSame(booking, table.getAssociatedTables(), isForced);
+			}
+
+			if (booking.getPartySize() > table.getSeats()) {
+				if (!isForced) {
+					throw new BookingNotPossibleException("Table is not big enough for " +
+					"party", true);
+				}
+			}
+
+			booking.setTables(table.getAssociatedTables());
+		}
+		bookingRepository.save(booking);
 	}
 
 	public void freeTablesIfForcedOrSame(Booking booking, List<RestaurantTable> tables,
-										 boolean isForced) {
+	boolean isForced) {
 		Set<Booking> bookingsOccupyingTables =
 		bookingRepository.getBookingsByTimeAndMultipleTables(
 		booking.getStartTime(),
@@ -81,12 +134,12 @@ public class BookingHandlerService {
 		} catch (CloneNotSupportedException ex) {
 			throw new Exception("Internal Server Error");
 		}
-		booking.updateBooking(newBooking);
+		booking.update(newBooking);
 
 		Optional<ApiError> bookingValidationException =
 		BookingValidationService.validateBooking(booking);
 		if (bookingValidationException.isPresent()) {
-			booking.updateBooking(oldBooking);
+			booking.update(oldBooking);
 			throw new BookingRequestFormatException(bookingValidationException.get());
 		}
 
@@ -95,7 +148,7 @@ public class BookingHandlerService {
 			tableAllocatorService.getAvailableTable(booking);
 			if (tables.isEmpty()) {
 				if (!isForced) {
-					booking.updateBooking(oldBooking);
+					booking.update(oldBooking);
 					throw new BookingNotPossibleException("Requested date is not " +
 					"available", true);
 				}

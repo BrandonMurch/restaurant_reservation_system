@@ -4,12 +4,31 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+
 import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
+import com.brandon.restaurant_reservation_system.restaurants.model.SingleTable;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TreeSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,15 +39,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-
 @ExtendWith(MockitoExtension.class)
 class TableAllocatorServiceTest {
 
@@ -36,43 +46,45 @@ class TableAllocatorServiceTest {
     private Restaurant restaurant;
     @Mock
     private BookingRepository bookingRepository;
+    @Mock
+    private TableService tableService;
     @InjectMocks
     private TableAllocatorService tableAllocator;
     private final LocalDateTime dateTime1 = LocalDateTime.now();
     private final LocalDateTime dateTime2 = LocalDateTime.now().plusHours(2);
 
     private final List<RestaurantTable> tableList = Arrays.asList(
-      new RestaurantTable("k1", 2, 1),
-      new RestaurantTable("k2", 2, 2),
-      new RestaurantTable("b1", 2, 3),
-      new RestaurantTable("b2", 2, 3),
-      new RestaurantTable("1", 4, 3),
-      new RestaurantTable("5", 4, 3),
-      new RestaurantTable("20", 2, 3),
-      new RestaurantTable("21", 2, 3),
-      new RestaurantTable("22", 2, 3),
-      new RestaurantTable("23", 2, 3),
-      new RestaurantTable("24", 2, 3),
-      new RestaurantTable("25", 2, 3)
+        new SingleTable("k1", 2, 1),
+        new SingleTable("k2", 2, 2),
+        new SingleTable("b1", 2, 3),
+        new SingleTable("b2", 2, 3),
+        new SingleTable("1", 4, 3),
+        new SingleTable("5", 4, 3),
+        new SingleTable("20", 2, 3),
+        new SingleTable("21", 2, 3),
+        new SingleTable("22", 2, 3),
+        new SingleTable("23", 2, 3),
+        new SingleTable("24", 2, 3),
+        new SingleTable("25", 2, 3)
     );
 
     private final List<CombinationOfTables> comboList = Arrays.asList(
       new CombinationOfTables(Arrays.asList(
-        new RestaurantTable("21", 2, 1),
-        new RestaurantTable("22", 2, 1)
+          new SingleTable("21", 2, 1),
+          new SingleTable("22", 2, 1)
       ), 1),
       new CombinationOfTables(Arrays.asList(
-        new RestaurantTable("21", 2, 1),
-        new RestaurantTable("22", 2, 1),
-        new RestaurantTable("23", 2, 1)
+          new SingleTable("21", 2, 1),
+          new SingleTable("22", 2, 1),
+          new SingleTable("23", 2, 1)
       ), 1),
       new CombinationOfTables(Arrays.asList(
-        new RestaurantTable("22", 2, 1),
-        new RestaurantTable("23", 2, 1)
+          new SingleTable("22", 2, 1),
+          new SingleTable("23", 2, 1)
       ), 1),
       new CombinationOfTables(Arrays.asList(
-        new RestaurantTable("1", 4, 1),
-        new RestaurantTable("5", 4, 1)
+          new SingleTable("1", 4, 1),
+          new SingleTable("5", 4, 1)
       ), 1)
     );
 
@@ -84,7 +96,7 @@ class TableAllocatorServiceTest {
     @Test
     void getAvailableTableWithBooking() {
         Mockito
-          .when(restaurant.getTableList())
+            .when(tableService.findAll())
           .thenReturn(tableList);
         Mockito
           .when(restaurant.isBookingTime(any(LocalDateTime.class)))
@@ -108,7 +120,7 @@ class TableAllocatorServiceTest {
           .when(restaurant.getStandardBookingDuration())
           .thenReturn(Duration.ofHours(2));
         Mockito
-          .when(restaurant.getTableList())
+            .when(tableService.findAll())
           .thenReturn(tableList);
         Mockito
           .when(restaurant.isBookingTime(any(LocalDateTime.class)))
@@ -129,7 +141,7 @@ class TableAllocatorServiceTest {
     @Test
     void getAvailableTableBookingTimeNotValid() {
         Mockito
-          .when(restaurant.getTableList())
+            .when(tableService.findAll())
           .thenReturn(tableList);
         Mockito
           .when(restaurant.isBookingTime(any(LocalDateTime.class)))
@@ -142,7 +154,7 @@ class TableAllocatorServiceTest {
     @Test
     void getAvailableTableNoTables() {
         Mockito
-          .when(restaurant.getTableList())
+            .when(tableService.findAll())
           .thenReturn(Collections.emptyList());
         Exception exception = assertThrows(
           IllegalStateException.class,
@@ -161,7 +173,7 @@ class TableAllocatorServiceTest {
     @Test
     void getAvailableTable() {
         Mockito
-          .when(restaurant.getTableList())
+            .when(tableService.findAll())
           .thenReturn(tableList);
         Mockito
           .when(restaurant.isBookingTime(any(LocalDateTime.class)))
@@ -183,16 +195,16 @@ class TableAllocatorServiceTest {
     @Test
     void getAvailableTableGreaterSize() {
         List<RestaurantTable> oneTableList =
-          Collections.singletonList(new RestaurantTable("30", 4, 1));
+            Collections.singletonList(new SingleTable("30", 4, 1));
 
         Mockito
-          .when(restaurant.getTableList())
+            .when(tableService.findAll())
           .thenReturn(oneTableList);
         Mockito
           .when(restaurant.isBookingTime(any(LocalDateTime.class)))
           .thenReturn(true);
         Mockito
-          .when(restaurant.hasCombinationsOfTables())
+            .when(tableService.doCombinationsExist())
           .thenReturn(false);
         Mockito
           .when(bookingRepository
@@ -202,7 +214,7 @@ class TableAllocatorServiceTest {
           )
           .thenReturn(Collections.emptyList());
         Mockito
-          .when(restaurant.getLargestTableSize())
+            .when(tableService.getLargestTableSize())
           .thenReturn(6);
 
         assertEquals(oneTableList, tableAllocator.getAvailableTable(dateTime1,
@@ -213,18 +225,18 @@ class TableAllocatorServiceTest {
     @Test
     void getAvailableTableWithCombinations() {
         Mockito
-          .when(restaurant.getTableList())
+            .when(tableService.findAll())
           .thenReturn(Collections.singletonList(
-            new RestaurantTable("200", 10, 1)
+              new SingleTable("200", 10, 1)
           ));
         Mockito
-          .when(restaurant.getAllCombinationsOfTables())
+            .when(tableService.getAllCombinations())
           .thenReturn(comboList);
         Mockito
           .when(restaurant.isBookingTime(any(LocalDateTime.class)))
           .thenReturn(true);
         Mockito
-          .when(restaurant.hasCombinationsOfTables())
+            .when(tableService.doCombinationsExist())
           .thenReturn(true);
         Mockito
           .when(bookingRepository
@@ -234,10 +246,10 @@ class TableAllocatorServiceTest {
           )
           .thenReturn(Collections.emptyList());
 
-
-        assertEquals(comboList.get(0).getTables(), tableAllocator.getAvailableTable(dateTime1,
-          dateTime2, 4
-          , false));
+        assertEquals(comboList.get(0).getAssociatedTables(),
+            tableAllocator.getAvailableTable(dateTime1,
+                dateTime2, 4
+                , false));
     }
 
     @Test
@@ -288,7 +300,7 @@ class TableAllocatorServiceTest {
     @Test
     void updateTableSizeMap() {
         List<RestaurantTable> oneTableList =
-          Collections.singletonList(new RestaurantTable("30", 4, 1));
+            Collections.singletonList(new SingleTable("30", 4, 1));
         ReflectionTestUtils.setField(tableAllocator, "restaurantTableList",
           oneTableList);
         List<RestaurantTable> results =
@@ -301,7 +313,7 @@ class TableAllocatorServiceTest {
     @Test
     void restaurantOverCapacity() {
         Mockito
-          .when(restaurant.getTableList())
+            .when(tableService.findAll())
           .thenReturn(tableList);
         Mockito
           .when(restaurant.isBookingTime(any(LocalDateTime.class)))
@@ -329,20 +341,20 @@ class TableAllocatorServiceTest {
     @Test
     void getCombinationBySize() {
         Mockito
-          .when(restaurant.getAllCombinationsOfTables())
-          .thenReturn(comboList);
+            .when(tableService.getAllCombinations())
+            .thenReturn(comboList);
         List<RestaurantTable> results =
-          tableAllocator.getCombinationBySizeAndUpdateMap(new HashMap<>(), 4);
-        assertEquals(comboList.get(0).getTables(), results);
+            tableAllocator.getTableBySizeAndUpdateMap(new HashMap<>(), 4);
+        assertEquals(comboList.get(0).getAssociatedTables(), results);
     }
 
     @Test
     void updateCombinationsMap() {
         Mockito
-          .when(restaurant.getAllCombinationsOfTables())
+            .when(tableService.findAll())
           .thenReturn(Collections.singletonList(comboList.get(0)));
         List<RestaurantTable> results =
-          tableAllocator.getCombinationBySizeAndUpdateMap(new HashMap<>(), 50);
+            tableAllocator.getTableBySizeAndUpdateMap(new HashMap<>(), 50);
         assertEquals(Collections.emptyList(), results);
         assertFalse(tableAllocator.getAvailableCombinationsForTest().isEmpty());
         assertTrue(tableAllocator.getAvailableCombinationsForTest().containsKey(comboList.get(0).getSeats()));
@@ -354,7 +366,7 @@ class TableAllocatorServiceTest {
           .when(restaurant.getStandardBookingDuration())
           .thenReturn(Duration.ofHours(2));
         Mockito
-          .when(restaurant.getTableList())
+            .when(tableService.findAll())
           .thenReturn(tableList);
         Mockito
           .when(restaurant.isBookingTime(any(LocalDateTime.class)))

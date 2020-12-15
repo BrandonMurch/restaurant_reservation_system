@@ -9,13 +9,18 @@ import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 
 @Service
@@ -24,17 +29,13 @@ public class TableAllocatorService {
 	@Autowired
 	private BookingRepository bookingRepository;
 	@Autowired
+	private TableService tableService;
+	@Autowired
 	private Restaurant restaurant;
-	private List<RestaurantTable> restaurantTableList;
 	private Map<Integer, RestaurantTable> availableTables;
 	private Map<Integer, CombinationOfTables> availableCombinations;
 
 	public TableAllocatorService() {
-	}
-
-	public TableAllocatorService(Restaurant restaurant) {
-		restaurantTableList = restaurant.getTableList();
-		this.restaurant = restaurant;
 	}
 
 	public List<RestaurantTable> getAvailableTable(Booking booking) {
@@ -65,10 +66,10 @@ public class TableAllocatorService {
 												   LocalDateTime endTime,
 												   int partySize,
 												   boolean searchGreaterSizes) {
-		restaurantTableList = restaurant.getTableList();
-		if (restaurantTableList == null || restaurantTableList.isEmpty()) {
+		List<RestaurantTable> allTables = tableService.findAll();
+		if (allTables == null || allTables.isEmpty()) {
 			throw new IllegalStateException("Please ensure the restaurant is " +
-			"set up with tables before trying to make a booking.");
+					"set up with tableService before trying to make a booking.");
 		} else if (!restaurant.isBookingTime(startTime)) {
 			return Collections.emptyList();
 		}
@@ -76,7 +77,7 @@ public class TableAllocatorService {
 		List<Booking> bookings = getBookings(startTime, endTime);
 
 		Optional<Map<RestaurantTable, Booking>> optionalResults =
-		getOccupiedTables(bookings);
+				getOccupiedTables(bookings);
 
 		if (optionalResults.isEmpty()) {
 			return Collections.emptyList();
@@ -85,14 +86,14 @@ public class TableAllocatorService {
 		Map<RestaurantTable, Booking> occupiedTables = optionalResults.get();
 		List<RestaurantTable> foundRestaurantTables;
 		foundRestaurantTables = getTableBySizeAndUpdateMap(occupiedTables,
-		partySize);
+				partySize);
 		if (!foundRestaurantTables.isEmpty()) {
 			return foundRestaurantTables;
 		}
 
-		if (restaurant.hasCombinationsOfTables()) {
+		if (tableService.doCombinationsExist()) {
 			foundRestaurantTables = getCombinationBySizeAndUpdateMap(occupiedTables,
-			partySize);
+					partySize);
 			if (!foundRestaurantTables.isEmpty()) {
 				return foundRestaurantTables;
 			}
@@ -108,16 +109,16 @@ public class TableAllocatorService {
 	private List<RestaurantTable> getATableRecursively(int partySize) {
 		if (availableTables.containsKey(partySize)) {
 			return Collections.singletonList(
-			availableTables.get(partySize)
+					availableTables.get(partySize)
 			);
-		} else if (restaurant.hasCombinationsOfTables()) {
+		} else if (tableService.doCombinationsExist()) {
 			if (availableCombinations.containsKey(partySize)) {
 				return availableCombinations.get(
-				partySize).getTables();
+						partySize).getAssociatedTables();
 			}
 		}
 
-		if (partySize >= restaurant.getLargestTableSize()) {
+		if (partySize >= tableService.getLargestTableSize()) {
 			return Collections.emptyList();
 		}
 		return getATableRecursively(partySize + 1);
@@ -156,36 +157,36 @@ public class TableAllocatorService {
 			}
 
 			booking.getTables()
-			.forEach(table -> occupiedTables.put(table, booking));
+					.forEach(table -> occupiedTables.put(table, booking));
 		}
 		return Optional.of(occupiedTables);
 	}
 
-	protected List<RestaurantTable> getTableBySizeAndUpdateMap(
-	Map<RestaurantTable,
-	Booking> occupiedTables, int size) {
-		availableTables = new HashMap<>();
-		for (RestaurantTable restaurantTable : restaurantTableList) {
-			if (!occupiedTables.containsKey(restaurantTable)) {
-				if (restaurantTable.getSeats() == size) {
-					return Collections.singletonList(restaurantTable);
-				}
-				availableTables.putIfAbsent(restaurantTable.getSeats(),
-				restaurantTable);
-			}
-		}
-		return Collections.emptyList();
-	}
+//	protected List<RestaurantTable> getTableBySizeAndUpdateMap(
+//	Map<RestaurantTable,
+//	Booking> occupiedTables, int size) {
+//		availableTables = new HashMap<>();
+//		for (RestaurantTable restaurantTable : tableService.findAll()) {
+//			if (!occupiedTables.containsKey(restaurantTable)) {
+//				if (restaurantTable.getSeats() == size) {
+//					return Collections.singletonList(restaurantTable);
+//				}
+//				availableTables.putIfAbsent(restaurantTable.getSeats(),
+//				restaurantTable);
+//			}
+//		}
+//		return Collections.emptyList();
+//	}
 
-	protected List<RestaurantTable> getCombinationBySizeAndUpdateMap(
-	Map<RestaurantTable,
-	Booking> occupiedTables, int size) {
+	protected List<RestaurantTable> getTableBySizeAndUpdateMap(
+			Map<RestaurantTable,
+					Booking> occupiedTables, int size) {
 		availableCombinations = new HashMap<>();
 		for (CombinationOfTables combination :
-		restaurant.getAllCombinationsOfTables()) {
+				tableService.getAllCombinations()) {
 			boolean foundAOccupiedTable = false;
 
-			for (RestaurantTable restaurantTable : combination.getTables()) {
+			for (RestaurantTable restaurantTable : combination.getAssociatedTables()) {
 				if (occupiedTables.containsKey(restaurantTable)) {
 					foundAOccupiedTable = true;
 					break;
@@ -194,9 +195,9 @@ public class TableAllocatorService {
 
 			if (!foundAOccupiedTable) {
 				if (!availableCombinations.containsKey(
-				combination.getSeats())) {
+						combination.getSeats())) {
 					if (combination.getSeats() == size) {
-						return combination.getTables();
+						return combination.getAssociatedTables();
 					}
 					availableCombinations.put(combination.getSeats(),
 					combination);

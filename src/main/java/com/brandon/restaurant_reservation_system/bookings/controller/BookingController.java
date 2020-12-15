@@ -7,38 +7,41 @@ package com.brandon.restaurant_reservation_system.bookings.controller;
 import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotFoundException;
-import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotPossibleException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequestFormatException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.model.RequestBodyUserBooking;
-import com.brandon.restaurant_reservation_system.bookings.services.BookingHandlerService;
+import com.brandon.restaurant_reservation_system.bookings.services.BookingService;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingValidationService;
 import com.brandon.restaurant_reservation_system.errors.ApiError;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
-import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNotFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
-import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
-import com.brandon.restaurant_reservation_system.restaurants.services.TableHandlerService;
+import com.brandon.restaurant_reservation_system.restaurants.services.TableService;
 import com.brandon.restaurant_reservation_system.users.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/bookings")
@@ -52,11 +55,11 @@ public class BookingController {
 	@Autowired
 	private BookingRepository bookingRepository;
 	@Autowired
-	private BookingHandlerService bookingHandler;
+	private BookingService bookingService;
 	@Autowired
 	private TableAvailabilityService tableAvailability;
 	@Autowired
-	private TableHandlerService tableHandler;
+	private TableService tableHandler;
 
 	public BookingController() {
 	}
@@ -117,45 +120,16 @@ public class BookingController {
 
 	@PutMapping("{bookingId}/setTable")
 	public void updateBookingWithTable(@PathVariable long bookingId,
-									   @RequestBody String tableNames,
-									   HttpServletRequest request,
-									   HttpServletResponse response) {
-		Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
-		if (optionalBooking.isEmpty()) {
-			throw new BookingNotFoundException("Booking Id was not found");
-		}
+			@RequestBody String tableName,
+			HttpServletRequest request,
+			HttpServletResponse response) {
 
-		Booking booking = optionalBooking.get();
-		if (tableNames.equals("")) {
-			booking.setTables(Collections.emptyList());
-		}
-
-		List<RestaurantTable> tables;
-		try {
-			tables = tableHandler.find(tableNames);
-		} catch (TableNotFoundException exception) {
-			throw new BookingNotPossibleException(exception.getMessage());
-		}
-
-		boolean isForced = isRequestForced(request);
-		if (!tableAvailability.areTablesFree(tables,
-		booking.getStartTime(), booking.getEndTime())) {
-			bookingHandler.freeTablesIfForcedOrSame(booking, tables, isForced);
-		}
-
-		if (!tableHandler.willPartyFitOnTable(booking.getPartySize(), tables)) {
-			if (!isForced) {
-				throw new BookingNotPossibleException("Table is not big enough for " +
-				"party", true);
-			}
-		}
-
-		booking.setTables(tables);
-		bookingRepository.save(booking);
+		Booking booking = bookingService.find(bookingId);
+		bookingService.updateTable(booking, tableName, isRequestForced(request));
 
 		try {
 			sendResponse(response, HttpStatus.NO_CONTENT.value(), "Booking " +
-			"table successfully updated.");
+					"table successfully updated.");
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new InternalError("Response sending failed");
@@ -173,11 +147,11 @@ public class BookingController {
 
 		if (result.isPresent()) {
 			Booking booking = result.get();
-			bookingHandler.updateBooking(booking,
-			newBooking, isRequestForced(request));
+			bookingService.updateBooking(booking,
+					newBooking, isRequestForced(request));
 			try {
 				sendResponse(response, HttpStatus.NO_CONTENT.value(), "Booking successfully " +
-				"updated.");
+						"updated.");
 			} catch (IOException e) {
 				e.printStackTrace();
 				throw new InternalError("Response sending failed");
@@ -204,7 +178,7 @@ public class BookingController {
 
 		Booking booking = body.getBooking();
 		Optional<ApiError> bookingValidationException =
-		BookingValidationService.validateBooking(booking);
+				BookingValidationService.validateBooking(booking);
 		if (bookingValidationException.isPresent()) {
 			throw new BookingRequestFormatException(bookingValidationException.get());
 		}
@@ -213,7 +187,7 @@ public class BookingController {
 			throw new BookingRequestFormatException("Email is a required field");
 		}
 
-		Booking result = bookingHandler.createBooking(booking, user, isRequestForced(request));
+		Booking result = bookingService.createBooking(booking, user, isRequestForced(request));
 		try {
 			sendResponse(response, buildUriFromBooking(result));
 		} catch (IOException e) {

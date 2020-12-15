@@ -4,13 +4,22 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+
 import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
-import com.brandon.restaurant_reservation_system.bookings.services.BookingHandlerService;
+import com.brandon.restaurant_reservation_system.bookings.services.BookingService;
 import com.brandon.restaurant_reservation_system.restaurants.data.TableRepository;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.UnallocatedBookingTableException;
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,25 +28,15 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-
 @ExtendWith(MockitoExtension.class)
-class TableHandlerServiceTest {
+class TableServiceTest {
 
     @Mock
     private TableRepository tableRepository;
     @Mock
-    private BookingHandlerService bookingHandler;
+    private BookingService bookingHandler;
     @InjectMocks
-    private TableHandlerService tableHandlerService;
+    private TableService tableService;
 
     RestaurantTable table1 = new RestaurantTable("1", 4, 1);
     RestaurantTable table5 = new RestaurantTable("5", 4, 2);
@@ -80,7 +79,7 @@ class TableHandlerServiceTest {
           .thenReturn(Collections.singletonList(booking));
 
         var exception = assertThrows(UnallocatedBookingTableException.class,
-          () -> tableHandlerService.remove(table1.getName()));
+          () -> tableService.remove(table1.getName()));
 
         String expected = "Bookings have been left without a table.";
         String actual = exception.getApiError().getMessage();
@@ -104,7 +103,7 @@ class TableHandlerServiceTest {
               return (CombinationOfTables) args[0];
           });
 
-        CombinationOfTables combination = tableHandlerService
+        CombinationOfTables combination = tableService
           .createCombination("1, 5");
 
         assertEquals(table1.getSeats() + table5.getSeats(), combination.getSeats());

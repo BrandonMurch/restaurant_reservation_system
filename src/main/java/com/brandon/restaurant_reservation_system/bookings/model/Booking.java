@@ -4,22 +4,34 @@
 
 package com.brandon.restaurant_reservation_system.bookings.model;
 
-import com.brandon.restaurant_reservation_system.helpers.date_time.services.*;
+import static com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler.formatDateTime;
+
+import com.brandon.restaurant_reservation_system.helpers.date_time.services.CustomDateTimeFormatter;
+import com.brandon.restaurant_reservation_system.helpers.date_time.services.LocalDateDeserializer;
+import com.brandon.restaurant_reservation_system.helpers.date_time.services.LocalDateSerializer;
+import com.brandon.restaurant_reservation_system.helpers.date_time.services.LocalDateTimeDeserializer;
+import com.brandon.restaurant_reservation_system.helpers.date_time.services.LocalDateTimeSerializer;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
-import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import static com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler.formatDateTime;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 public class Booking implements Cloneable {
@@ -134,7 +146,7 @@ public class Booking implements Cloneable {
 		this.restaurantComments = restaurantComments;
 	}
 
-	public void updateBooking(Booking newBooking) {
+	public void update(Booking newBooking) {
 		Integer partySize = newBooking.getPartySize();
 		if (partySize != null) {
 			this.setPartySize(partySize);
@@ -174,29 +186,22 @@ public class Booking implements Cloneable {
 		}
 	}
 
-	public void addTable(RestaurantTable restaurantTable) {
-		if (this.restaurantTables == null) {
-			this.restaurantTables = new ArrayList<>();
-		}
-		this.restaurantTables.add(restaurantTable);
-	}
-
 	@Override
 	public int hashCode() {
 		return Objects.hash(getId(), getStartTime(), getEndTime());
 	}
 
-	public boolean doTheseBookingsOverlap(Booking otherBooking) {
+	public boolean doesOverlap(Booking otherBooking) {
 		return isTheBookingDuringThisTime(otherBooking.getStartTime(),
 				otherBooking.getEndTime());
 	}
 
-		public boolean isTheBookingDuringThisTime(LocalDateTime startTime,
-		                                      LocalDateTime endTime) {
-			if (this.getStartTime().isAfter(endTime)
-					|| this.getStartTime().isEqual(endTime)) {
-				return false;
-			}
+	public boolean isTheBookingDuringThisTime(LocalDateTime startTime,
+			LocalDateTime endTime) {
+		if (this.getStartTime().isAfter(endTime)
+				|| this.getStartTime().isEqual(endTime)) {
+			return false;
+		}
 			return !(this.getEndTime().isBefore(startTime)
 					|| this.getEndTime().isEqual(startTime));
 		}

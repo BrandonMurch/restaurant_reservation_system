@@ -4,20 +4,18 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.brandon.restaurant_reservation_system.restaurants.CreateTableForTest;
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @Transactional
@@ -43,25 +41,6 @@ class TableRepositoryTest {
     void sanityTest() {
         assertEquals(table, tableRepository.findById(table.getName()).get());
         assertEquals(combination, tableRepository.findById(combination.getName()).get());
-    }
-
-
-    @Test
-    void deleteByName() {
-        tableRepository.deleteByName(table.getName());
-        assertEquals(Optional.empty(), tableRepository.findById(table.getName()));
-    }
-
-    @Test
-    void deleteWithAssociatedCombinationsDeletesTable() {
-        tableRepository.deleteByName(table.getName());
-        assertEquals(Optional.empty(), tableRepository.findById(table.getName()));
-    }
-
-    @Test
-    void deleteWithAssociatedCombinationsDeletesCombination() {
-        tableRepository.deleteByName(combination.getName());
-        assertEquals(Optional.empty(), tableRepository.findById(combination.getName()));
     }
 
     @Test

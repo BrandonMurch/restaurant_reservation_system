@@ -4,13 +4,15 @@
 
 package com.brandon.restaurant_reservation_system.bookings.model;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.brandon.restaurant_reservation_system.users.model.User;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.time.LocalDateTime;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class BookingTest {
 
@@ -40,7 +42,7 @@ class BookingTest {
           user
         );
 
-        booking.updateBooking(newBooking);
+        booking.update(newBooking);
         assertEquals(newBooking.getStartTime(), booking.getStartTime());
         assertEquals(newBooking.getEndTime(), booking.getEndTime());
         assertEquals(newBooking.getPartySize(), booking.getPartySize());
@@ -77,22 +79,22 @@ class BookingTest {
         Booking bookingDoesNotOverlap2 = new Booking(
           4,
           start.minusHours(2),
-          start,
-          user
+            start,
+            user
         );
 
         Booking bookingDoesNotOverlap3 = new Booking(
-          4,
-          start.minusDays(1),
-          end.minusDays(1), user
+            4,
+            start.minusDays(1),
+            end.minusDays(1), user
         );
 
-        assertTrue(booking.doTheseBookingsOverlap(bookingDoesOverlap));
-        assertTrue(booking.doTheseBookingsOverlap(bookingDoesOverlap2));
-        assertTrue(booking.doTheseBookingsOverlap(bookingDoesOverlap3));
-        assertFalse(booking.doTheseBookingsOverlap(bookingDoesNotOverlap));
-        assertFalse(booking.doTheseBookingsOverlap(bookingDoesNotOverlap2));
-        assertFalse(booking.doTheseBookingsOverlap(bookingDoesNotOverlap3));
+        assertTrue(booking.doesOverlap(bookingDoesOverlap));
+        assertTrue(booking.doesOverlap(bookingDoesOverlap2));
+        assertTrue(booking.doesOverlap(bookingDoesOverlap3));
+        assertFalse(booking.doesOverlap(bookingDoesNotOverlap));
+        assertFalse(booking.doesOverlap(bookingDoesNotOverlap2));
+        assertFalse(booking.doesOverlap(bookingDoesNotOverlap3));
     }
 
     @Test

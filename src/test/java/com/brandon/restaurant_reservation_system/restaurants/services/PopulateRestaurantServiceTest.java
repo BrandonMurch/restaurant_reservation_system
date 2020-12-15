@@ -4,9 +4,20 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
+import static com.brandon.restaurant_reservation_system.restaurants.services.PopulateRestaurantService.populateRestaurant;
+import static com.brandon.restaurant_reservation_system.restaurants.services.PopulateRestaurantService.populateRestaurantTables;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,21 +26,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-
-import static com.brandon.restaurant_reservation_system.restaurants.services.PopulateRestaurantService.populateRestaurant;
-import static com.brandon.restaurant_reservation_system.restaurants.services.PopulateRestaurantService.populateRestaurantTables;
-import static org.junit.jupiter.api.Assertions.*;
-
 @ExtendWith(MockitoExtension.class)
 class PopulateRestaurantServiceTest {
 
     @Mock
-    private TableHandlerService tables;
+    private TableService tableService;
     @InjectMocks
     private final Restaurant restaurant = new Restaurant();
 
@@ -100,10 +101,10 @@ class PopulateRestaurantServiceTest {
     @Test
     void populateRestaurantTablesTest() {
         Mockito
-          .when(tables.getAll())
+          .when(tableService.getAll())
           .thenReturn(tableList);
         Mockito
-          .when(tables.getAllCombinations())
+          .when(tableService.getAllCombinations())
           .thenReturn(comboList);
         populateRestaurant(restaurant);
         populateRestaurantTables(restaurant);

@@ -4,15 +4,20 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
-import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 
 @Entity(name = "restaurant_table")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "combination", discriminatorType =
-DiscriminatorType.INTEGER, columnDefinition = "TINYINT(1)")
-@DiscriminatorValue("0")
-public class RestaurantTable {
+		DiscriminatorType.INTEGER, columnDefinition = "TINYINT(1)")
+public abstract class RestaurantTable {
 
 	@Id
 	private String name;
@@ -20,9 +25,6 @@ public class RestaurantTable {
 	private int priority;
 
 	public RestaurantTable() {
-		name = "Unnamed";
-		seats = 0;
-		priority = -1;
 	}
 
 	public RestaurantTable(String name, int seats, int priority) {
@@ -61,13 +63,21 @@ public class RestaurantTable {
 		setPriority(newTable.priority);
 	}
 
+	public abstract List<RestaurantTable> getAssociatedTables();
+
+	public abstract void removeAssociatedTables();
+
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 		RestaurantTable that = (RestaurantTable) o;
 		return getSeats() == that.getSeats() &&
-		Objects.equals(getName(), that.getName());
+				Objects.equals(getName(), that.getName());
 	}
 
 	@Override

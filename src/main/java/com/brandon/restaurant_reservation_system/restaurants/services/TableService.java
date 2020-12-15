@@ -5,7 +5,7 @@
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
-import com.brandon.restaurant_reservation_system.bookings.services.BookingHandlerService;
+import com.brandon.restaurant_reservation_system.bookings.services.BookingService;
 import com.brandon.restaurant_reservation_system.errors.ApiError;
 import com.brandon.restaurant_reservation_system.errors.SubErrorMessage;
 import com.brandon.restaurant_reservation_system.restaurants.data.TableRepository;
@@ -14,60 +14,50 @@ import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNot
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.UnallocatedBookingTableException;
 import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
+import com.brandon.restaurant_reservation_system.restaurants.model.SingleTable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-
 @Service
 @Transactional
-public class TableHandlerService {
+public class TableService {
+
 	@Autowired
 	private TableRepository tableRepository;
 	@Autowired
-	private BookingHandlerService bookingHandler;
+	private BookingService bookingHandler;
 	@Autowired
 	TableAllocatorService tableAllocator;
 
-	public TableHandlerService() {
+	public TableService() {
 	}
 
 	// EITHER TABLES OR COMBINATIONS  ------------------------------------------
 
-	public List<RestaurantTable> find(String tableNames) {
-		String[] splitTableNames = tableNames.split(",");
-		List<RestaurantTable> tableList = new ArrayList<>();
-		if (splitTableNames.length > 1) {
-			Optional<CombinationOfTables> optionalTables =
-			getCombination(tableNames);
-			if (optionalTables.isEmpty()) {
-				throw new TableNotFoundException("Tables were not found");
-			}
-			return optionalTables.get().getTables();
-		}
+	public RestaurantTable find(String tableNames) {
 		Optional<RestaurantTable> optionalTable =
-		get(splitTableNames[0]);
+				tableRepository.findById(tableNames);
 		if (optionalTable.isEmpty()) {
 			throw new TableNotFoundException("Table is not found");
 		}
-		return Collections.singletonList(optionalTable.get());
+		return optionalTable.get();
 	}
 
 	// INDIVIDUAL TABLES -------------------------------------------------------
 
-	public Optional<RestaurantTable> get(String name) {
-		return tableRepository.findById(name);
-	}
-
-	public List<RestaurantTable> getAll() {
+	public List<RestaurantTable> findAll() {
 		return tableRepository.findAll();
 	}
 
 	public void add(String name, int seats) {
 		int length = getTableCount();
-		add(new RestaurantTable(name, seats, length));
+		add(new SingleTable(name, seats, length));
 	}
 
 	public void add(RestaurantTable table) {
@@ -116,14 +106,17 @@ public class TableHandlerService {
 
 	private ApiError createApiErrorRemovingTables(List<Booking> bookings) {
 		ApiError apiError = new ApiError(HttpStatus.CONFLICT, "Bookings have " +
-		"been left without a table.");
+				"been left without a table.");
 		bookings.forEach((booking) -> apiError.addSubError(new SubErrorMessage(booking.toString(),
-		" was not able to be reassigned")));
+				" was not able to be reassigned")));
 		return apiError;
 	}
 
 	// TABLE COMBINATIONS ------------------------------------------------------
 
+	public Boolean doCombinationsExist() {
+		return tableRepository.getCombinationCount() > 0;
+	}
 
 	public List<CombinationOfTables> getAllCombinations() {
 		return tableRepository.findAllCombinations();
@@ -162,15 +155,6 @@ public class TableHandlerService {
 
 	public int getLargestTableSize() {
 		return tableRepository.getLargestTableSize();
-	}
-
-	// Other
-	public boolean willPartyFitOnTable(int partySize, List<RestaurantTable> tables) {
-		int size = 0;
-		for (RestaurantTable table : tables) {
-			size += table.getSeats();
-		}
-		return size >= partySize;
 	}
 
 	private int getTableCount() {
