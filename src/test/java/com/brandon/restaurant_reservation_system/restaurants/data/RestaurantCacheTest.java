@@ -20,6 +20,7 @@ import java.time.LocalTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.junit.jupiter.api.BeforeEach;
@@ -77,7 +78,7 @@ class RestaurantCacheTest {
     Mockito
         .when(tableAllocatorService.getAvailableTable(any(LocalDateTime.class), eq(2),
             eq(false)))
-        .thenReturn(Collections.emptyList());
+        .thenReturn(Optional.empty());
     LocalDate oneDay = LocalDate.now().plusDays(1);
     availableDates.remove(oneDay);
     cache.removeDateIfUnavailable(oneDay);
@@ -98,7 +99,7 @@ class RestaurantCacheTest {
     Mockito
         .when(tableAllocatorService.getAvailableTable(any(LocalDateTime.class), eq(2),
             eq(false)))
-        .thenReturn(Collections.singletonList(new RestaurantTable("", 0, 0)));
+        .thenReturn(Optional.of(new RestaurantTable("", 0, 0)));
 
     SortedSet<LocalDate> expected = new TreeSet<>();
     for (int i = 0; i < 3; i++) {

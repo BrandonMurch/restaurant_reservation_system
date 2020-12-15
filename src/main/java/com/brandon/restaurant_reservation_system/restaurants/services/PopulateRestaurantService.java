@@ -36,10 +36,9 @@ public class PopulateRestaurantService {
     restaurant.setConfig(config);
   }
 
-  public static void populateRestaurantTables(Restaurant restaurant) {
-    addTables(restaurant);
-    List<RestaurantTable> tables = restaurant.getTableList();
-    addCombinations(tables, restaurant);
+  public static void populateRestaurantTables(TableService tables) {
+    addTables(tables);
+    addCombinations(tables);
   }
 
   private static DateRange getDateRange() {
@@ -49,33 +48,32 @@ public class PopulateRestaurantService {
     return new DateRange(start, end);
   }
 
-  private static void addTables(Restaurant restaurant) {
-    //		restaurant.addTable("k1", 2);
-    //		restaurant.addTable("k2", 2);
-    //		restaurant.addTable("b1", 2);
-    //		restaurant.addTable("b2", 2);
-    //		restaurant.addTable("1", 4);
-    //		restaurant.addTable("5", 4);
-    //		restaurant.addTable("20", 2);
-    //		restaurant.addTable("21", 2);
-    //		restaurant.addTable("22", 2);
-    //		restaurant.addTable("23", 2);
-    restaurant.addTable("24", 2);
-    restaurant.addTable("25", 2);
+  private static void addTables(TableService tables) {
+    tables.add("k1", 2);
+    tables.add("k2", 2);
+    tables.add("b1", 2);
+    tables.add("b2", 2);
+    tables.add("1", 4);
+    tables.add("5", 4);
+    tables.add("20", 2);
+    tables.add("21", 2);
+    tables.add("22", 2);
+    tables.add("23", 2);
+    tables.add("24", 2);
+    tables.add("25", 2);
   }
 
   //
-  private static void addCombinations(List<RestaurantTable> tables,
-      Restaurant restaurant) {
-
-    restaurant.addTableCombination(
+  private static void addCombinations(TableService tableService) {
+    List<RestaurantTable> tables = tableService.findAll();
+    tableService.createCombination(
         Arrays.asList(tables.get(1), tables.get(0)));
-    //		restaurant.addTableCombination(Arrays.asList(tables.get(7),
-    //		tables.get(8), tables.get(9)));
-    //		restaurant.addTableCombination(Arrays.asList(tables.get(9),
-    //		tables.get(8)));
-    //		restaurant.addTableCombination(Arrays.asList(tables.get(4),
-    //		tables.get(5)));
+    tableService.createCombination(Arrays.asList(tables.get(7),
+        tables.get(8), tables.get(9)));
+    tableService.createCombination(Arrays.asList(tables.get(9),
+        tables.get(8)));
+    tableService.createCombination(Arrays.asList(tables.get(4),
+        tables.get(5)));
   }
 
   private static Map<DayOfWeek, Day> modifyOpeningHours(

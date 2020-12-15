@@ -38,8 +38,8 @@ class TableAvailabilityServiceTest {
 
   @BeforeEach
   public void setUp() {
-    booking.addTable(table);
-    booking2.addTable(table2);
+    booking.setTables(table);
+    booking2.setTables(table2);
     bookings = Arrays.asList(booking, booking2);
   }
 

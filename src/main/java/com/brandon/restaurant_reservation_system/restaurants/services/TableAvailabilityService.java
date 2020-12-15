@@ -20,7 +20,7 @@ public class TableAvailabilityService {
   @Autowired
   private BookingRepository bookingRepository;
 
-  public Boolean areTablesFree(List<RestaurantTable> tables, LocalDateTime start,
+  public Boolean areTablesFree(List<? extends RestaurantTable> tables, LocalDateTime start,
       LocalDateTime end) {
     for (RestaurantTable table : tables) {
       if (!isTableFree(table, start, end)) {

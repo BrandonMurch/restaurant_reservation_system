@@ -10,7 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import java.time.DayOfWeek;
@@ -34,7 +33,7 @@ class PopulateRestaurantServiceTest {
   @Mock
   private TableService tableService;
   private List<RestaurantTable> tableList;
-  private List<CombinationOfTables> comboList;
+  private List<RestaurantTable> comboList;
 
   @BeforeEach
   void setUp() {
@@ -54,20 +53,20 @@ class PopulateRestaurantServiceTest {
     );
 
     comboList = Arrays.asList(
-        new CombinationOfTables(Arrays.asList(
+        new RestaurantTable(Arrays.asList(
             new RestaurantTable("21", 2, 1),
             new RestaurantTable("22", 2, 1)
         ), 1),
-        new CombinationOfTables(Arrays.asList(
+        new RestaurantTable(Arrays.asList(
             new RestaurantTable("21", 2, 1),
             new RestaurantTable("22", 2, 1),
             new RestaurantTable("23", 2, 1)
         ), 1),
-        new CombinationOfTables(Arrays.asList(
+        new RestaurantTable(Arrays.asList(
             new RestaurantTable("22", 2, 1),
             new RestaurantTable("23", 2, 1)
         ), 1),
-        new CombinationOfTables(Arrays.asList(
+        new RestaurantTable(Arrays.asList(
             new RestaurantTable("1", 4, 1),
             new RestaurantTable("5", 4, 1)
         ), 1)
@@ -100,15 +99,12 @@ class PopulateRestaurantServiceTest {
   @Test
   void populateRestaurantTablesTest() {
     Mockito
-        .when(tableService.getAll())
+        .when(tableService.findAll())
         .thenReturn(tableList);
-    Mockito
-        .when(tableService.getAllCombinations())
-        .thenReturn(comboList);
     populateRestaurant(restaurant);
-    populateRestaurantTables(restaurant);
+    populateRestaurantTables(tableService);
 
-    List<RestaurantTable> tableList = restaurant.getTableList();
+    List<RestaurantTable> tableList = tableService.findAll();
     assertEquals(12, tableList.size());
 
     RestaurantTable table = new RestaurantTable("k1", 2, 1);
@@ -117,7 +113,5 @@ class PopulateRestaurantServiceTest {
     table = new RestaurantTable("55989", 2, 1);
     assertFalse(tableList.contains(table));
 
-    List<CombinationOfTables> comboList = restaurant.getAllCombinationsOfTables();
-    assertEquals(4, comboList.size());
   }
 }

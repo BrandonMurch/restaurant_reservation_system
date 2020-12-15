@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.CascadeType;
@@ -61,7 +60,7 @@ public class Booking implements Cloneable {
       joinColumns = @JoinColumn(name = "booking_id"),
       inverseJoinColumns = @JoinColumn(name = "table_id")
   )
-  private List<RestaurantTable> restaurantTables;
+  private List<RestaurantTable> tables;
 
   public Booking(int partySize, LocalDateTime startTime,
       LocalDateTime endTime, User user) {
@@ -178,13 +177,18 @@ public class Booking implements Cloneable {
   }
 
   public List<RestaurantTable> getTables() {
-    return restaurantTables;
+    return tables;
   }
 
-  public void setTables(List<RestaurantTable> restaurantTables) {
-    if (restaurantTables != null) {
-      this.restaurantTables = new ArrayList<>(restaurantTables);
+
+  public void setTables(RestaurantTable table) {
+    if (table != null) {
+      this.tables = table.getTables();
     }
+  }
+
+  public void removeTables() {
+    this.tables = null;
   }
 
   @Override

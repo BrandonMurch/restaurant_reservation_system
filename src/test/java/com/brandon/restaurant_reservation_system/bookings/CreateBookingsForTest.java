@@ -43,7 +43,7 @@ public class CreateBookingsForTest {
         getNextSaturday().atTime(23, 0),
         createUser1());
     booking.setId(2);
-    booking.addTable(getTable1());
+    booking.setTables(getTable1());
     return booking;
 
   }

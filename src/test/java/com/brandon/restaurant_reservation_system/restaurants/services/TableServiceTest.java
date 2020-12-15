@@ -14,7 +14,6 @@ import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingService;
 import com.brandon.restaurant_reservation_system.restaurants.data.TableRepository;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.UnallocatedBookingTableException;
-import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,17 +38,17 @@ class TableServiceTest {
   private final List<RestaurantTable> tableList = Arrays.asList(
       table1, table5, table20, table21, table22
   );
-  private final List<CombinationOfTables> comboList = Arrays.asList(
-      new CombinationOfTables(Arrays.asList(
+  private final List<RestaurantTable> comboList = Arrays.asList(
+      new RestaurantTable(Arrays.asList(
           table20, table21
       ), 6),
-      new CombinationOfTables(Arrays.asList(
+      new RestaurantTable(Arrays.asList(
           table20, table21, table22
       ), 7),
-      new CombinationOfTables(Arrays.asList(
+      new RestaurantTable(Arrays.asList(
           table21, table22
       ), 8),
-      new CombinationOfTables(Arrays.asList(
+      new RestaurantTable(Arrays.asList(
           table1, table5
       ), 9)
   );
@@ -84,7 +83,7 @@ class TableServiceTest {
   }
 
   @Test
-  void createCombinationOfTablesFromString() {
+  void createRestaurantTableFromString() {
     Mockito
         .when(tableRepository.findById(eq("1")))
         .thenReturn(Optional.ofNullable(table1));
@@ -92,13 +91,13 @@ class TableServiceTest {
         .when(tableRepository.findById(eq("5")))
         .thenReturn(Optional.ofNullable(table5));
     Mockito
-        .when(tableRepository.save(any(CombinationOfTables.class)))
-        .thenAnswer((Answer<CombinationOfTables>) invocation -> {
+        .when(tableRepository.save(any(RestaurantTable.class)))
+        .thenAnswer((Answer<RestaurantTable>) invocation -> {
           Object[] args = invocation.getArguments();
-          return (CombinationOfTables) args[0];
+          return (RestaurantTable) args[0];
         });
 
-    CombinationOfTables combination = tableService
+    RestaurantTable combination = tableService
         .createCombination("1, 5");
 
     assertEquals(table1.getSeats() + table5.getSeats(), combination.getSeats());

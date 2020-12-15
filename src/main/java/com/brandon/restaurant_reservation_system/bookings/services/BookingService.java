@@ -10,7 +10,6 @@ import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotP
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequestFormatException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.DuplicateFoundException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
-import com.brandon.restaurant_reservation_system.errors.ApiError;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNotFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
@@ -18,9 +17,9 @@ import com.brandon.restaurant_reservation_system.restaurants.services.TableAvail
 import com.brandon.restaurant_reservation_system.restaurants.services.TableService;
 import com.brandon.restaurant_reservation_system.users.data.UserRepository;
 import com.brandon.restaurant_reservation_system.users.model.User;
+import com.brandon.restaurant_reservation_system.users.service.UserService;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -36,6 +35,8 @@ public class BookingService {
   private BookingRepository bookingRepository;
   @Autowired
   private UserRepository userRepository;
+  @Autowired
+  private UserService userService;
   @Autowired
   private TableAllocatorService tableAllocatorService;
   @Autowired
@@ -61,18 +62,24 @@ public class BookingService {
 
   public void updateTable(Booking booking, String tableName, Boolean isForced) {
     if (tableName.equals("")) {
-      booking.setTables(Collections.emptyList());
-    } else {
-      RestaurantTable table;
-      try {
-        table = tableService.find(tableName);
-      } catch (TableNotFoundException exception) {
-        throw new BookingNotPossibleException(exception.getMessage());
-      }
+      booking.removeTables();
+    }
+    RestaurantTable table;
+    try {
+      table = tableService.find(tableName);
+    } catch (TableNotFoundException exception) {
+      throw new BookingNotPossibleException(exception.getMessage());
+    }
+    if (!table.getTables().equals(booking.getTables())) {
 
-      if (!tableAvailabilityService.areTablesFree(table.getAssociatedTables(),
+      if (!tableAvailabilityService.areTablesFree(table.getTables(),
           booking.getStartTime(), booking.getEndTime())) {
-        freeTablesIfForcedOrSame(booking, table.getAssociatedTables(), isForced);
+        if (isForced) {
+          freeTables(booking, table.getTables());
+        } else {
+          throw new BookingNotPossibleException("Table is already taken. \n " +
+              "(Forcing this will remove the desired table from other bookings)", true);
+        }
       }
 
       if (booking.getPartySize() > table.getSeats()) {
@@ -81,30 +88,20 @@ public class BookingService {
               "party", true);
         }
       }
-
-      booking.setTables(table.getAssociatedTables());
+      booking.setTables(table);
     }
     bookingRepository.save(booking);
   }
 
-  public void freeTablesIfForcedOrSame(Booking booking, List<RestaurantTable> tables,
-      boolean isForced) {
+  private void freeTables(Booking booking, List<? extends RestaurantTable> tables) {
     Set<Booking> bookingsOccupyingTables =
-        bookingRepository.getBookingsByTimeAndMultipleTables(
+        bookingRepository.getBookingsByTimeAndTables(
             booking.getStartTime(),
             booking.getEndTime(),
             tables);
     bookingsOccupyingTables.forEach((bookingToEmpty) -> {
-      if (!bookingToEmpty.equals(booking)) {
-        if (isForced) {
-          bookingToEmpty.setTables(Collections.emptyList());
-          bookingRepository.save(bookingToEmpty);
-        } else {
-          throw new BookingNotPossibleException("Table is already taken. \n " +
-              "(Forcing this will remove the desired table from other bookings)", true);
-
-        }
-      }
+      bookingToEmpty.removeTables();
+      bookingRepository.save(bookingToEmpty);
     });
   }
 
@@ -114,12 +111,12 @@ public class BookingService {
     tablesToFree.forEach(
         (table) -> bookings.addAll(bookingRepository.getFutureBookingsByTable(table.getName())));
     bookings.forEach((booking) -> {
-      List<RestaurantTable> availableTables =
+      Optional<RestaurantTable> availableTable =
           tableAllocatorService.getAvailableTable(booking);
-      if (availableTables.isEmpty()) {
+      if (availableTable.isEmpty()) {
         bookingsThatCannotBeReassigned.add(booking);
       } else {
-        booking.setTables(availableTables);
+        booking.setTables(availableTable.get());
       }
     });
 
@@ -130,79 +127,59 @@ public class BookingService {
   public void updateBooking(Booking booking, Booking newBooking,
       boolean isForced) throws Exception {
     Booking oldBooking;
-    try {
-      oldBooking = booking.clone();
-    } catch (CloneNotSupportedException ex) {
-      throw new Exception("Internal Server Error");
-    }
+    oldBooking = booking.clone();
     booking.update(newBooking);
 
-    Optional<ApiError> bookingValidationException =
-        BookingValidationService.validateBooking(booking);
-    if (bookingValidationException.isPresent()) {
+    try {
+      BookingValidationService.validateBooking(booking);
+    } catch (BookingRequestFormatException exception) {
       booking.update(oldBooking);
-      throw new BookingRequestFormatException(bookingValidationException.get());
+      throw exception;
     }
 
     if (!booking.getStartTime().isEqual(newBooking.getStartTime())) {
-      List<RestaurantTable> tables =
-          tableAllocatorService.getAvailableTable(booking);
-      if (tables.isEmpty()) {
-        if (!isForced) {
-          booking.update(oldBooking);
-          throw new BookingNotPossibleException("Requested date is not " +
-              "available", true);
-        }
+      try {
+        setTableForBooking(booking, isForced);
+      } catch (BookingNotPossibleException exception) {
+        booking.update(oldBooking);
+        throw exception;
       }
-      booking.setTables(tables);
       booking.setDate(booking.getStartTime().toLocalDate());
-
+      bookingRepository.save(booking);
     }
-
-    bookingRepository.save(booking);
-
-
   }
 
-  public Booking createBooking(Booking booking, User user, boolean isForced) {
+  public Booking createBooking(Booking booking, User userFromRequest, boolean isForced) {
+    User user = userService.createUserInDBIfNotAlreadyPresent(userFromRequest);
+    checkUserForMultipleBookingsAtSameTime(user, booking.getStartTime().toLocalDate());
 
-    User result = handleUsersForBooking(user,
-        booking.getStartTime().toLocalDate());
-    booking.setUser(result);
-
-    List<RestaurantTable> tables =
-        tableAllocatorService.getAvailableTable(booking);
-    if (tables.isEmpty()) {
-      if (!isForced) {
-        throw new BookingNotPossibleException("Requested date is not " +
-            "available", true);
-      }
-    }
-    booking.setTables(tables);
-
+    booking.setUser(user);
+    setTableForBooking(booking, isForced);
     booking.setDate(booking.getStartTime().toLocalDate());
     bookingRepository.save(booking);
     return booking;
   }
 
-  private User handleUsersForBooking(User user, LocalDate date) {
-    Optional<User> dbUser = userRepository.findByEmail(user.getEmail());
+  private void setTableForBooking(Booking booking, Boolean isForced) {
+    Optional<RestaurantTable> optionalTable =
+        tableAllocatorService.getAvailableTable(booking);
+    optionalTable.ifPresentOrElse(booking::setTables, () -> {
+      if (!isForced) {
+        throw new BookingNotPossibleException("Requested date and time are not available", true);
+      }
+    });
+  }
 
-    if (dbUser.isEmpty()) {
-      userRepository.save(user);
-    } else {
-      user = dbUser.get();
-      List<Booking> bookings =
-          bookingRepository.getBookingsByUser(user.getEmail());
+  private void checkUserForMultipleBookingsAtSameTime(User user, LocalDate date) {
+    List<Booking> bookings =
+        bookingRepository.getBookingsByUser(user.getEmail());
 
-      for (Booking storedBooking : bookings) {
-        if (storedBooking.getStartTime().toLocalDate().equals(
-            date)) {
-          throw new DuplicateFoundException("You have already made a booking " +
-              "on this date");
-        }
+    for (Booking storedBooking : bookings) {
+      if (storedBooking.getStartTime().toLocalDate().equals(
+          date)) {
+        throw new DuplicateFoundException("You have already made a booking " +
+            "on this date");
       }
     }
-    return user;
   }
 }

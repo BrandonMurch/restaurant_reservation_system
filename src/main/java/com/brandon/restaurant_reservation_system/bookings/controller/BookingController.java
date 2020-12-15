@@ -12,7 +12,6 @@ import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.model.RequestBodyUserBooking;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingService;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingValidationService;
-import com.brandon.restaurant_reservation_system.errors.ApiError;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
@@ -177,11 +176,7 @@ public class BookingController {
       HttpServletResponse response) {
 
     Booking booking = body.getBooking();
-    Optional<ApiError> bookingValidationException =
-        BookingValidationService.validateBooking(booking);
-    if (bookingValidationException.isPresent()) {
-      throw new BookingRequestFormatException(bookingValidationException.get());
-    }
+    BookingValidationService.validateBooking(booking);
     User user = new User(body.getUser());
     if (user.getUsername() == null || user.getUsername().isEmpty()) {
       throw new BookingRequestFormatException("Email is a required field");

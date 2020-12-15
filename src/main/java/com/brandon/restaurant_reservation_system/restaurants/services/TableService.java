@@ -12,9 +12,7 @@ import com.brandon.restaurant_reservation_system.restaurants.data.TableRepositor
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.DuplicateTableFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNotFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.UnallocatedBookingTableException;
-import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
-import com.brandon.restaurant_reservation_system.restaurants.model.SingleTable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,8 +36,6 @@ public class TableService {
   public TableService() {
   }
 
-  // EITHER TABLES OR COMBINATIONS  ------------------------------------------
-
   public RestaurantTable find(String tableNames) {
     Optional<RestaurantTable> optionalTable =
         tableRepository.findById(tableNames);
@@ -49,15 +45,13 @@ public class TableService {
     return optionalTable.get();
   }
 
-  // INDIVIDUAL TABLES -------------------------------------------------------
-
   public List<RestaurantTable> findAll() {
     return tableRepository.findAll();
   }
 
   public void add(String name, int seats) {
     int length = getTableCount();
-    add(new SingleTable(name, seats, length));
+    add(new RestaurantTable(name, seats, length));
   }
 
   public void add(RestaurantTable table) {
@@ -112,27 +106,17 @@ public class TableService {
     return apiError;
   }
 
-  // TABLE COMBINATIONS ------------------------------------------------------
-
-  public Boolean doCombinationsExist() {
-    return tableRepository.getCombinationCount() > 0;
-  }
-
-  public List<CombinationOfTables> getAllCombinations() {
-    return tableRepository.findAllCombinations();
-  }
-
-  public Optional<CombinationOfTables> getCombination(String name) {
-    return tableRepository.findCombinationByName(name);
-  }
-
-  public void createCombination(List<RestaurantTable> tables) {
+  public RestaurantTable createCombination(List<RestaurantTable> tables) {
     int priority = getTableCount();
-    CombinationOfTables combination = new CombinationOfTables(tables, priority);
-    tableRepository.save(combination);
+    RestaurantTable combination = new RestaurantTable(tables, priority);
+    var result = tableRepository.findById(combination.getName());
+    if (result.isPresent()) {
+      throw new DuplicateTableFoundException(combination.getName());
+    }
+    return tableRepository.save(combination);
   }
 
-  public CombinationOfTables createCombination(String tableNames) {
+  public RestaurantTable createCombination(String tableNames) {
     String[] splitTableNames = tableNames.split(", ");
     Arrays.sort(splitTableNames);
     List<RestaurantTable> tables = new ArrayList<>();
@@ -142,16 +126,8 @@ public class TableService {
         throw new TableNotFoundException(tableName);
       });
     }
-    int priority = getTableCount();
-    CombinationOfTables combination = new CombinationOfTables(tables, priority);
-    var result = tableRepository.findById(combination.getName());
-    if (result.isPresent()) {
-      throw new DuplicateTableFoundException(combination.getName());
-    }
-    return tableRepository.save(combination);
+    return createCombination(tables);
   }
-
-  //	Largest RestaurantTable Size  --------------------------------------------------------
 
   public int getLargestTableSize() {
     return tableRepository.getLargestTableSize();

@@ -57,9 +57,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
       @Param("tableName") String tableName
   );
 
-  default Set<Booking> getBookingsByTimeAndMultipleTables(LocalDateTime startTime,
+  default Set<Booking> getBookingsByTimeAndTables(LocalDateTime startTime,
       LocalDateTime endTime,
-      List<RestaurantTable> tables) {
+      List<? extends RestaurantTable> tables) {
     HashSet<Booking> bookings = new HashSet<>();
     tables.forEach((table) -> bookings.addAll(getBookingsByTimeAndTable(
         startTime,

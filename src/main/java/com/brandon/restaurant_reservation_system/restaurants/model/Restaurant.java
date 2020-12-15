@@ -71,14 +71,14 @@ public class Restaurant implements Serializable {
 
   @PostConstruct
   private void postConstruct() {
-    // TODO: remove this when in production
+    // TODO: reinstate this in production
     //		boolean isDeserializeSuccess = deserialize();
 
     //		if (!isDeserializeSuccess) {
     PopulateRestaurantService.populateRestaurant(this);
     //		}
     // TODO: Remove this when database is created.
-    PopulateRestaurantService.populateRestaurantTables(this);
+    PopulateRestaurantService.populateRestaurantTables(tableService);
   }
 
   // Name --------------------------------------------------------------------

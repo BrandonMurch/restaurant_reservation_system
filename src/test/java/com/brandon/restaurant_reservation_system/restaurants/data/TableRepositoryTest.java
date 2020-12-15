@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.brandon.restaurant_reservation_system.restaurants.CreateTableForTest;
-import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 class TableRepositoryTest {
 
   RestaurantTable table;
-  CombinationOfTables combination;
+  RestaurantTable combination;
   @Autowired
   private TableRepository tableRepository;
 
@@ -56,10 +55,5 @@ class TableRepositoryTest {
   void findAssociatedCombinations() {
     assertEquals(Collections.singletonList(combination),
         tableRepository.findAssociatedCombinations(table));
-  }
-
-  @Test
-  void findAllCombinations() {
-    assertEquals(1, tableRepository.findAllCombinations().size());
   }
 }

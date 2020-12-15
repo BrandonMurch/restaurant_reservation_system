@@ -18,7 +18,8 @@ import com.brandon.restaurant_reservation_system.helpers.http.HttpRequestBuilder
 import com.brandon.restaurant_reservation_system.restaurants.CreateTableForTest;
 import com.brandon.restaurant_reservation_system.users.data.UserRepository;
 import com.brandon.restaurant_reservation_system.users.model.User;
-import java.util.Collections;
+import com.brandon.restaurant_reservation_system.users.service.UserService;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,7 +30,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class BookingServiceTest {
 
-  private final CreateBookingsForTest createBooking = new CreateBookingsForTest();
+  @Mock
+  private UserService userService;
   @Mock
   private BookingRepository bookingRepository;
   @Mock
@@ -47,8 +49,12 @@ class BookingServiceTest {
     User user = booking.getUser();
 
     Mockito
+        .when(userService.createUserInDBIfNotAlreadyPresent(any(User.class)))
+        .thenReturn(user);
+
+    Mockito
         .when(tableAllocatorService.getAvailableTable(any(Booking.class)))
-        .thenReturn(Collections.singletonList(CreateTableForTest.getTable1()));
+        .thenReturn(Optional.of(CreateTableForTest.getTable1()));
 
     Booking result = bookingHandler.createBooking(booking, user, false);
 
@@ -61,8 +67,11 @@ class BookingServiceTest {
     User user = booking.getUser();
 
     Mockito
+        .when(userService.createUserInDBIfNotAlreadyPresent(any(User.class)))
+        .thenReturn(user);
+    Mockito
         .when(tableAllocatorService.getAvailableTable(any(Booking.class)))
-        .thenReturn(Collections.singletonList(CreateTableForTest.getTable1()));
+        .thenReturn(Optional.of(CreateTableForTest.getTable1()));
 
     Booking result = bookingHandler.createBooking(booking, user, false);
 
@@ -75,14 +84,17 @@ class BookingServiceTest {
     User user = booking.getUser();
 
     Mockito
+        .when(userService.createUserInDBIfNotAlreadyPresent(any(User.class)))
+        .thenReturn(user);
+    Mockito
         .when(tableAllocatorService.getAvailableTable(any(Booking.class)))
-        .thenReturn(Collections.emptyList());
+        .thenReturn(Optional.empty());
 
     Exception exception = assertThrows(BookingNotPossibleException.class, () -> {
       Booking result = bookingHandler.createBooking(booking, user, false);
     });
 
-    String expectedMessage = "Requested date is not available";
+    String expectedMessage = "Requested date and time are not available";
     String actualMessage = exception.getMessage();
 
     assertTrue(actualMessage.contains(expectedMessage));

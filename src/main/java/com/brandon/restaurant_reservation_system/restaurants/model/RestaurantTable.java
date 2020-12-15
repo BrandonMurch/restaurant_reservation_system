@@ -4,25 +4,33 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
+import java.util.stream.Collectors;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 
 @Entity(name = "restaurant_table")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "combination", discriminatorType =
-    DiscriminatorType.INTEGER, columnDefinition = "TINYINT(1)")
-public abstract class RestaurantTable {
+public class RestaurantTable {
 
   @Id
   private String name;
   private int seats;
   private int priority;
+  @ManyToMany(targetEntity = RestaurantTable.class, cascade =
+      CascadeType.ALL, fetch = FetchType.LAZY)
+  @JoinTable(name = "combination_table",
+      joinColumns = @JoinColumn(name = "combination_id")
+  )
+  private List<RestaurantTable> tables = new ArrayList<>();
 
   public RestaurantTable() {
   }
@@ -33,11 +41,28 @@ public abstract class RestaurantTable {
     this.priority = priority;
   }
 
+  public RestaurantTable(List<RestaurantTable> restaurantTables, int priority) {
+    this.tables.addAll(restaurantTables);
+    this.seats = calculateSeats(restaurantTables);
+    this.name = calculateName(restaurantTables);
+    this.priority = priority;
+  }
+
+  private int calculateSeats(List<RestaurantTable> restaurantTables) {
+    return restaurantTables.stream().reduce(0,
+        (previous, current) -> previous + current.getSeats(), Integer::sum);
+  }
+
+  private String calculateName(List<RestaurantTable> restaurantTables) {
+    return restaurantTables.stream().map(RestaurantTable::getName)
+        .collect(Collectors.joining(", "));
+  }
+
   public String getName() {
     return this.name;
   }
 
-  protected void setName(String name) {
+  private void setName(String name) {
     this.name = name.isEmpty() ? this.name : name;
   }
 
@@ -45,7 +70,7 @@ public abstract class RestaurantTable {
     return this.seats;
   }
 
-  protected void setSeats(int seats) {
+  private void setSeats(int seats) {
     this.seats = Math.max(seats, 1);
   }
 
@@ -63,9 +88,21 @@ public abstract class RestaurantTable {
     setPriority(newTable.priority);
   }
 
-  public abstract List<RestaurantTable> getAssociatedTables();
+  @JsonIgnore
+  public List<RestaurantTable> getTables() {
+    if (tables.isEmpty()) {
+      return Collections.singletonList(this);
+    }
+    return tables;
+  }
 
-  public abstract void removeAssociatedTables();
+  public void setTables(List<RestaurantTable> tables) {
+    this.tables = new ArrayList<>(tables);
+  }
+
+  public void removeTables() {
+    tables.clear();
+  }
 
   @Override
   public boolean equals(Object o) {

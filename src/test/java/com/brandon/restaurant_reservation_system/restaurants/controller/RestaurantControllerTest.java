@@ -4,10 +4,18 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.controller;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.brandon.restaurant_reservation_system.TestWebSecurityConfig;
 import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
+import com.brandon.restaurant_reservation_system.restaurants.services.TableService;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,26 +28,22 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 @WebMvcTest(value = RestaurantController.class)
 @ActiveProfiles("Test")
 @Import(TestWebSecurityConfig.class)
 class RestaurantControllerTest {
-    @MockBean
-    private TableAllocatorService tableAllocator;
 
-    @MockBean
-    private Restaurant restaurant;
+  @MockBean
+  private TableService tableService;
 
-    @Autowired
-    private MockMvc mvc;
+  @MockBean
+  private TableAllocatorService tableAllocator;
+
+  @MockBean
+  private Restaurant restaurant;
+
+  @Autowired
+  private MockMvc mvc;
 
     @Test
     void getAvailableBookingDates() throws Exception {

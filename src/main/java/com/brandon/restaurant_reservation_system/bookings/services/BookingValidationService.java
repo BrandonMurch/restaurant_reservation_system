@@ -1,5 +1,6 @@
 package com.brandon.restaurant_reservation_system.bookings.services;
 
+import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequestFormatException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.errors.ApiError;
 import com.brandon.restaurant_reservation_system.errors.ApiSubError;
@@ -79,17 +80,14 @@ public class BookingValidationService {
     return subErrors;
   }
 
-  public static Optional<ApiError> validateBooking(Booking booking) {
+  public static void validateBooking(Booking booking) {
 
     List<ApiSubError> subErrors = validateFields(booking);
 
     if (subErrors.size() > 0) {
-      ApiError error = buildApiError(subErrors);
-      return Optional.of(error);
+      throw new BookingRequestFormatException(buildApiError(subErrors));
     }
 
     setDateUsingStartTime(booking);
-    return Optional.empty();
-
   }
 }

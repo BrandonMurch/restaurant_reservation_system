@@ -14,10 +14,8 @@ import static org.mockito.ArgumentMatchers.any;
 import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
-import com.brandon.restaurant_reservation_system.restaurants.model.CombinationOfTables;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
-import com.brandon.restaurant_reservation_system.restaurants.model.SingleTable;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,7 +35,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class TableAllocatorServiceTest {
@@ -45,36 +42,36 @@ class TableAllocatorServiceTest {
   private final LocalDateTime dateTime1 = LocalDateTime.now();
   private final LocalDateTime dateTime2 = LocalDateTime.now().plusHours(2);
   private final List<RestaurantTable> tableList = Arrays.asList(
-      new SingleTable("k1", 2, 1),
-      new SingleTable("k2", 2, 2),
-      new SingleTable("b1", 2, 3),
-      new SingleTable("b2", 2, 3),
-      new SingleTable("1", 4, 3),
-      new SingleTable("5", 4, 3),
-      new SingleTable("20", 2, 3),
-      new SingleTable("21", 2, 3),
-      new SingleTable("22", 2, 3),
-      new SingleTable("23", 2, 3),
-      new SingleTable("24", 2, 3),
-      new SingleTable("25", 2, 3)
+      new RestaurantTable("k1", 2, 1),
+      new RestaurantTable("k2", 2, 2),
+      new RestaurantTable("b1", 2, 3),
+      new RestaurantTable("b2", 2, 3),
+      new RestaurantTable("1", 4, 3),
+      new RestaurantTable("5", 4, 3),
+      new RestaurantTable("20", 2, 3),
+      new RestaurantTable("21", 2, 3),
+      new RestaurantTable("22", 2, 3),
+      new RestaurantTable("23", 2, 3),
+      new RestaurantTable("24", 2, 3),
+      new RestaurantTable("25", 2, 3)
   );
-  private final List<CombinationOfTables> comboList = Arrays.asList(
-      new CombinationOfTables(Arrays.asList(
-          new SingleTable("21", 2, 1),
-          new SingleTable("22", 2, 1)
+  private final List<RestaurantTable> comboList = Arrays.asList(
+      new RestaurantTable(Arrays.asList(
+          new RestaurantTable("21", 2, 1),
+          new RestaurantTable("22", 2, 1)
       ), 1),
-      new CombinationOfTables(Arrays.asList(
-          new SingleTable("21", 2, 1),
-          new SingleTable("22", 2, 1),
-          new SingleTable("23", 2, 1)
+      new RestaurantTable(Arrays.asList(
+          new RestaurantTable("21", 2, 1),
+          new RestaurantTable("22", 2, 1),
+          new RestaurantTable("23", 2, 1)
       ), 1),
-      new CombinationOfTables(Arrays.asList(
-          new SingleTable("22", 2, 1),
-          new SingleTable("23", 2, 1)
+      new RestaurantTable(Arrays.asList(
+          new RestaurantTable("22", 2, 1),
+          new RestaurantTable("23", 2, 1)
       ), 1),
-      new CombinationOfTables(Arrays.asList(
-          new SingleTable("1", 4, 1),
-          new SingleTable("5", 4, 1)
+      new RestaurantTable(Arrays.asList(
+          new RestaurantTable("1", 4, 1),
+          new RestaurantTable("5", 4, 1)
       ), 1)
   );
   @Mock
@@ -108,8 +105,9 @@ class TableAllocatorServiceTest {
         .thenReturn(Collections.emptyList());
     Booking booking = CreateBookingsForTest.createBookingForTwoAt19();
 
-    assertEquals(Collections.singletonList(tableList.get(0)),
-        tableAllocator.getAvailableTable(booking));
+    tableAllocator.getAvailableTable(booking)
+        .ifPresentOrElse((table) -> assertEquals(tableList.get(0), table),
+            () -> fail("No available table was found"));
   }
 
   @Test
@@ -131,9 +129,11 @@ class TableAllocatorServiceTest {
         )
         .thenReturn(Collections.emptyList());
 
-    assertEquals(Collections.singletonList(tableList.get(0)),
-        tableAllocator.getAvailableTable(dateTime1, 2
-            , false));
+    tableAllocator.getAvailableTable(dateTime1, 2
+        , false)
+        .ifPresentOrElse((table) -> assertEquals(tableList.get(0), table),
+            () -> fail("No available table was found"));
+
   }
 
   @Test
@@ -144,9 +144,12 @@ class TableAllocatorServiceTest {
     Mockito
         .when(restaurant.isBookingTime(any(LocalDateTime.class)))
         .thenReturn(false);
-    assertEquals(Collections.emptyList(), tableAllocator.getAvailableTable(dateTime1,
+
+    Optional<RestaurantTable> result = tableAllocator.getAvailableTable(dateTime1,
         dateTime2, 2
-        , false));
+        , false);
+
+    assertTrue(result.isEmpty());
   }
 
   @Test
@@ -184,26 +187,25 @@ class TableAllocatorServiceTest {
         )
         .thenReturn(Collections.emptyList());
 
-    assertEquals(Collections.singletonList(tableList.get(0)),
-        tableAllocator.getAvailableTable(dateTime1,
-            dateTime2, 2
-            , false));
+//    Optional<RestaurantTable> result =
+    tableAllocator
+        .getAvailableTable(dateTime1, dateTime2, 2, false)
+        .ifPresentOrElse(
+            (table) -> assertEquals(tableList.get(0), table),
+            () -> fail("A table was not returned")
+        );
   }
 
   @Test
   void getAvailableTableGreaterSize() {
-    List<RestaurantTable> oneTableList =
-        Collections.singletonList(new SingleTable("30", 4, 1));
+    RestaurantTable table = new RestaurantTable("30", 4, 1);
 
     Mockito
         .when(tableService.findAll())
-        .thenReturn(oneTableList);
+        .thenReturn(Collections.singletonList(table));
     Mockito
         .when(restaurant.isBookingTime(any(LocalDateTime.class)))
         .thenReturn(true);
-    Mockito
-        .when(tableService.doCombinationsExist())
-        .thenReturn(false);
     Mockito
         .when(bookingRepository
             .getBookingsDuringTime(
@@ -215,26 +217,20 @@ class TableAllocatorServiceTest {
         .when(tableService.getLargestTableSize())
         .thenReturn(6);
 
-    assertEquals(oneTableList, tableAllocator.getAvailableTable(dateTime1,
-        dateTime2, 2
-        , true));
+    tableAllocator.getAvailableTable(dateTime1, dateTime2, 2, true)
+        .ifPresentOrElse((result) -> assertEquals(table, result),
+            () -> fail("No available table was found"));
   }
 
   @Test
   void getAvailableTableWithCombinations() {
     Mockito
         .when(tableService.findAll())
-        .thenReturn(Collections.singletonList(
-            new SingleTable("200", 10, 1)
+        .thenReturn(Arrays.asList(
+            new RestaurantTable("200", 10, 1), comboList.get(0)
         ));
     Mockito
-        .when(tableService.getAllCombinations())
-        .thenReturn(comboList);
-    Mockito
         .when(restaurant.isBookingTime(any(LocalDateTime.class)))
-        .thenReturn(true);
-    Mockito
-        .when(tableService.doCombinationsExist())
         .thenReturn(true);
     Mockito
         .when(bookingRepository
@@ -244,16 +240,17 @@ class TableAllocatorServiceTest {
         )
         .thenReturn(Collections.emptyList());
 
-    assertEquals(comboList.get(0).getAssociatedTables(),
-        tableAllocator.getAvailableTable(dateTime1,
-            dateTime2, 4
-            , false));
+    tableAllocator.getAvailableTable(dateTime1,
+        dateTime2, 4
+        , false)
+        .ifPresentOrElse((table) -> assertEquals(comboList.get(0), table),
+            () -> fail("No available table was found"));
   }
 
   @Test
   void getOccupiedTables() {
     Booking booking = CreateBookingsForTest.createBookingForTwoAt19();
-    booking.setTables(Collections.singletonList(tableList.get(0)));
+    booking.setTables(tableList.get(0));
     List<Booking> bookings = Collections.singletonList(booking);
 
     Mockito
@@ -288,22 +285,28 @@ class TableAllocatorServiceTest {
 
   @Test
   void getTableBySize() {
-    ReflectionTestUtils.setField(tableAllocator, "restaurantTableList",
-        this.tableList);
-    List<RestaurantTable> results =
+    Mockito
+        .when(tableService.findAll())
+        .thenReturn(tableList);
+    var results =
         tableAllocator.getTableBySizeAndUpdateMap(new HashMap<>(), 2);
-    assertEquals(Collections.singletonList(tableList.get(0)), results);
+    results.ifPresentOrElse(
+        (result) -> assertEquals(tableList.get(0), result),
+        () -> fail("No table was found")
+    );
   }
 
   @Test
   void updateTableSizeMap() {
     List<RestaurantTable> oneTableList =
-        Collections.singletonList(new SingleTable("30", 4, 1));
-    ReflectionTestUtils.setField(tableAllocator, "restaurantTableList",
-        oneTableList);
-    List<RestaurantTable> results =
+        Collections.singletonList(new RestaurantTable("30", 4, 1));
+
+    Mockito
+        .when(tableService.findAll())
+        .thenReturn(oneTableList);
+    Optional<RestaurantTable> results =
         tableAllocator.getTableBySizeAndUpdateMap(new HashMap<>(), 2);
-    assertEquals(Collections.emptyList(), results);
+    assertEquals(Optional.empty(), results);
     assertFalse(tableAllocator.getAvailableTablesForTest().isEmpty());
     assertTrue(
         tableAllocator.getAvailableTablesForTest().containsKey(oneTableList.get(0).getSeats()));
@@ -330,35 +333,10 @@ class TableAllocatorServiceTest {
         )
         .thenReturn(bookings);
 
-    assertEquals(Collections.emptyList(),
-        tableAllocator.getAvailableTable(dateTime1,
-            dateTime2, 2
-            , false));
+    tableAllocator.getAvailableTable(dateTime1, dateTime2, 2, false)
+        .ifPresent((table) -> fail());
   }
 
-
-  @Test
-  void getCombinationBySize() {
-    Mockito
-        .when(tableService.getAllCombinations())
-        .thenReturn(comboList);
-    List<RestaurantTable> results =
-        tableAllocator.getTableBySizeAndUpdateMap(new HashMap<>(), 4);
-    assertEquals(comboList.get(0).getAssociatedTables(), results);
-  }
-
-  @Test
-  void updateCombinationsMap() {
-    Mockito
-        .when(tableService.findAll())
-        .thenReturn(Collections.singletonList(comboList.get(0)));
-    List<RestaurantTable> results =
-        tableAllocator.getTableBySizeAndUpdateMap(new HashMap<>(), 50);
-    assertEquals(Collections.emptyList(), results);
-    assertFalse(tableAllocator.getAvailableCombinationsForTest().isEmpty());
-    assertTrue(
-        tableAllocator.getAvailableCombinationsForTest().containsKey(comboList.get(0).getSeats()));
-  }
 
   @Test
   void getAvailableTimes() {

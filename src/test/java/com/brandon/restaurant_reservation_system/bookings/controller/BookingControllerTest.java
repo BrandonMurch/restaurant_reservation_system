@@ -221,6 +221,19 @@ class BookingControllerTest {
 
     String uri = "/bookings/" + updatedBooking2.getId();
     String bookingJson = objectToJson(updatedBooking2);
+    // TODO: REMOVE ME
+    System.out.println("********************************************");
+    System.out.println("\n \n \n \n");
+    System.out.println(bookingJson);
+    System.out.println("\n \n \n \n");
+    System.out.println("********************************************");
+    Booking bookingFromJson = jsonToObject(bookingJson, Booking.class);
+    // TODO: REMOVE ME
+    System.out.println("********************************************");
+    System.out.println("\n \n \n \n");
+    System.out.println(bookingFromJson);
+    System.out.println("\n \n \n \n");
+    System.out.println("********************************************");
     MvcResult result =
         mvc.perform(MockMvcRequestBuilders.put(uri)
             .accept(MediaType.APPLICATION_JSON)

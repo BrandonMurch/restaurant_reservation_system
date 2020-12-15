@@ -9,8 +9,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
+import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -109,6 +112,14 @@ class BookingTest {
     assertTrue(result);
     assertFalse(result2);
 
+  }
+
+  @Test
+  void bookingSetTables() {
+    Booking booking = CreateBookingsForTest.createUpdatedBookingForFour();
+    RestaurantTable table = new RestaurantTable("test", 2, 0);
+    booking.setTables(table);
+    assertEquals(Collections.singletonList(table), booking.getTables());
   }
 
 
