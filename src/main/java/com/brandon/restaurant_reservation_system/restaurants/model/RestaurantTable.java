@@ -30,7 +30,7 @@ public class RestaurantTable {
   @JoinTable(name = "combination_table",
       joinColumns = @JoinColumn(name = "combination_id")
   )
-  private List<RestaurantTable> tables = new ArrayList<>();
+  private final List<RestaurantTable> tables = new ArrayList<>();
 
   public RestaurantTable() {
   }
@@ -94,10 +94,6 @@ public class RestaurantTable {
       return Collections.singletonList(this);
     }
     return tables;
-  }
-
-  public void setTables(List<RestaurantTable> tables) {
-    this.tables = new ArrayList<>(tables);
   }
 
   public void removeTables() {
