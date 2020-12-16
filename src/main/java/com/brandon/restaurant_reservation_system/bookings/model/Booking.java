@@ -13,6 +13,7 @@ import com.brandon.restaurant_reservation_system.helpers.date_time.services.Loca
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.LocalDateTimeSerializer;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.users.model.User;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.time.LocalDate;
@@ -182,9 +183,12 @@ public class Booking implements Cloneable {
 
 
   public void setTables(RestaurantTable table) {
-    if (table != null) {
-      this.tables = table.getTables();
-    }
+    this.tables = table.getTables();
+  }
+
+  @JsonSetter
+  public void setTables(List<RestaurantTable> tables) {
+    this.tables = tables;
   }
 
   public void removeTables() {
