@@ -8,9 +8,9 @@ import static com.brandon.restaurant_reservation_system.helpers.date_time.servic
 
 import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
-import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
+import com.brandon.restaurant_reservation_system.restaurants.services.BookingAvailability;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableService;
 import java.net.URI;
@@ -19,6 +19,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,8 @@ public class RestaurantController {
   @Autowired
   private Restaurant restaurant;
   @Autowired
+  private BookingAvailability bookingAvailability;
+  @Autowired
   private TableService tableService;
   @Autowired
   private TableAllocatorService tableAllocator;
@@ -53,11 +56,11 @@ public class RestaurantController {
 
   private ResponseEntity<String> getAvailableDates() {
     JSONObject json = new JSONObject();
-    DateRange range =
-        restaurant.getBookingDateRange();
-    json.put("start", range.getStart());
-    json.put("end", range.getEnd());
-    json.put("availableDates", restaurant.getAvailableDates());
+    SortedSet<LocalDate> dates =
+        bookingAvailability.get();
+    json.put("start", dates.first());
+    json.put("end", dates.last());
+    json.put("availableDates", dates);
 
     return new ResponseEntity<>(json.toString(),
         HttpStatus.OK);

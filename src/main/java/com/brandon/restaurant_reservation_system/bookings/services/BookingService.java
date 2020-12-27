@@ -13,10 +13,10 @@ import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantCache;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNotFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
+import com.brandon.restaurant_reservation_system.restaurants.services.BookingAvailability;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableService;
-import com.brandon.restaurant_reservation_system.users.data.UserRepository;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import com.brandon.restaurant_reservation_system.users.service.UserService;
 import java.time.LocalDate;
@@ -35,8 +35,6 @@ public class BookingService {
   @Autowired
   private BookingRepository bookingRepository;
   @Autowired
-  private UserRepository userRepository;
-  @Autowired
   private UserService userService;
   @Autowired
   private TableAllocatorService tableAllocatorService;
@@ -46,6 +44,8 @@ public class BookingService {
   private RestaurantCache cache;
   @Autowired
   private TableAvailabilityService tableAvailabilityService;
+  @Autowired
+  private BookingAvailability bookingAvailability;
 
   public BookingService() {
   }
@@ -175,7 +175,7 @@ public class BookingService {
   }
 
   private void updateCacheAfterCreation(Booking booking) {
-    cache.removeDateIfUnavailable(booking.getStartTime().toLocalDate());
+    bookingAvailability.removeDateIfUnavailable(booking.getStartTime().toLocalDate());
     cache.addBookingToDate(booking.getDate(), booking.getPartySize());
 
   }
