@@ -10,6 +10,7 @@ import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotP
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequestFormatException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.DuplicateFoundException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
+import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantCache;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNotFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
@@ -41,6 +42,8 @@ public class BookingService {
   private TableAllocatorService tableAllocatorService;
   @Autowired
   private TableService tableService;
+  @Autowired
+  private RestaurantCache cache;
   @Autowired
   private TableAvailabilityService tableAvailabilityService;
 
@@ -145,7 +148,17 @@ public class BookingService {
         throw exception;
       }
       booking.setDate(booking.getStartTime().toLocalDate());
+      new Thread(() -> updateCacheIfDateOrSizeSwitched(booking, newBooking)).start();
       bookingRepository.save(booking);
+    }
+  }
+
+  private void updateCacheIfDateOrSizeSwitched(Booking booking, Booking newBooking) {
+    Boolean hasDateChanged = !newBooking.getDate().isEqual(booking.getDate());
+    Boolean hasSizeChanged = !newBooking.getPartySize().equals(booking.getPartySize());
+    if (hasDateChanged || hasSizeChanged) {
+      cache.removeBookingFromDate(booking.getDate(), booking.getPartySize());
+      cache.addBookingToDate(newBooking.getDate(), newBooking.getPartySize());
     }
   }
 
@@ -157,7 +170,23 @@ public class BookingService {
     setTableForBooking(booking, isForced);
     booking.setDate(booking.getStartTime().toLocalDate());
     bookingRepository.save(booking);
+    new Thread(() -> updateCacheAfterCreation(booking)).start();
     return booking;
+  }
+
+  private void updateCacheAfterCreation(Booking booking) {
+    cache.removeDateIfUnavailable(booking.getStartTime().toLocalDate());
+    cache.addBookingToDate(booking.getDate(), booking.getPartySize());
+
+  }
+
+  public void deleteBooking(Long bookingId) {
+    Optional<Booking> booking = bookingRepository.findById(bookingId);
+    booking.ifPresent(
+        foundBooking -> {
+          cache.removeBookingFromDate(foundBooking.getDate(), foundBooking.getPartySize());
+          bookingRepository.delete(foundBooking);
+        });
   }
 
   private void setTableForBooking(Booking booking, Boolean isForced) {

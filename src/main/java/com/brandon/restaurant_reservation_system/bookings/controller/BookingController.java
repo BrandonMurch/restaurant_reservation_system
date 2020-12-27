@@ -13,23 +13,19 @@ import com.brandon.restaurant_reservation_system.bookings.model.RequestBodyUserB
 import com.brandon.restaurant_reservation_system.bookings.services.BookingService;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingValidationService;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
+import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantCache;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableService;
 import com.brandon.restaurant_reservation_system.users.model.User;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,6 +47,8 @@ public class BookingController {
       GlobalVariables.getDateTimeFormat();
   @Autowired
   private Restaurant restaurant;
+  @Autowired
+  private RestaurantCache restaurantCache;
   @Autowired
   private BookingRepository bookingRepository;
   @Autowired
@@ -107,8 +105,7 @@ public class BookingController {
 
   @GetMapping("/dailyCount")
   public ResponseEntity<?> getBookingsPerDay() {
-    Map<LocalDate, Integer> map = restaurant.getBookingsPerDate();
-    return ResponseEntity.ok(restaurant.getBookingsPerDate());
+    return ResponseEntity.ok(restaurantCache.getBookingsPerDate());
   }
 
   @GetMapping("/{bookingId}")
@@ -118,62 +115,39 @@ public class BookingController {
   }
 
   @PutMapping("{bookingId}/setTable")
-  public void updateBookingWithTable(@PathVariable long bookingId,
+  public ResponseEntity<String> updateBookingWithTable(@PathVariable long bookingId,
       @RequestBody String tableName,
       HttpServletRequest request,
       HttpServletResponse response) {
 
     Booking booking = bookingService.find(bookingId);
     bookingService.updateTable(booking, tableName, isRequestForced(request));
-
-    try {
-      sendResponse(response, HttpStatus.NO_CONTENT.value(), "Booking " +
-          "table successfully updated.");
-    } catch (IOException e) {
-      e.printStackTrace();
-      throw new InternalError("Response sending failed");
-    }
+    return ResponseEntity.noContent().build();
   }
 
   @PutMapping("/{bookingId}")
-  public void updateBooking(@RequestBody Booking newBooking,
+  public ResponseEntity<String> updateBooking(@RequestBody Booking newBooking,
       @PathVariable long bookingId,
       HttpServletRequest request,
       HttpServletResponse response
   ) throws Exception {
-    Optional<Booking> result =
-        bookingRepository.findById(bookingId);
-
+    Optional<Booking> result = bookingRepository.findById(bookingId);
     if (result.isPresent()) {
       Booking booking = result.get();
       bookingService.updateBooking(booking,
           newBooking, isRequestForced(request));
-      try {
-        sendResponse(response, HttpStatus.NO_CONTENT.value(), "Booking successfully " +
-            "updated.");
-      } catch (IOException e) {
-        e.printStackTrace();
-        throw new InternalError("Response sending failed");
-      }
-
-      Boolean hasDateChanged = !newBooking.getDate().isEqual(booking.getDate());
-      Boolean hasSizeChanged = !newBooking.getPartySize().equals(booking.getPartySize());
-      if (hasDateChanged || hasSizeChanged) {
-        restaurant.removeBookingFromDate(booking.getDate(), booking.getPartySize());
-        restaurant.addBookingToDate(newBooking.getDate(), newBooking.getPartySize());
-      }
+      return ResponseEntity.noContent().build();
     } else {
-      createBooking(
+      return createBooking(
           new RequestBodyUserBooking(newBooking.getUser(), newBooking),
-          request, response);
+          request);
     }
   }
 
   @PostMapping("")
-  public void createBooking(
+  public ResponseEntity<String> createBooking(
       @RequestBody RequestBodyUserBooking body,
-      HttpServletRequest request,
-      HttpServletResponse response) {
+      HttpServletRequest request) {
 
     Booking booking = body.getBooking();
     BookingValidationService.validateBooking(booking);
@@ -181,23 +155,14 @@ public class BookingController {
     if (user.getUsername() == null || user.getUsername().isEmpty()) {
       throw new BookingRequestFormatException("Email is a required field");
     }
-
     Booking result = bookingService.createBooking(booking, user, isRequestForced(request));
-    try {
-      sendResponse(response, buildUriFromBooking(result));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    restaurant.removeDateIfUnavailable(result.getStartTime().toLocalDate());
-    restaurant.addBookingToDate(result.getDate(), result.getPartySize());
+
+    return buildUriFromBooking(result);
   }
 
   @DeleteMapping("/{bookingId}")
   public ResponseEntity<String> deleteBooking(@PathVariable long bookingId) {
-    Optional<Booking> booking = bookingRepository.findById(bookingId);
-    booking.ifPresent(
-        booking1 -> restaurant.removeBookingFromDate(booking1.getDate(), booking1.getPartySize()));
-    bookingRepository.deleteById(bookingId);
+    bookingService.deleteBooking(bookingId);
     return ResponseEntity.noContent().build();
   }
 
@@ -215,27 +180,4 @@ public class BookingController {
         .toUri();
     return ResponseEntity.created(location).build();
   }
-
-  private void sendResponse(HttpServletResponse response, ResponseEntity<?> entity)
-      throws IOException {
-    PrintWriter writer = response.getWriter();
-    response.setStatus(entity.getStatusCodeValue());
-    entity.getHeaders().forEach((key, value) -> response.setHeader(key,
-        value.toString()));
-    if (entity.getBody() != null) {
-      writer.print(entity.getBody());
-    }
-    writer.flush();
-    writer.close();
-  }
-
-  private void sendResponse(HttpServletResponse response, int status,
-      Object body) throws IOException {
-    PrintWriter writer = response.getWriter();
-    response.setStatus(status);
-    writer.print(body);
-    writer.flush();
-    writer.close();
-  }
-
 }

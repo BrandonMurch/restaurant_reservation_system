@@ -18,6 +18,7 @@ import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingService;
 import com.brandon.restaurant_reservation_system.restaurants.CreateTableForTest;
+import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantCache;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
@@ -63,6 +64,8 @@ class BookingControllerTest {
   @SuppressWarnings("unused")
   @MockBean
   private Restaurant restaurant;
+  @MockBean
+  private RestaurantCache restaurantCache;
   @SuppressWarnings("unused")
   @MockBean
   private TableAvailabilityService tableAvailability;
@@ -221,19 +224,7 @@ class BookingControllerTest {
 
     String uri = "/bookings/" + updatedBooking2.getId();
     String bookingJson = objectToJson(updatedBooking2);
-    // TODO: REMOVE ME
-    System.out.println("********************************************");
-    System.out.println("\n \n \n \n");
-    System.out.println(bookingJson);
-    System.out.println("\n \n \n \n");
-    System.out.println("********************************************");
     Booking bookingFromJson = jsonToObject(bookingJson, Booking.class);
-    // TODO: REMOVE ME
-    System.out.println("********************************************");
-    System.out.println("\n \n \n \n");
-    System.out.println(bookingFromJson);
-    System.out.println("\n \n \n \n");
-    System.out.println("********************************************");
     MvcResult result =
         mvc.perform(MockMvcRequestBuilders.put(uri)
             .accept(MediaType.APPLICATION_JSON)
