@@ -31,7 +31,7 @@ public interface TableRepository extends JpaRepository<RestaurantTable,
   @Query("SELECT MAX(t.seats) FROM restaurant_table t")
   int getLargestTableSize();
 
-  @Query("SELECT t FROM combination_of_tables t WHERE" +
+  @Query("SELECT t FROM restaurant_table t WHERE" +
       " :table MEMBER OF t.tables")
   List<RestaurantTable> findAssociatedCombinations(@Param("table") RestaurantTable table);
 }
