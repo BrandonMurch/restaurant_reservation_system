@@ -14,7 +14,8 @@ public class CreateBookingsForTest {
 
   private static LocalDate getNextSaturday() {
     LocalDate now = LocalDate.now();
-    int daysToAddToBecomeSaturday = 6 - now.getDayOfWeek().getValue();
+    int dayOfWeek = now.getDayOfWeek().getValue();
+    int daysToAddToBecomeSaturday = 13 - now.getDayOfWeek().getValue();
     return now.plusDays(daysToAddToBecomeSaturday);
   }
 
