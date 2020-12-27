@@ -33,227 +33,220 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @ActiveProfiles("Test")
 class RestaurantReservationSystemApplicationTests {
 
-	// TODO: update these to test for authentication as well
-	@MockBean
-	UserPasswordEncoder passwordEncoder;
-	@MockBean
-	AuthenticationManager authenticationManager;
-	@Autowired
-	private BookingController bookingController;
-	@Autowired
-	private RestaurantController restaurantController;
-	@Autowired
-	private UserController userController;
-	@Autowired
-	private WebTestClient testClient;
+  // TODO: update these to test for authentication as well
+  @MockBean
+  UserPasswordEncoder passwordEncoder;
+  @MockBean
+  AuthenticationManager authenticationManager;
+  @Autowired
+  private BookingController bookingController;
+  @Autowired
+  private RestaurantController restaurantController;
+  @Autowired
+  private UserController userController;
+  @Autowired
+  private WebTestClient testClient;
 
-	@Test
-	void getBookings() {
-		List<Booking> bookings = testClient
-		.get().uri("/bookings")
-		.exchange()
-		.expectStatus().isOk()
-		.expectBodyList(Booking.class).returnResult().getResponseBody();
+  @Test
+  void getBookings() {
+    List<Booking> bookings = testClient
+        .get().uri("/bookings")
+        .exchange()
+        .expectStatus().isOk()
+        .expectBodyList(Booking.class).returnResult().getResponseBody();
 
-		if (bookings != null) {
-			assertTrue(bookings.size() > 0);
-		} else {
-			fail();
-		}
-	}
+    if (bookings != null) {
+      assertTrue(bookings.size() > 0);
+    } else {
+      fail();
+    }
+  }
 
-	@Test
-	void createBooking() {
-		List<Booking> bookings = testClient
-		.get().uri("/bookings")
-		.exchange()
-		.expectStatus().isOk()
-		.expectBodyList(Booking.class)
-		.returnResult().getResponseBody();
+  @Test
+  void createBooking() {
+    List<Booking> bookings = testClient
+        .get().uri("/bookings")
+        .exchange()
+        .expectStatus().isOk()
+        .expectBodyList(Booking.class)
+        .returnResult().getResponseBody();
 
-		int size = 0;
-		if (bookings != null) {
-			size = bookings.size();
-		}
-		Booking booking = CreateBookingsForTest.createBookingForTwoAt19();
-		User user = CreateUsersForTesting.createUser1();
-		RequestBodyUserBooking body = new RequestBodyUserBooking(user, booking);
+    int size = 0;
+    if (bookings != null) {
+      size = bookings.size();
+    }
+    Booking booking = CreateBookingsForTest.createBookingForTwoAt19();
+    User user = CreateUsersForTesting.createUser1();
+    RequestBodyUserBooking body = new RequestBodyUserBooking(user, booking);
 
-		testClient
-		.post().uri("/bookings")
-		.contentType(MediaType.APPLICATION_JSON)
-		.accept(MediaType.APPLICATION_JSON)
-		.bodyValue(body)
-		.exchange()
-		.expectStatus().isCreated()
-		.expectHeader().exists("Location")
-		.expectBody().isEmpty();
+    testClient
+        .post().uri("/bookings")
+        .contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON)
+        .bodyValue(body)
+        .exchange()
+        .expectStatus().isCreated()
+        .expectHeader().exists("Location")
+        .expectBody().isEmpty();
 
-		testClient
-		.get().uri("/bookings")
-		.exchange()
-		.expectBodyList(Booking.class).hasSize(size + 1);
+    testClient
+        .get().uri("/bookings")
+        .exchange()
+        .expectBodyList(Booking.class).hasSize(size + 1);
 
-	}
+  }
 
-	@Test
-	void deleteBooking() {
-		List<Booking> bookings = testClient
-		.get().uri("/bookings")
-		.exchange()
-		.expectStatus().isOk()
-		.expectBodyList(Booking.class).returnResult().getResponseBody();
+  @Test
+  void deleteBooking() {
+    List<Booking> bookings = testClient
+        .get().uri("/bookings")
+        .exchange()
+        .expectStatus().isOk()
+        .expectBodyList(Booking.class).returnResult().getResponseBody();
 
-		int size = 0;
-		if (bookings != null) {
-			size = bookings.size();
-		}
+    int size = 0;
+    if (bookings != null) {
+      size = bookings.size();
+    }
 
-		testClient
-		.delete().uri("/bookings/10000")
-		.exchange()
-		.expectStatus().is2xxSuccessful();
+    testClient
+        .delete().uri("/bookings/10000")
+        .exchange()
+        .expectStatus().is2xxSuccessful();
 
-		testClient
-		.get().uri("/bookings")
-		.exchange()
-		.expectBodyList(Booking.class).hasSize(size - 1);
-	}
+    testClient
+        .get().uri("/bookings")
+        .exchange()
+        .expectBodyList(Booking.class).hasSize(size - 1);
+  }
 
-	@Test
-	void getUsers() {
-		List<User> users = testClient
-		.get().uri("/users")
-		.exchange()
-		.expectStatus().isOk()
-		.expectBodyList(User.class).returnResult().getResponseBody();
+  @Test
+  void getUsers() {
+    List<User> users = testClient
+        .get().uri("/users")
+        .exchange()
+        .expectStatus().isOk()
+        .expectBodyList(User.class).returnResult().getResponseBody();
 
-		if (users != null) {
-			assertTrue(users.size() > 0);
-		}
-	}
+    if (users != null) {
+      assertTrue(users.size() > 0);
+    }
+  }
 
-	@Test
-	void createUser() {
-		List<User> users = testClient
-		.get().uri("/users")
-		.exchange()
-		.expectStatus().isOk()
-		.expectBodyList(User.class).returnResult().getResponseBody();
+  @Test
+  void createUser() {
+    List<User> users = testClient
+        .get().uri("/users")
+        .exchange()
+        .expectStatus().isOk()
+        .expectBodyList(User.class).returnResult().getResponseBody();
 
-		int size = 0;
-		if (users != null) {
-			size = users.size();
-		}
-		User user = CreateUsersForTesting.createUser2();
+    int size = 0;
+    if (users != null) {
+      size = users.size();
+    }
+    User user = CreateUsersForTesting.createUser2();
 
-		testClient
-		.post().uri("/users")
-		.contentType(MediaType.APPLICATION_JSON)
-		.accept(MediaType.APPLICATION_JSON)
-		.bodyValue(user)
-		.exchange()
-		.expectStatus().isCreated()
-		.expectBody().isEmpty();
-		testClient
-		.get().uri("/users")
-		.exchange()
-		.expectBodyList(User.class).hasSize(size + 1);
+    testClient
+        .post().uri("/users")
+        .contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON)
+        .bodyValue(user)
+        .exchange()
+        .expectStatus().isCreated()
+        .expectBody().isEmpty();
+    testClient
+        .get().uri("/users")
+        .exchange()
+        .expectBodyList(User.class).hasSize(size + 1);
 
-	}
+  }
 
-	@Test
-	void deleteUser() {
-		List<User> users = testClient
-		.get().uri("/users")
-		.exchange()
-		.expectStatus().isOk()
-		.expectBodyList(User.class).returnResult().getResponseBody();
+  @Test
+  void deleteUser() {
+    List<User> users = testClient
+        .get().uri("/users")
+        .exchange()
+        .expectStatus().isOk()
+        .expectBodyList(User.class).returnResult().getResponseBody();
 
-		int size = 0;
-		if (users != null) {
-			size = users.size();
-		}
+    int size = 0;
+    if (users != null) {
+      size = users.size();
+    }
 
-		testClient
-		.delete().uri("/users/10001")
-		.exchange()
-		.expectStatus().is2xxSuccessful();
+    testClient
+        .delete().uri("/users/10001")
+        .exchange()
+        .expectStatus().is2xxSuccessful();
 
-		testClient
-		.get().uri("/users")
-		.exchange()
-		.expectBodyList(Booking.class).hasSize(size - 1);
-	}
+    testClient
+        .get().uri("/users")
+        .exchange()
+        .expectBodyList(Booking.class).hasSize(size - 1);
+  }
 
-	@Test
-	void getTables() {
-		List<String> tables = testClient
-				.get().uri("/restaurant/tables")
-				.exchange()
-				.expectStatus().isOk()
-				.expectBodyList(String.class).returnResult().getResponseBody();
+  @Test
+  void getTables() {
+    List<String> tables = testClient
+        .get().uri("/restaurant/tables")
+        .exchange()
+        .expectStatus().isOk()
+        .expectBodyList(String.class).returnResult().getResponseBody();
 
-		// TODO: REMOVE ME
-		System.out.println("********************************************");
-		System.out.println("\n \n \n \n");
-		System.out.println(tables);
-		System.out.println("\n \n \n \n");
-		System.out.println("********************************************");
+    if (tables != null) {
+      assertTrue(tables.size() > 0);
+    } else {
+      fail("List has not been properly initialized");
+    }
+  }
 
-		if (tables != null) {
-			assertTrue(tables.size() > 0);
-		} else {
-			fail("List has not been properly initialized");
-		}
-	}
+  @Test
+  void createTable() {
+    RestaurantTable table = new RestaurantTable("newTableName", 100, 1000000);
 
-	@Test
-	void createTable() {
-		RestaurantTable table = new RestaurantTable("newTableName", 100, 1000000);
+    testClient
+        .post().uri("/restaurant/tables")
+        .contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON)
+        .bodyValue(table)
+        .exchange()
+        .expectStatus().isCreated()
+        .expectBody().isEmpty();
+    testClient
+        .get().uri("/restaurant/tables")
+        .exchange()
+        .expectBodyList(RestaurantTable.class).contains(table);
 
-		testClient
-		.post().uri("/restaurant/tables")
-		.contentType(MediaType.APPLICATION_JSON)
-		.accept(MediaType.APPLICATION_JSON)
-		.bodyValue(table)
-		.exchange()
-		.expectStatus().isCreated()
-		.expectBody().isEmpty();
-		testClient
-		.get().uri("/restaurant/tables")
-		.exchange()
-		.expectBodyList(RestaurantTable.class).contains(table);
+  }
 
-	}
+  @Test
+  void deleteTable() {
+    RestaurantTable table = new RestaurantTable("newTableName", 100, 1000000);
 
-	@Test
-	void deleteTable() {
-		RestaurantTable table = new RestaurantTable("newTableName", 100, 1000000);
+    testClient
+        .post().uri("/restaurant/tables")
+        .contentType(MediaType.APPLICATION_JSON)
+        .accept(MediaType.APPLICATION_JSON)
+        .bodyValue(table)
+        .exchange();
 
-		testClient
-		.post().uri("/restaurant/tables")
-		.contentType(MediaType.APPLICATION_JSON)
-		.accept(MediaType.APPLICATION_JSON)
-		.bodyValue(table)
-		.exchange();
+    testClient
+        .get().uri("/restaurant/tables")
+        .exchange()
+        .expectStatus().isOk()
+        .expectBodyList(RestaurantTable.class).contains(table);
 
-		testClient
-				.get().uri("/restaurant/tables")
-				.exchange()
-				.expectStatus().isOk()
-				.expectBodyList(RestaurantTable.class).hasSize(10);
+    testClient
+        .delete().uri("/restaurant/tables/" + table.getName())
+        .exchange()
+        .expectStatus().is2xxSuccessful();
 
-		testClient
-		.delete().uri("/restaurant/tables/" + table.getName())
-		.exchange()
-		.expectStatus().is2xxSuccessful();
-
-		testClient
-		.get().uri("/restaurant/tables")
-		.exchange()
-		.expectBodyList(RestaurantTable.class).doesNotContain(table);
-	}
+    testClient
+        .get().uri("/restaurant/tables")
+        .exchange()
+        .expectBodyList(RestaurantTable.class).doesNotContain(table);
+  }
 
 
 }

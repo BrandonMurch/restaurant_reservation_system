@@ -40,12 +40,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
   @Query("SELECT b FROM Booking b INNER JOIN b.user u WHERE username = :username")
   List<Booking> getBookingsByUser(@Param("username") String username);
 
-  @Query("SELECT b FROM Booking b INNER JOIN b.restaurantTables t " +
+  @Query("SELECT b FROM Booking b INNER JOIN b.tables t " +
       "WHERE t.name = :table_name " +
       "AND b.startTime > CURRENT_TIMESTAMP")
   List<Booking> getFutureBookingsByTable(@Param("table_name") String tableName);
 
-  @Query("SELECT b FROM Booking b INNER JOIN b.restaurantTables t " +
+  @Query("SELECT b FROM Booking b INNER JOIN b.tables t " +
       "WHERE  b.startTime < :endTime " +
       "AND b.endTime > :startTime "
       +

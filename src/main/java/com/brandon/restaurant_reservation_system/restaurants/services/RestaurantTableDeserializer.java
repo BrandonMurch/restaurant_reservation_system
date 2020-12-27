@@ -20,19 +20,12 @@ public class RestaurantTableDeserializer extends
   public List<RestaurantTable> deserialize(JsonParser p, DeserializationContext ctx)
       throws IOException {
     String str = p.getText();
-    // TODO: REMOVE ME
-    System.out.println("********************************************");
-    System.out.println("\n \n \n \n");
-    System.out.println(p.getTypeId());
-    System.out.println("\n \n \n \n");
-    System.out.println("********************************************");
     ObjectMapper mapper = new ObjectMapper();
     JavaType classCollection = mapper.getTypeFactory()
         .constructCollectionType(List.class, RestaurantTable.class);
     try {
       return mapper.readValue(str, classCollection);
-    } catch (Exception ex) {
-      System.out.println(ex);
+    } catch (Exception ignored) {
     }
 
     return null;

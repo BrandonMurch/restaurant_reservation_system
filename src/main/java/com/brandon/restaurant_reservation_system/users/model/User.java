@@ -13,10 +13,8 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Entity
-@Table(name = "users")
 @DiscriminatorValue("USER")
 @JsonIgnoreProperties(ignoreUnknown = true,
     value = {"hibernateLazyInitializer"})
