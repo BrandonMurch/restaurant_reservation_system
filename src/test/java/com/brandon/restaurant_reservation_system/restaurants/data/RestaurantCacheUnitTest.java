@@ -33,7 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-class RestaurantCacheTest {
+class RestaurantCacheUnitTest {
 
   final SortedSet<LocalDate> availableDates = new TreeSet<>();
   @InjectMocks
