@@ -6,17 +6,15 @@ package com.brandon.restaurant_reservation_system.restaurants.services;
 
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
+import com.brandon.restaurant_reservation_system.restaurants.data.BookingTimes;
+import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +30,10 @@ public class TableAllocatorService {
   private TableService tableService;
   @Autowired
   private Restaurant restaurant;
+  @Autowired
+  private RestaurantConfig config;
+  @Autowired
+  private BookingTimes bookingTimes;
   private Map<Integer, RestaurantTable> availableTables;
 
   public TableAllocatorService() {
@@ -69,7 +71,7 @@ public class TableAllocatorService {
     if (allTables == null || allTables.isEmpty()) {
       throw new IllegalStateException("Please ensure the restaurant is " +
           "set up with tables before trying to make a booking.");
-    } else if (!restaurant.isBookingTime(startTime)) {
+    } else if (!bookingTimes.isBookingTime(startTime)) {
       return Optional.empty();
     }
 
@@ -105,7 +107,7 @@ public class TableAllocatorService {
 
   private List<Booking> getBookings(LocalDateTime startTime) {
     return getBookings(startTime,
-        startTime.plus(restaurant.getStandardBookingDuration()));
+        startTime.plus(config.getStandardBookingDuration()));
   }
 
   private List<Booking> getBookings(LocalDateTime startTime,
@@ -131,7 +133,7 @@ public class TableAllocatorService {
 
       // Check capacity. Return an empty list if capacity is reached.
       capacityCount += booking.getPartySize();
-      if (capacityCount > restaurant.getCapacity()) {
+      if (capacityCount > config.getCapacity()) {
         return Optional.empty();
       }
 
@@ -164,25 +166,6 @@ public class TableAllocatorService {
       }
     }
     return Optional.empty();
-  }
-
-  public SortedSet<LocalTime> getAvailableTimes(int size, LocalDate date) {
-    List<LocalTime> times = restaurant.getBookingTimes(date);
-    SortedSet<LocalTime> availableTimes = new TreeSet<>();
-
-    for (LocalTime time : times) {
-      if (date.isEqual(LocalDate.now()) && time.isBefore(
-          LocalTime.now())) {
-        continue;
-      }
-      LocalDateTime dateTime = date.atTime(time);
-
-      if (getAvailableTable(dateTime, size,
-          restaurant.canABookingOccupyALargerTable()).isPresent()) {
-        availableTimes.add(time);
-      }
-    }
-    return availableTimes;
   }
 
   protected Map<Integer, RestaurantTable> getAvailableTablesForTest() {

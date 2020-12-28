@@ -4,6 +4,7 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
+import com.brandon.restaurant_reservation_system.restaurants.data.BookingDateRange;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
 import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import com.brandon.restaurant_reservation_system.restaurants.model.Day;
@@ -19,9 +20,9 @@ import java.util.Map;
 
 public class PopulateRestaurantService {
 
-  public static void populateRestaurant(Restaurant restaurant) {
+  public static void populateRestaurant(Restaurant restaurant, BookingDateRange dateRange) {
     setConfig(restaurant);
-    restaurant.setBookingDateRange(30);
+    dateRange.set(30);
     restaurant.setOpeningHours(
         modifyOpeningHours(restaurant.getOpeningHours()));
     restaurant.allowBookingPerTimeInterval(15);

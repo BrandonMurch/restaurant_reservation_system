@@ -6,7 +6,6 @@ package com.brandon.restaurant_reservation_system.restaurants.model;
 
 import com.brandon.restaurant_reservation_system.restaurants.data.BookingDateRange;
 import com.brandon.restaurant_reservation_system.restaurants.data.BookingTimes;
-import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantCache;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.RestaurantConfigurationException;
 import com.brandon.restaurant_reservation_system.restaurants.services.PopulateRestaurantService;
@@ -24,7 +23,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,8 +32,6 @@ public class Restaurant implements Serializable {
 
   private static final long serialVersionUID = 2993992281945949085L;
 
-  @Autowired
-  private transient RestaurantCache cache;
   @Autowired
   private transient TableService tableService;
   private String name;
@@ -75,7 +71,7 @@ public class Restaurant implements Serializable {
     //		boolean isDeserializeSuccess = deserialize();
 
     //		if (!isDeserializeSuccess) {
-    PopulateRestaurantService.populateRestaurant(this);
+    PopulateRestaurantService.populateRestaurant(this, bookingDateRange);
     //		}
     // TODO: Remove this when database is created.
     PopulateRestaurantService.populateRestaurantTables(tableService);
@@ -115,10 +111,6 @@ public class Restaurant implements Serializable {
 
   // Booking times -----------------------------------------------------------
 
-  public boolean isOpenOnDate(LocalDate date) {
-    return bookingTimes.isOpenOnDate(date);
-  }
-
   public Map<DayOfWeek, Day> getOpeningHours() {
     return bookingTimes.getOpeningHours();
   }
@@ -128,12 +120,8 @@ public class Restaurant implements Serializable {
     serialize();
   }
 
-  public List<LocalTime> getBookingTimes() {
-    return getBookingTimes(LocalDate.now());
-  }
-
   public List<LocalTime> getBookingTimes(LocalDate date) {
-    return bookingTimes.getBookingTimes(date);
+    return bookingTimes.getAll(date);
   }
 
   public boolean isBookingTime(LocalDateTime dateTime) {
@@ -149,28 +137,6 @@ public class Restaurant implements Serializable {
 
   public void allowBookingPerTimeInterval(int bookingIntervalInMinutes) {
     bookingTimes.allowBookingPerTimeInterval(bookingIntervalInMinutes);
-    serialize();
-  }
-
-  // Date Range    -----------------------------------------------------------
-
-
-  public DateRange getBookingDateRange() {
-    return bookingDateRange.getBookingRange();
-  }
-
-  public void setBookingDateRange(int bookingHorizonInDays) {
-    bookingDateRange.setBookingRange(bookingHorizonInDays);
-    serialize();
-  }
-
-  public void setBookingDateRange(LocalDate start, LocalDate end) {
-    bookingDateRange = new BookingDateRange(new DateRange(start, end));
-    serialize();
-  }
-
-  public void allowBookingsOnlyAtCertainTimes(List<LocalTime> times) {
-    bookingTimes.allowBookingsOnlyAtCertainTimes(times);
     serialize();
   }
 
@@ -207,27 +173,4 @@ public class Restaurant implements Serializable {
       return false;
     }
   }
-
-  // Cache -------------------------------------------------------------------
-
-  public SortedSet<LocalDate> getAvailableDates() {
-    return cache.getAvailableDates();
-  }
-
-  public void removeDateIfUnavailable(LocalDate date) {
-    cache.removeDateIfUnavailable(date);
-  }
-
-  public Map<LocalDate, Integer> getBookingsPerDate() {
-    return cache.getBookingsPerDate();
-  }
-
-  public void addBookingToDate(LocalDate date, Integer numberOfBookings) {
-    cache.addBookingToDate(date, numberOfBookings);
-  }
-
-  public void removeBookingFromDate(LocalDate date, Integer numberOfBookings) {
-    cache.removeBookingFromDate(date, numberOfBookings);
-  }
-
 }

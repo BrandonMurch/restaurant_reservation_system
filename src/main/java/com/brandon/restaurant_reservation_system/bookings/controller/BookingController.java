@@ -6,17 +6,12 @@ package com.brandon.restaurant_reservation_system.bookings.controller;
 
 import com.brandon.restaurant_reservation_system.GlobalVariables;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
-import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotFoundException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequestFormatException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.model.RequestBodyUserBooking;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingService;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingValidationService;
 import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
-import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantCache;
-import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
-import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
-import com.brandon.restaurant_reservation_system.restaurants.services.TableService;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -42,21 +37,15 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/bookings")
 public class BookingController {
 
-  private final DateTimeFormatter dateFormat = GlobalVariables.getDateFormat();
-  private final DateTimeFormatter dateTimeFormat =
-      GlobalVariables.getDateTimeFormat();
-  @Autowired
-  private Restaurant restaurant;
-  @Autowired
-  private RestaurantCache restaurantCache;
   @Autowired
   private BookingRepository bookingRepository;
   @Autowired
   private BookingService bookingService;
-  @Autowired
-  private TableAvailabilityService tableAvailability;
-  @Autowired
-  private TableService tableHandler;
+
+  private final DateTimeFormatter dateFormat = GlobalVariables.getDateFormat();
+  private final DateTimeFormatter dateTimeFormat =
+      GlobalVariables.getDateTimeFormat();
+
 
   public BookingController() {
   }
@@ -105,13 +94,12 @@ public class BookingController {
 
   @GetMapping("/dailyCount")
   public ResponseEntity<?> getBookingsPerDay() {
-    return ResponseEntity.ok(restaurantCache.getBookingsPerDate());
+    return ResponseEntity.ok(bookingService.getBookingsPerDate());
   }
 
   @GetMapping("/{bookingId}")
   public Booking getBookingById(@PathVariable long bookingId) {
-    return bookingRepository.findById(bookingId)
-        .orElseThrow(() -> new BookingNotFoundException(bookingId));
+    return bookingService.find(bookingId);
   }
 
   @PutMapping("{bookingId}/setTable")

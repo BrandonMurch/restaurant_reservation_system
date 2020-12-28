@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
-import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantCache;
 import com.brandon.restaurant_reservation_system.users.CreateUsersForTesting;
 import com.brandon.restaurant_reservation_system.users.service.UserPasswordEncoder;
 import java.util.HashMap;
@@ -31,17 +30,15 @@ public class BookingServiceTest {
   AuthenticationManager authenticationManager;
   @Autowired
   private BookingService service;
-  @Autowired
-  private RestaurantCache cache;
 
   @Test
   void testCreateBookingUpdateCache() throws InterruptedException {
-    var bookingsOnDate = new HashMap<>(cache.getBookingsPerDate());
+    var bookingsOnDate = new HashMap<>(service.getBookingsPerDate());
     Booking booking = CreateBookingsForTest.createBookingForTwoAt19();
     service.createBooking(booking,
         CreateUsersForTesting.createUser1(), true);
     sleep(1000);
-    var result = cache.getBookingsPerDate();
+    var result = service.getBookingsPerDate();
     assertEquals(bookingsOnDate.size() + 1, result.size());
 
   }

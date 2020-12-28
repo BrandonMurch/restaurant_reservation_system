@@ -10,10 +10,10 @@ import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingNotP
 import com.brandon.restaurant_reservation_system.bookings.exceptions.BookingRequestFormatException;
 import com.brandon.restaurant_reservation_system.bookings.exceptions.DuplicateFoundException;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
-import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantCache;
+import com.brandon.restaurant_reservation_system.data.Cache;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNotFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
-import com.brandon.restaurant_reservation_system.restaurants.services.BookingAvailability;
+import com.brandon.restaurant_reservation_system.restaurants.services.BookingDateAvailability;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableService;
@@ -21,7 +21,9 @@ import com.brandon.restaurant_reservation_system.users.model.User;
 import com.brandon.restaurant_reservation_system.users.service.UserService;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +43,11 @@ public class BookingService {
   @Autowired
   private TableService tableService;
   @Autowired
-  private RestaurantCache cache;
-  @Autowired
   private TableAvailabilityService tableAvailabilityService;
   @Autowired
-  private BookingAvailability bookingAvailability;
+  private BookingDateAvailability bookingDateAvailability;
+  @Autowired
+  private BookingCountsByDate bookingCounts;
 
   public BookingService() {
   }
@@ -157,8 +159,8 @@ public class BookingService {
     Boolean hasDateChanged = !newBooking.getDate().isEqual(booking.getDate());
     Boolean hasSizeChanged = !newBooking.getPartySize().equals(booking.getPartySize());
     if (hasDateChanged || hasSizeChanged) {
-      cache.removeBookingFromDate(booking.getDate(), booking.getPartySize());
-      cache.addBookingToDate(newBooking.getDate(), newBooking.getPartySize());
+      bookingCounts.remove(booking.getDate(), booking.getPartySize());
+      bookingCounts.add(newBooking.getDate(), newBooking.getPartySize());
     }
   }
 
@@ -175,8 +177,8 @@ public class BookingService {
   }
 
   private void updateCacheAfterCreation(Booking booking) {
-    bookingAvailability.removeDateIfUnavailable(booking.getStartTime().toLocalDate());
-    cache.addBookingToDate(booking.getDate(), booking.getPartySize());
+    bookingDateAvailability.removeDateIfUnavailable(booking.getStartTime().toLocalDate());
+    bookingCounts.add(booking.getDate(), booking.getPartySize());
 
   }
 
@@ -184,7 +186,7 @@ public class BookingService {
     Optional<Booking> booking = bookingRepository.findById(bookingId);
     booking.ifPresent(
         foundBooking -> {
-          cache.removeBookingFromDate(foundBooking.getDate(), foundBooking.getPartySize());
+          bookingCounts.remove(foundBooking.getDate(), foundBooking.getPartySize());
           bookingRepository.delete(foundBooking);
         });
   }
@@ -210,5 +212,33 @@ public class BookingService {
             "on this date");
       }
     }
+  }
+
+  public Map<LocalDate, Integer> getBookingsPerDate() {
+    return bookingCounts.get();
+  }
+
+  private class BookingCountsByDate extends Cache<Map<LocalDate, Integer>> {
+
+    public BookingCountsByDate() {
+      super(new HashMap<>());
+    }
+
+    protected Map<LocalDate, Integer> update() {
+      return bookingRepository.getCountByDayMap();
+    }
+
+    protected void add(LocalDate date, Integer count) {
+      this.handleLock(() -> this.getForUpdate().put(date, count));
+    }
+
+    protected void remove(LocalDate date, Integer numberOfPeople) {
+      handleLock(() -> this.getForUpdate().merge(date, numberOfPeople, this::getDifference));
+    }
+
+    private Integer getDifference(Integer value1, Integer value2) {
+      return value1 - value2;
+    }
+
   }
 }

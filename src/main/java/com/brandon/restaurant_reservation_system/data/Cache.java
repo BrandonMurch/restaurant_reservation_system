@@ -25,7 +25,7 @@ public abstract class Cache<T> {
     datesLastUpdated = LocalDate.now();
   }
 
-  public abstract T update();
+  protected abstract T update();
 
   public T get() {
     return handleLock(() -> {
@@ -35,6 +35,10 @@ public abstract class Cache<T> {
       }
       return data;
     });
+  }
+
+  protected T getForUpdate() {
+    return data;
   }
 
   public void set(T data) {

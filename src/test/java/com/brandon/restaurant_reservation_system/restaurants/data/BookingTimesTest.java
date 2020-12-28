@@ -70,7 +70,7 @@ class BookingTimesTest {
 
     bookingTimes.allowBookingsOnlyAtCertainTimes(list);
 
-    List<LocalTime> result = bookingTimes.getBookingTimes(LocalDate.now());
+    List<LocalTime> result = bookingTimes.getAll(LocalDate.now());
 
     assertEquals(list, result);
   }
@@ -86,7 +86,7 @@ class BookingTimesTest {
 
     bookingTimes.allowBookingPerTimeInterval(30);
 
-    List<LocalTime> result = bookingTimes.getBookingTimes(LocalDate.now());
+    List<LocalTime> result = bookingTimes.getAll(LocalDate.now());
 
     assertEquals(expected, result);
   }

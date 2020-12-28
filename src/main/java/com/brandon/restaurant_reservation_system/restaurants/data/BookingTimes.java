@@ -6,6 +6,7 @@ package com.brandon.restaurant_reservation_system.restaurants.data;
 
 import com.brandon.restaurant_reservation_system.restaurants.model.Day;
 import com.brandon.restaurant_reservation_system.restaurants.model.OpeningClosingPair;
+import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -17,6 +18,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class BookingTimes implements Serializable {
@@ -29,6 +33,10 @@ public class BookingTimes implements Serializable {
   private Map<DayOfWeek, List<LocalTime>> bookingTimesByDay;
   private Duration bookingSlotIntervals;
   private Map<DayOfWeek, Day> openingHours;
+  @Autowired
+  private TableAllocatorService tableAllocator;
+  @Autowired
+  private RestaurantConfig config;
 
   public BookingTimes() {
     initOpeningHours();
@@ -104,12 +112,31 @@ public class BookingTimes implements Serializable {
   }
 
   public boolean isBookingTime(LocalDateTime dateTime) {
-    return getBookingTimes(
+    return getAll(
         dateTime.toLocalDate()).contains(dateTime.toLocalTime()
     );
   }
 
-  public List<LocalTime> getBookingTimes(LocalDate date) {
+  public SortedSet<LocalTime> getAvailable(int size, LocalDate date) {
+    List<LocalTime> times = getAll(date);
+    SortedSet<LocalTime> availableTimes = new TreeSet<>();
+
+    for (LocalTime time : times) {
+      if (date.isEqual(LocalDate.now()) && time.isBefore(
+          LocalTime.now())) {
+        continue;
+      }
+      LocalDateTime dateTime = date.atTime(time);
+
+      if (tableAllocator.getAvailableTable(dateTime, size,
+          config.canABookingOccupyALargerTable()).isPresent()) {
+        availableTimes.add(time);
+      }
+    }
+    return availableTimes;
+  }
+
+  public List<LocalTime> getAll(LocalDate date) {
     Day day = openingHours.get(date.getDayOfWeek());
     if (!day.isOpen()) {
       return Collections.emptyList();

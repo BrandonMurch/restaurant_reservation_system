@@ -5,11 +5,12 @@
 package com.brandon.restaurant_reservation_system.restaurants.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 import com.brandon.restaurant_reservation_system.TestWebSecurityConfig;
+import com.brandon.restaurant_reservation_system.restaurants.data.BookingTimes;
 import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
-import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
-import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
+import com.brandon.restaurant_reservation_system.restaurants.services.BookingDateAvailability;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableService;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -37,40 +38,37 @@ class RestaurantControllerTest {
   private TableService tableService;
 
   @MockBean
-  private TableAllocatorService tableAllocator;
+  private BookingTimes bookingTimes;
 
   @MockBean
-  private Restaurant restaurant;
+  private BookingDateAvailability bookingDateAvailability;
 
   @Autowired
   private MockMvc mvc;
 
     @Test
     void getAvailableBookingDates() throws Exception {
-        LocalDate today = LocalDate.now();
-        String todayString = today.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        LocalDate tomorrow = today.plusDays(1);
-        String tomorrowString = tomorrow.format(DateTimeFormatter.ISO_LOCAL_DATE);
+      LocalDate today = LocalDate.now();
+      String todayString = today.format(DateTimeFormatter.ISO_LOCAL_DATE);
+      LocalDate tomorrow = today.plusDays(1);
+      String tomorrowString = tomorrow.format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-        SortedSet<LocalDate> dates = new TreeSet<>();
-        dates.add(today);
-        DateRange range = new DateRange(today, tomorrow);
+      SortedSet<LocalDate> dates = new TreeSet<>();
+      dates.add(today);
+      DateRange range = new DateRange(today, tomorrow);
 
-        Mockito
-          .when(restaurant.getBookingDateRange())
-          .thenReturn(range);
-        Mockito
-          .when(restaurant.getAvailableDates())
+      Mockito
+          .when(bookingDateAvailability.getAll())
           .thenReturn(dates);
 
-        String jsonReturn = "{\"availableDates\":[\"" + todayString + "\"]," +
+      String jsonReturn = "{\"availableDates\":[\"" + todayString + "\"]," +
           "\"start\":\"" + todayString + "\",\"end\":\"" + tomorrowString + "\"}";
 
-        MvcResult result =
+      MvcResult result =
           mvc.perform(MockMvcRequestBuilders
-            .get("/restaurant/availability")
-            .contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
+              .get("/restaurant/availability")
+              .contentType(MediaType.APPLICATION_JSON))
+              .andReturn();
         int status = result.getResponse().getStatus();
         assertEquals(200, status);
 
@@ -92,8 +90,7 @@ class RestaurantControllerTest {
 
         String setJson = "[\"" + nowString + "\",\"" + oneHourString + "\"]";
 
-        Mockito
-          .when(tableAllocator.getAvailableTimes(2, LocalDate.now()))
+      when(bookingTimes.getAvailable(2, LocalDate.now()))
           .thenReturn(set);
 
         String dateString = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);

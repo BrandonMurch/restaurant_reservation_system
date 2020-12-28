@@ -18,8 +18,6 @@ import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingService;
 import com.brandon.restaurant_reservation_system.restaurants.CreateTableForTest;
-import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantCache;
-import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
 import com.brandon.restaurant_reservation_system.restaurants.services.TableService;
@@ -60,12 +58,7 @@ class BookingControllerTest {
   private BookingRepository bookingRepository;
   @SuppressWarnings("unused")
   @MockBean
-  private BookingService bookingHandler;
-  @SuppressWarnings("unused")
-  @MockBean
-  private Restaurant restaurant;
-  @MockBean
-  private RestaurantCache restaurantCache;
+  private BookingService bookingService;
   @SuppressWarnings("unused")
   @MockBean
   private TableAvailabilityService tableAvailability;
@@ -178,8 +171,7 @@ class BookingControllerTest {
 
   @Test
   void getBookingById() throws Exception {
-    Mockito.when(bookingRepository.findById((long) 1)).thenReturn(
-        Optional.ofNullable(this.booking1));
+    Mockito.when(bookingService.find((long) 1)).thenReturn(this.booking1);
 
     String uri = "/bookings/1";
     MvcResult result =
@@ -198,7 +190,7 @@ class BookingControllerTest {
   void updateBookingNotPresent() throws Exception {
     Mockito.when(bookingRepository.findById((long) 1))
         .thenReturn(Optional.empty());
-    Mockito.when(bookingHandler.createBooking(any(Booking.class), any(User.class),
+    Mockito.when(bookingService.createBooking(any(Booking.class), any(User.class),
         any(Boolean.class)))
         .thenReturn(updatedBooking2);
 

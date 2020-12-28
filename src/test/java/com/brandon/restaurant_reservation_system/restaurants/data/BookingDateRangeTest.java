@@ -20,11 +20,11 @@ class BookingDateRangeTest {
 
   @Test
   void getBookingRange() {
-    DateRange range = bookingDateRange.getBookingRange();
+    DateRange range = bookingDateRange.get();
     assertEquals(start, range.getStart());
     assertEquals(end, range.getEnd());
 
-    range = bookingDateRangeFixed.getBookingRange();
+    range = bookingDateRangeFixed.get();
     assertEquals(start, range.getStart());
     assertEquals(end, range.getEnd());
   }
@@ -32,13 +32,13 @@ class BookingDateRangeTest {
   @Test
   void setBookingRange() {
     end = start.plusDays(10);
-    bookingDateRange.setBookingRange(10);
+    bookingDateRange.set(10);
 
-    DateRange range = bookingDateRange.getBookingRange();
+    DateRange range = bookingDateRange.get();
     assertEquals(start, range.getStart());
     assertEquals(end, range.getEnd());
 
-    bookingDateRange.setBookingRange(new DateRange(start, end));
+    bookingDateRange.set(new DateRange(start, end));
     assertEquals(start, range.getStart());
     assertEquals(end, range.getEnd());
   }

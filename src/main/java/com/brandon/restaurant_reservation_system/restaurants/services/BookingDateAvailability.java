@@ -16,7 +16,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class BookingAvailability {
+public class BookingDateAvailability {
 
   private final AvailableDates availableDates = new AvailableDates();
   @Autowired
@@ -26,7 +26,7 @@ public class BookingAvailability {
   @Autowired
   private TableAllocatorService tableAllocatorService;
 
-  public SortedSet<LocalDate> get() {
+  public SortedSet<LocalDate> getAll() {
     return availableDates.get();
   }
 
@@ -36,7 +36,7 @@ public class BookingAvailability {
 
   public void removeDateIfUnavailable(LocalDate date) {
     if (!tryBookingOnDate(date)) {
-      availableDates.removeDate(date);
+      availableDates.remove(date);
     }
   }
 
@@ -49,7 +49,7 @@ public class BookingAvailability {
   }
 
   private boolean tryBookingOnDate(LocalDate date) {
-    List<LocalTime> times = bookingTimes.getBookingTimes(date);
+    List<LocalTime> times = bookingTimes.getAll(date);
     for (LocalTime time : times) {
       LocalDateTime dateTime = date.atTime(time);
       if (tableAllocatorService.getAvailableTable(dateTime, 2,
@@ -67,14 +67,10 @@ public class BookingAvailability {
   private class AvailableDates extends Cache<SortedSet<LocalDate>> {
 
     public AvailableDates() {
-      this(new TreeSet<>());
+      super(new TreeSet<>());
     }
 
-    public AvailableDates(SortedSet<LocalDate> data) {
-      super(data);
-    }
-
-    public SortedSet<LocalDate> update() {
+    protected SortedSet<LocalDate> update() {
       SortedSet<LocalDate> updatedSet = new TreeSet<>();
       DateRange dates = bookingDateRange.get();
       LocalDate current = dates.getStart();
@@ -91,11 +87,11 @@ public class BookingAvailability {
     }
 
     protected void add(LocalDate date) {
-      this.handleLock(() -> this.data.add(date));
+      this.handleLock(() -> this.getForUpdate().add(date));
     }
 
-    protected void removeDate(LocalDate date) {
-      handleLock(() -> this.data.remove(date));
+    protected void remove(LocalDate date) {
+      handleLock(() -> this.getForUpdate().remove(date));
     }
   }
 

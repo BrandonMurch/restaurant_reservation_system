@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.brandon.restaurant_reservation_system.restaurants.data.BookingDateRange;
 import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import java.time.DayOfWeek;
@@ -30,6 +31,7 @@ class PopulateRestaurantServiceTest {
 
   @InjectMocks
   private final Restaurant restaurant = new Restaurant();
+  BookingDateRange dateRange = new BookingDateRange(30);
   @Mock
   private TableService tableService;
   private List<RestaurantTable> tableList;
@@ -75,7 +77,7 @@ class PopulateRestaurantServiceTest {
 
   @Test
   void populateRestaurantTest() {
-    populateRestaurant(restaurant);
+    populateRestaurant(restaurant, dateRange);
     assertEquals(40, restaurant.getCapacity());
     LocalDateTime dateTime = LocalDate.now().atTime(20, 0);
     while (dateTime.getDayOfWeek() != DayOfWeek.SATURDAY) {
@@ -101,7 +103,7 @@ class PopulateRestaurantServiceTest {
     Mockito
         .when(tableService.findAll())
         .thenReturn(tableList);
-    populateRestaurant(restaurant);
+    populateRestaurant(restaurant, dateRange);
     populateRestaurantTables(tableService);
 
     List<RestaurantTable> tableList = tableService.findAll();
