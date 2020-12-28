@@ -31,7 +31,7 @@ public class TableService {
   @Autowired
   private TableRepository tableRepository;
   @Autowired
-  private BookingService bookingHandler;
+  private BookingService bookingService;
 
   public TableService() {
   }
@@ -86,7 +86,7 @@ public class TableService {
       tablesAndCombinations.add(table);
       tablesAndCombinations.addAll(tableRepository.findAssociatedCombinations(table));
       List<Booking> bookings =
-          bookingHandler.freeTablesFromBookings(tablesAndCombinations);
+          bookingService.freeTablesFromBookings(tablesAndCombinations);
       tableRepository.deleteWithAssociatedCombinations(table);
       if (!bookings.isEmpty()) {
         throw new UnallocatedBookingTableException(
