@@ -21,6 +21,7 @@ import com.brandon.restaurant_reservation_system.users.model.User;
 import com.brandon.restaurant_reservation_system.users.service.UserService;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +48,7 @@ public class BookingService {
   private TableAvailabilityService tableAvailabilityService;
   @Autowired
   private BookingDates bookingDates;
-  @Autowired
-  private BookingCountsByDate bookingCounts;
+  private final BookingCountsByDate bookingCounts = new BookingCountsByDate();
 
   public BookingService() {
   }
@@ -61,18 +61,28 @@ public class BookingService {
     return booking.get();
   }
 
+  private String sortCombinationName(String combinationName) {
+    if (combinationName.contains(",")) {
+      String[] tableNames = combinationName.split(", ");
+      Arrays.sort(tableNames);
+      return String.join(", ", tableNames);
+    }
+
+    return combinationName;
+  }
+
   public void updateTable(Booking booking, String tableName) {
     updateTable(booking, tableName, false);
   }
-
 
   public void updateTable(Booking booking, String tableName, Boolean isForced) {
     if (tableName.isEmpty()) {
       booking.removeTables();
     }
     RestaurantTable table;
+    String sortedTableName = sortCombinationName(tableName);
     try {
-      table = tableService.find(tableName);
+      table = tableService.find(sortedTableName);
     } catch (TableNotFoundException exception) {
       throw new BookingNotPossibleException(exception.getMessage());
     }
