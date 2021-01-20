@@ -17,7 +17,6 @@ public class RestaurantConfig implements Serializable, Updatable {
 
   private static final long serialVersionUID = 7979825971594010456L;
   private int capacity;
-  private boolean limitPeoplePerInterval;
   private int peoplePerInterval;
   private boolean canABookingOccupyALargerTable;
   private Duration standardBookingDuration;
@@ -26,7 +25,6 @@ public class RestaurantConfig implements Serializable, Updatable {
 
   public RestaurantConfig() {
     capacity = 0;
-    limitPeoplePerInterval = false;
     peoplePerInterval = 0;
     canABookingOccupyALargerTable = false;
     standardBookingDuration = Duration.ZERO;
@@ -54,7 +52,7 @@ public class RestaurantConfig implements Serializable, Updatable {
   }
 
   public boolean arePeopleLimitedPerInterval() {
-    return limitPeoplePerInterval;
+    return peoplePerInterval != 0;
   }
 
   public int getPeoplePerInterval() {
@@ -62,7 +60,6 @@ public class RestaurantConfig implements Serializable, Updatable {
   }
 
   public void setPeoplePerInterval(int peoplePerInterval) {
-    this.limitPeoplePerInterval = peoplePerInterval != 0;
     this.peoplePerInterval = peoplePerInterval;
   }
 
@@ -80,14 +77,9 @@ public class RestaurantConfig implements Serializable, Updatable {
   }
 
   public void limitPeoplePerTimeInterval(int peoplePerInterval) {
-    limitPeoplePerInterval = true;
     this.peoplePerInterval = peoplePerInterval;
   }
 
-  public void noLimitPeoplePerTimeInterval() {
-    limitPeoplePerInterval = false;
-    this.peoplePerInterval = 0;
-  }
 
   public void setCanABookingOccupyALargerTable(boolean bool) {
     this.canABookingOccupyALargerTable = bool;
@@ -98,7 +90,6 @@ public class RestaurantConfig implements Serializable, Updatable {
     if (object instanceof RestaurantConfig) {
       RestaurantConfig newConfig = (RestaurantConfig) object;
       this.capacity = newConfig.capacity;
-      this.limitPeoplePerInterval = newConfig.limitPeoplePerInterval;
       this.peoplePerInterval = newConfig.peoplePerInterval;
       this.canABookingOccupyALargerTable = newConfig.canABookingOccupyALargerTable;
       this.standardBookingDuration = newConfig.standardBookingDuration;
