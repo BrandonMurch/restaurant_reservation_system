@@ -16,6 +16,7 @@ import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingService;
 import com.brandon.restaurant_reservation_system.helpers.http.HttpRequestBuilder;
 import com.brandon.restaurant_reservation_system.restaurants.CreateTableForTest;
+import com.brandon.restaurant_reservation_system.tables.service.TableAllocatorService;
 import com.brandon.restaurant_reservation_system.users.data.UserRepository;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import com.brandon.restaurant_reservation_system.users.service.UserService;

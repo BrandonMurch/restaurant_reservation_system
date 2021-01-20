@@ -11,7 +11,7 @@ import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
-import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
+import com.brandon.restaurant_reservation_system.tables.service.TableAvailabilityService;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;

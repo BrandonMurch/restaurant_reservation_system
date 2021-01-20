@@ -16,7 +16,7 @@ public class Day implements Serializable {
   private static final long serialVersionUID = -1607064466422474736L;
   // instance variables
   private final DayOfWeek dayOfWeek;
-  private final List<OpeningClosingPair> hoursOfOperation;
+  private final List<DateTimePair> hoursOfOperation;
   private boolean isOpen;
 
   //constructors
@@ -27,7 +27,7 @@ public class Day implements Serializable {
   }
 
   public Day(DayOfWeek dayOfWeek,
-      List<OpeningClosingPair> hoursOfOperation) {
+      List<DateTimePair> hoursOfOperation) {
     this.dayOfWeek = dayOfWeek;
     this.hoursOfOperation = new ArrayList<>(hoursOfOperation);
     this.isOpen = true;
@@ -49,19 +49,19 @@ public class Day implements Serializable {
     isOpen = open;
   }
 
-  public List<OpeningClosingPair> getOpeningPairs() {
+  public List<DateTimePair> getOpeningPairs() {
     return hoursOfOperation;
   }
 
   public void addOpeningAndClosing(LocalTime opening, LocalTime closing) {
-    this.hoursOfOperation.add(new OpeningClosingPair(opening, closing));
+    this.hoursOfOperation.add(new DateTimePair(opening, closing));
   }
 
   public void removeOpeningAndClosing(LocalTime opening, LocalTime closing) {
-    hoursOfOperation.remove(new OpeningClosingPair(opening, closing));
-    //		Iterator<OpeningClosingPair> itr = this.hoursOfOperation.iterator();
+    hoursOfOperation.remove(new DateTimePair(opening, closing));
+    //		Iterator<DateTimePair> itr = this.hoursOfOperation.iterator();
     //		while (itr.hasNext()) {
-    //			OpeningClosingPair nextPair = itr.next();
+    //			DateTimePair nextPair = itr.next();
     //			if (opening.equals(nextPair.getOpening())
     //					&& closing.equals(nextPair.getClosing())) {
     //				itr.remove();
@@ -70,8 +70,8 @@ public class Day implements Serializable {
     //		}
   }
 
-  public Optional<OpeningClosingPair> getPairThatContainsTime(LocalTime time) {
-    for (OpeningClosingPair pair : this.hoursOfOperation) {
+  public Optional<DateTimePair> getPairThatContainsTime(LocalTime time) {
+    for (DateTimePair pair : this.hoursOfOperation) {
       if (time.isAfter(pair.getOpening()) && time.isBefore(pair.getClosing())) {
         return Optional.of(pair);
       }

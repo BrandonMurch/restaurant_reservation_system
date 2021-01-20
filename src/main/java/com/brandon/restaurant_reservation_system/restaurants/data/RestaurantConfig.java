@@ -4,10 +4,16 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.data;
 
+import com.brandon.restaurant_reservation_system.data.Updatable;
+import com.brandon.restaurant_reservation_system.restaurants.services.PopulateRestaurantService;
 import java.io.Serializable;
 import java.time.Duration;
+import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class RestaurantConfig implements Serializable {
+@Component
+public class RestaurantConfig implements Serializable, Updatable {
 
   private static final long serialVersionUID = 7979825971594010456L;
   private int capacity;
@@ -15,19 +21,29 @@ public class RestaurantConfig implements Serializable {
   private int peoplePerInterval;
   private boolean canABookingOccupyALargerTable;
   private Duration standardBookingDuration;
-  private int largestTableSize;
+  @Autowired
+  private PopulateRestaurantService populateRestaurant;
 
-  // Constructor
   public RestaurantConfig() {
     capacity = 0;
     limitPeoplePerInterval = false;
     peoplePerInterval = 0;
     canABookingOccupyALargerTable = false;
     standardBookingDuration = Duration.ZERO;
-    largestTableSize = 0;
   }
 
-  // getters
+  @PostConstruct
+  private void postConstruct() {
+    // TODO: reinstate this in production
+    //		boolean isDeserializeSuccess = deserialize();
+
+    //		if (!isDeserializeSuccess) {
+    populateRestaurant.populate();
+    //		}
+    // TODO: Remove this when database is created.
+    populateRestaurant.populateTables();
+  }
+
 
   public int getCapacity() {
     return capacity;
@@ -77,11 +93,15 @@ public class RestaurantConfig implements Serializable {
     this.canABookingOccupyALargerTable = bool;
   }
 
-  public int getLargestTableSize() {
-    return largestTableSize;
-  }
-
-  public void setLargestTableSize(int largestTableSize) {
-    this.largestTableSize = largestTableSize;
+  @Override
+  public void update(Object object) {
+    if (object instanceof RestaurantConfig) {
+      RestaurantConfig newConfig = (RestaurantConfig) object;
+      this.capacity = newConfig.capacity;
+      this.limitPeoplePerInterval = newConfig.limitPeoplePerInterval;
+      this.peoplePerInterval = newConfig.peoplePerInterval;
+      this.canABookingOccupyALargerTable = newConfig.canABookingOccupyALargerTable;
+      this.standardBookingDuration = newConfig.standardBookingDuration;
+    }
   }
 }

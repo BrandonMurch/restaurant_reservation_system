@@ -13,10 +13,10 @@ import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.data.Cache;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.TableNotFoundException;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
-import com.brandon.restaurant_reservation_system.restaurants.services.BookingDateAvailability;
-import com.brandon.restaurant_reservation_system.restaurants.services.TableAllocatorService;
-import com.brandon.restaurant_reservation_system.restaurants.services.TableAvailabilityService;
-import com.brandon.restaurant_reservation_system.restaurants.services.TableService;
+import com.brandon.restaurant_reservation_system.restaurants.services.BookingDates;
+import com.brandon.restaurant_reservation_system.tables.service.TableAllocatorService;
+import com.brandon.restaurant_reservation_system.tables.service.TableAvailabilityService;
+import com.brandon.restaurant_reservation_system.tables.service.TableService;
 import com.brandon.restaurant_reservation_system.users.model.User;
 import com.brandon.restaurant_reservation_system.users.service.UserService;
 import java.time.LocalDate;
@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +46,7 @@ public class BookingService {
   @Autowired
   private TableAvailabilityService tableAvailabilityService;
   @Autowired
-  private BookingDateAvailability bookingDateAvailability;
+  private BookingDates bookingDates;
   @Autowired
   private BookingCountsByDate bookingCounts;
 
@@ -66,7 +67,7 @@ public class BookingService {
 
 
   public void updateTable(Booking booking, String tableName, Boolean isForced) {
-    if (tableName.equals("")) {
+    if (tableName.isEmpty()) {
       booking.removeTables();
     }
     RestaurantTable table;
@@ -177,7 +178,7 @@ public class BookingService {
   }
 
   private void updateCacheAfterCreation(Booking booking) {
-    bookingDateAvailability.removeDateIfUnavailable(booking.getStartTime().toLocalDate());
+    bookingDates.removeDateIfUnavailable(booking.getStartTime().toLocalDate());
     bookingCounts.add(booking.getDate(), booking.getPartySize());
 
   }
@@ -218,6 +219,7 @@ public class BookingService {
     return bookingCounts.get();
   }
 
+  @Component
   private class BookingCountsByDate extends Cache<Map<LocalDate, Integer>> {
 
     public BookingCountsByDate() {

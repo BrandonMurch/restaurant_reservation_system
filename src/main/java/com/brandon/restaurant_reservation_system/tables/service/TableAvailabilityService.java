@@ -2,7 +2,7 @@
  * Copyright (c) 2020 Brandon Murch
  */
 
-package com.brandon.restaurant_reservation_system.restaurants.services;
+package com.brandon.restaurant_reservation_system.tables.service;
 
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;

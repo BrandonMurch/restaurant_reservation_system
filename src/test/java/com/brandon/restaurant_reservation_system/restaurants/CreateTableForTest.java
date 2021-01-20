@@ -4,14 +4,13 @@
 
 package com.brandon.restaurant_reservation_system.restaurants;
 
-import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
 import java.util.Arrays;
 import java.util.List;
 
 public class CreateTableForTest {
 
-  public CreateTableForTest(Restaurant restaurant) {
+  public CreateTableForTest() {
   }
 
   public static List<RestaurantTable> getTableList() {

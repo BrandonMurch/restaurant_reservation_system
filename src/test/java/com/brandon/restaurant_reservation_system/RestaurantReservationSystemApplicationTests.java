@@ -189,7 +189,7 @@ class RestaurantReservationSystemApplicationTests {
   @Test
   void getTables() {
     List<String> tables = testClient
-        .get().uri("/restaurant/tables")
+        .get().uri("/tables")
         .exchange()
         .expectStatus().isOk()
         .expectBodyList(String.class).returnResult().getResponseBody();
@@ -206,7 +206,7 @@ class RestaurantReservationSystemApplicationTests {
     RestaurantTable table = new RestaurantTable("newTableName", 100, 1000000);
 
     testClient
-        .post().uri("/restaurant/tables")
+        .post().uri("/tables")
         .contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON)
         .bodyValue(table)
@@ -214,7 +214,7 @@ class RestaurantReservationSystemApplicationTests {
         .expectStatus().isCreated()
         .expectBody().isEmpty();
     testClient
-        .get().uri("/restaurant/tables")
+        .get().uri("/tables")
         .exchange()
         .expectBodyList(RestaurantTable.class).contains(table);
 
@@ -225,25 +225,25 @@ class RestaurantReservationSystemApplicationTests {
     RestaurantTable table = new RestaurantTable("newTableName", 100, 1000000);
 
     testClient
-        .post().uri("/restaurant/tables")
+        .post().uri("/tables")
         .contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON)
         .bodyValue(table)
         .exchange();
 
     testClient
-        .get().uri("/restaurant/tables")
+        .get().uri("/tables")
         .exchange()
         .expectStatus().isOk()
         .expectBodyList(RestaurantTable.class).contains(table);
 
     testClient
-        .delete().uri("/restaurant/tables/" + table.getName())
+        .delete().uri("/tables/" + table.getName())
         .exchange()
         .expectStatus().is2xxSuccessful();
 
     testClient
-        .get().uri("/restaurant/tables")
+        .get().uri("/tables")
         .exchange()
         .expectBodyList(RestaurantTable.class).doesNotContain(table);
   }

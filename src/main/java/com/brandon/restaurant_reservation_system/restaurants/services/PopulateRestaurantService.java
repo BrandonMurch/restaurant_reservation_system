@@ -5,51 +5,51 @@
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
 import com.brandon.restaurant_reservation_system.restaurants.data.BookingDateRange;
+import com.brandon.restaurant_reservation_system.restaurants.data.OpeningHours;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
-import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import com.brandon.restaurant_reservation_system.restaurants.model.Day;
-import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
+import com.brandon.restaurant_reservation_system.tables.service.TableService;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class PopulateRestaurantService {
 
-  public static void populateRestaurant(Restaurant restaurant, BookingDateRange dateRange) {
-    setConfig(restaurant);
-    dateRange.set(30);
-    restaurant.setOpeningHours(
-        modifyOpeningHours(restaurant.getOpeningHours()));
-    restaurant.allowBookingPerTimeInterval(15);
-  }
+  @Autowired
+  private RestaurantConfig config;
+  @Autowired
+  private OpeningHours openingHours;
+  @Autowired
+  private BookingDateRange dateRange;
+  @Autowired
+  private TableService tables;
+  @Autowired
+  private BookingTimes bookingTimes;
 
-  private static void setConfig(Restaurant restaurant) {
-    RestaurantConfig config = new RestaurantConfig();
+  public void populate() {
+    dateRange.set(30);
+    openingHours.set(
+        modifyOpeningHours(openingHours.get()));
     config.setCapacity(40);
     config.setStandardBookingDuration(120);
     config.setCanABookingOccupyALargerTable(true);
     config.setPeoplePerInterval(0);
-    restaurant.setConfig(config);
+    bookingTimes.setBookingSlotInterval(15);
   }
 
-  public static void populateRestaurantTables(TableService tables) {
-    addTables(tables);
-    addCombinations(tables);
+  public void populateTables() {
+    addTables();
+    addCombinations();
   }
 
-  private static DateRange getDateRange() {
-    LocalDate start = LocalDate.now();
-    LocalDate end = LocalDate.of(2020, 8, 31);
-
-    return new DateRange(start, end);
-  }
-
-  private static void addTables(TableService tables) {
+  private void addTables() {
     tables.add("k1", 2);
     tables.add("k2", 2);
     tables.add("b1", 2);
@@ -65,16 +65,16 @@ public class PopulateRestaurantService {
   }
 
   //
-  private static void addCombinations(TableService tableService) {
-    List<RestaurantTable> tables = tableService.findAll();
-    tableService.createCombination(
-        Arrays.asList(tables.get(1), tables.get(0)));
-    tableService.createCombination(Arrays.asList(tables.get(7),
-        tables.get(8), tables.get(9)));
-    tableService.createCombination(Arrays.asList(tables.get(9),
-        tables.get(8)));
-    tableService.createCombination(Arrays.asList(tables.get(4),
-        tables.get(5)));
+  private void addCombinations() {
+    List<RestaurantTable> allTables = tables.findAll();
+    tables.createCombination(
+        Arrays.asList(allTables.get(1), allTables.get(0)));
+    tables.createCombination(Arrays.asList(allTables.get(7),
+        allTables.get(8), allTables.get(9)));
+    tables.createCombination(Arrays.asList(allTables.get(9),
+        allTables.get(8)));
+    tables.createCombination(Arrays.asList(allTables.get(4),
+        allTables.get(5)));
   }
 
   private static Map<DayOfWeek, Day> modifyOpeningHours(
@@ -98,11 +98,5 @@ public class PopulateRestaurantService {
       });
     }
     return newMap;
-  }
-
-  private List<LocalTime> getBookingTimes() {
-    return Arrays.asList(LocalTime.of(18, 0),
-        LocalTime.of(20, 30),
-        LocalTime.of(23, 15));
   }
 }

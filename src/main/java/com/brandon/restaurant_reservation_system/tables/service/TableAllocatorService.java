@@ -2,14 +2,13 @@
  * Copyright (c) 2020 Brandon Murch
  */
 
-package com.brandon.restaurant_reservation_system.restaurants.services;
+package com.brandon.restaurant_reservation_system.tables.service;
 
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
-import com.brandon.restaurant_reservation_system.restaurants.data.BookingTimes;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
-import com.brandon.restaurant_reservation_system.restaurants.model.Restaurant;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
+import com.brandon.restaurant_reservation_system.restaurants.services.BookingTimes;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -29,8 +28,6 @@ public class TableAllocatorService {
   @Autowired
   private TableService tableService;
   @Autowired
-  private Restaurant restaurant;
-  @Autowired
   private RestaurantConfig config;
   @Autowired
   private BookingTimes bookingTimes;
@@ -43,30 +40,26 @@ public class TableAllocatorService {
     if (booking.getEndTime() == null) {
       booking.setEndTime(
           booking.getStartTime()
-              .plus(restaurant.getStandardBookingDuration())
+              .plus(config.getStandardBookingDuration())
       );
     }
     return getAvailableTable(
         booking.getStartTime(),
         booking.getEndTime(),
-        booking.getPartySize(),
-        restaurant.canABookingOccupyALargerTable());
+        booking.getPartySize());
   }
 
 
   public Optional<RestaurantTable> getAvailableTable(LocalDateTime startTime,
-      int partySize,
-      boolean searchGreaterSizes) {
+      int partySize) {
     LocalDateTime endTime =
-        startTime.plus(restaurant.getStandardBookingDuration());
-    return getAvailableTable(startTime, endTime, partySize,
-        searchGreaterSizes);
+        startTime.plus(config.getStandardBookingDuration());
+    return getAvailableTable(startTime, endTime, partySize);
   }
 
   public Optional<RestaurantTable> getAvailableTable(LocalDateTime startTime,
       LocalDateTime endTime,
-      int partySize,
-      boolean searchGreaterSizes) {
+      int partySize) {
     List<RestaurantTable> allTables = tableService.findAll();
     if (allTables == null || allTables.isEmpty()) {
       throw new IllegalStateException("Please ensure the restaurant is " +
@@ -88,7 +81,7 @@ public class TableAllocatorService {
     var optionalTable = getTableBySizeAndUpdateMap(occupiedTables,
         partySize);
     if (optionalTable.isEmpty()) {
-      if (searchGreaterSizes || partySize % 2 == 1) {
+      if (config.canABookingOccupyALargerTable() || partySize % 2 == 1) {
         return getATableRecursively(partySize + 1);
       }
     }
@@ -103,11 +96,6 @@ public class TableAllocatorService {
       return Optional.empty();
     }
     return getATableRecursively(partySize + 1);
-  }
-
-  private List<Booking> getBookings(LocalDateTime startTime) {
-    return getBookings(startTime,
-        startTime.plus(config.getStandardBookingDuration()));
   }
 
   private List<Booking> getBookings(LocalDateTime startTime,

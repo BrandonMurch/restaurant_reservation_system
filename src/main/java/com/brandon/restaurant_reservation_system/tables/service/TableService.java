@@ -2,7 +2,7 @@
  * Copyright (c) 2020 Brandon Murch
  */
 
-package com.brandon.restaurant_reservation_system.restaurants.services;
+package com.brandon.restaurant_reservation_system.tables.service;
 
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
 import com.brandon.restaurant_reservation_system.bookings.services.BookingService;
@@ -26,8 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class TableService {
 
-  @Autowired
-  TableAllocatorService tableAllocator;
   @Autowired
   private TableRepository tableRepository;
   @Autowired
@@ -59,10 +57,6 @@ public class TableService {
       table.setPriority(getTableCount());
     }
     tableRepository.save(table);
-  }
-
-  public void addAll(List<RestaurantTable> restaurantTableList) {
-    tableRepository.saveAll(restaurantTableList);
   }
 
   public void update(String name, RestaurantTable updated) {

@@ -15,6 +15,7 @@ import com.brandon.restaurant_reservation_system.bookings.services.BookingServic
 import com.brandon.restaurant_reservation_system.restaurants.data.TableRepository;
 import com.brandon.restaurant_reservation_system.restaurants.exceptions.UnallocatedBookingTableException;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
+import com.brandon.restaurant_reservation_system.tables.service.TableService;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

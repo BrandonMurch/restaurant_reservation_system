@@ -7,30 +7,19 @@ package com.brandon.restaurant_reservation_system.restaurants.controller;
 import static com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler.parseDate;
 
 import com.brandon.restaurant_reservation_system.GlobalVariables;
-import com.brandon.restaurant_reservation_system.helpers.date_time.services.DateTimeHandler;
-import com.brandon.restaurant_reservation_system.restaurants.data.BookingTimes;
-import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
-import com.brandon.restaurant_reservation_system.restaurants.services.BookingDateAvailability;
-import com.brandon.restaurant_reservation_system.restaurants.services.TableService;
-import java.net.URI;
+import com.brandon.restaurant_reservation_system.restaurants.services.BookingDates;
+import com.brandon.restaurant_reservation_system.restaurants.services.BookingTimes;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/restaurant")
@@ -39,12 +28,9 @@ public class RestaurantController {
   private final DateTimeFormatter dateFormat =
       GlobalVariables.getDateFormat();
   @Autowired
-  private BookingDateAvailability bookingDateAvailability;
-  @Autowired
-  private TableService tableService;
+  private BookingDates bookingDates;
   @Autowired
   private BookingTimes bookingTimes;
-  private DateTimeHandler dateTimeHandler;
 
   public RestaurantController() {
   }
@@ -56,64 +42,14 @@ public class RestaurantController {
 
     if (date != null && size != null) {
       LocalDate parsedDate = parseDate(date, dateFormat);
-      Set<LocalTime> set = bookingTimes.getAvailable(size, parsedDate);
+      Set<LocalTime> set = bookingTimes.getAvailableBySize(size, parsedDate);
       return new ResponseEntity<>(set, HttpStatus.OK);
     } else {
-      return ResponseEntity.ok(bookingDateAvailability.getAll());
+      return ResponseEntity.ok(bookingDates.getAll());
     }
   }
 
-  @GetMapping(value = "/largest-table")
-  public ResponseEntity<?> getTableSizes() {
-    return new ResponseEntity<>(tableService.getLargestTableSize(), HttpStatus.OK);
-  }
 
-  @GetMapping(value = "/tables")
-  public ResponseEntity<?> getAllTables() {
-
-    return new ResponseEntity<>(tableService.findAll(), HttpStatus.OK);
-  }
-
-  @PostMapping(value = "/tables")
-  public ResponseEntity<?> createTable(@RequestBody RestaurantTable table) {
-    tableService.add(table);
-    return buildUriFromTable(table);
-  }
-
-  @PostMapping(value = "/combinations")
-  public ResponseEntity<?> createCombination(@RequestBody String tables) {
-    RestaurantTable created = tableService.createCombination(tables);
-    return buildUriFromTable(created);
-  }
-
-  @PutMapping(value = "/tables")
-  public ResponseEntity<?> updateTablePriorities(@RequestBody List<RestaurantTable> updatedTables) {
-    tableService.updateAll(updatedTables);
-    return ResponseEntity.noContent().build();
-  }
-
-  @PutMapping(value = "/tables/{name}")
-  public ResponseEntity<?> updateTable(@RequestBody RestaurantTable newTable,
-      @PathVariable String name) {
-    tableService.update(name, newTable);
-    return ResponseEntity.noContent().build();
-  }
-
-  @DeleteMapping(value = "/tables/{name}")
-  public ResponseEntity<?> deleteTable(@PathVariable String name) {
-    tableService.remove(name);
-    return ResponseEntity.noContent().build();
-  }
-
-  private ResponseEntity<String> buildUriFromTable(RestaurantTable table) {
-    URI location = ServletUriComponentsBuilder
-        .fromCurrentRequest()
-        .replacePath("/tables")
-        .path("/{id}")
-        .buildAndExpand(table.getName())
-        .toUri();
-    return ResponseEntity.created(location).build();
-  }
 
   // admin only controller options - to be implemented in future
   // GET /RESTAURANTS/{RESTAURANT} - get a restaurant

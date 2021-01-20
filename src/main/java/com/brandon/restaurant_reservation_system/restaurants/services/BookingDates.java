@@ -6,25 +6,24 @@ package com.brandon.restaurant_reservation_system.restaurants.services;
 
 import com.brandon.restaurant_reservation_system.data.Cache;
 import com.brandon.restaurant_reservation_system.restaurants.data.BookingDateRange;
-import com.brandon.restaurant_reservation_system.restaurants.data.BookingTimes;
 import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class BookingDateAvailability {
+@Component
+public class BookingDates {
 
   private final AvailableDates availableDates = new AvailableDates();
   @Autowired
-  private BookingDateRange bookingDateRange;
-  @Autowired
   private BookingTimes bookingTimes;
   @Autowired
-  private TableAllocatorService tableAllocatorService;
+  private BookingDateRange bookingDateRange;
+
+  public BookingDates() {
+  }
 
   public SortedSet<LocalDate> getAll() {
     return availableDates.get();
@@ -41,27 +40,11 @@ public class BookingDateAvailability {
   }
 
   public boolean isDateAvailable(LocalDate date) {
-    if (isClosedOnDate(date)) {
-      return false;
-    }
-
     return availableDates.get().contains(date);
   }
 
   private boolean tryBookingOnDate(LocalDate date) {
-    List<LocalTime> times = bookingTimes.getAll(date);
-    for (LocalTime time : times) {
-      LocalDateTime dateTime = date.atTime(time);
-      if (tableAllocatorService.getAvailableTable(dateTime, 2,
-          true).isPresent()) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private boolean isClosedOnDate(LocalDate date) {
-    return !bookingTimes.isOpenOnDate(date);
+    return bookingTimes.getAvailable(date).size() > 0;
   }
 
   private class AvailableDates extends Cache<SortedSet<LocalDate>> {
@@ -77,8 +60,7 @@ public class BookingDateAvailability {
       LocalDate end = dates.getEnd().plusDays(1);
 
       while (current.isBefore(end)) {
-        if (bookingTimes.isOpenOnDate(current)
-            && tryBookingOnDate(current)) {
+        if (tryBookingOnDate(current)) {
           updatedSet.add(current);
         }
         current = current.plusDays(1);

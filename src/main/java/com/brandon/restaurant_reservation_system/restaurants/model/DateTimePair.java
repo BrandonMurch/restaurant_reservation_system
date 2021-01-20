@@ -8,13 +8,13 @@ import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.Objects;
 
-public class OpeningClosingPair implements Serializable {
+public class DateTimePair implements Serializable {
 
   private static final long serialVersionUID = -296054023821005011L;
   private LocalTime opening;
   private LocalTime closing;
 
-  public OpeningClosingPair(LocalTime opening, LocalTime closing) {
+  public DateTimePair(LocalTime opening, LocalTime closing) {
     this.opening = opening;
     this.closing = closing;
   }
@@ -43,13 +43,16 @@ public class OpeningClosingPair implements Serializable {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    OpeningClosingPair that = (OpeningClosingPair) o;
+    DateTimePair that = (DateTimePair) o;
     return Objects.equals(getOpening(), that.getOpening()) &&
         Objects.equals(getClosing(), that.getClosing());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getOpening(), getClosing());
+    int result = 7;
+    result = 31 * result + getOpening().hashCode();
+    result = 31 * result + getClosing().hashCode();
+    return result;
   }
 }

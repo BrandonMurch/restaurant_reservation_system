@@ -6,29 +6,25 @@ package com.brandon.restaurant_reservation_system.restaurants.data;
 
 import com.brandon.restaurant_reservation_system.restaurants.model.DateRange;
 import java.time.LocalDate;
+import org.springframework.stereotype.Component;
 
-public class BookingDateRange {
+@Component
+public final class BookingDateRange {
 
   private boolean fixedBookingWindow;
   private int bookingHorizonInDays;
   private DateRange dateRange;
 
+  public BookingDateRange() {
+    set(0);
+  }
+
   public BookingDateRange(int bookingHorizonInDays) {
     set(bookingHorizonInDays);
   }
 
-  public BookingDateRange(
-      DateRange bookingDateRange) {
+  public BookingDateRange(DateRange bookingDateRange) {
     set(bookingDateRange);
-  }
-
-  public DateRange get() {
-    if (fixedBookingWindow) {
-      return dateRange;
-    }
-    LocalDate today = LocalDate.now();
-    LocalDate end = today.plusDays(bookingHorizonInDays);
-    return new DateRange(today, end);
   }
 
   public void set(int bookingHorizonInDays) {
@@ -40,4 +36,15 @@ public class BookingDateRange {
     this.fixedBookingWindow = true;
     this.dateRange = bookingDateRange;
   }
+
+  public DateRange get() {
+    if (fixedBookingWindow) {
+      return dateRange;
+    }
+    LocalDate today = LocalDate.now();
+    LocalDate end = today.plusDays(bookingHorizonInDays);
+    return new DateRange(today, end);
+  }
+
+
 }
