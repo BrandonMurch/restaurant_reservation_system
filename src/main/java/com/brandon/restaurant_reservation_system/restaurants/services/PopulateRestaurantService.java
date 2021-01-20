@@ -92,7 +92,6 @@ public class PopulateRestaurantService {
       LocalTime opening = LocalTime.of(18, 0);
       LocalTime closing = LocalTime.of(23, 20);
       newMap.computeIfPresent(day, (key, val) -> {
-        val.setOpen(true);
         val.addOpeningAndClosing(opening, closing);
         return val;
       });

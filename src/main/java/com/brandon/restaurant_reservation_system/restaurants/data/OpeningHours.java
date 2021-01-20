@@ -23,7 +23,7 @@ public class OpeningHours implements Serializable {
   public OpeningHours() {
     this.openingHours = new HashMap<>();
     for (DayOfWeek day : DayOfWeek.values()) {
-      this.openingHours.put(day, new Day(day, false));
+      this.openingHours.put(day, new Day(day));
     }
   }
 

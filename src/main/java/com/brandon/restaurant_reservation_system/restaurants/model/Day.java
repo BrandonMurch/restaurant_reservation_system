@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,36 +18,21 @@ public class Day implements Serializable {
   // instance variables
   private final DayOfWeek dayOfWeek;
   private final List<DateTimePair> hoursOfOperation;
-  private boolean isOpen;
 
   //constructors
-  public Day(DayOfWeek dayOfWeek, boolean isOpen) {
+  public Day(DayOfWeek dayOfWeek) {
     this.dayOfWeek = dayOfWeek;
     hoursOfOperation = new ArrayList<>();
-    this.isOpen = isOpen;
   }
 
   public Day(DayOfWeek dayOfWeek,
       List<DateTimePair> hoursOfOperation) {
     this.dayOfWeek = dayOfWeek;
     this.hoursOfOperation = new ArrayList<>(hoursOfOperation);
-    this.isOpen = true;
-  }
-
-  public DayOfWeek getDayOfWeek() {
-    return dayOfWeek;
-  }
-
-  public String getDayOfWeekAsString() {
-    return dayOfWeek.toString();
   }
 
   public boolean isOpen() {
-    return isOpen;
-  }
-
-  public void setOpen(boolean open) {
-    isOpen = open;
+    return hoursOfOperation.size() != 0;
   }
 
   public List<DateTimePair> getOpeningPairs() {
@@ -59,15 +45,15 @@ public class Day implements Serializable {
 
   public void removeOpeningAndClosing(LocalTime opening, LocalTime closing) {
     hoursOfOperation.remove(new DateTimePair(opening, closing));
-    //		Iterator<DateTimePair> itr = this.hoursOfOperation.iterator();
-    //		while (itr.hasNext()) {
-    //			DateTimePair nextPair = itr.next();
-    //			if (opening.equals(nextPair.getOpening())
-    //					&& closing.equals(nextPair.getClosing())) {
-    //				itr.remove();
-    //				break;
-    //			}
-    //		}
+    Iterator<DateTimePair> itr = this.hoursOfOperation.iterator();
+    while (itr.hasNext()) {
+      DateTimePair nextPair = itr.next();
+      if (opening.equals(nextPair.getOpening())
+          && closing.equals(nextPair.getClosing())) {
+        itr.remove();
+        break;
+      }
+    }
   }
 
   public Optional<DateTimePair> getPairThatContainsTime(LocalTime time) {
