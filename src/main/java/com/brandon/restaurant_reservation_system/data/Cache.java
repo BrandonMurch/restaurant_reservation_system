@@ -17,12 +17,8 @@ public abstract class Cache<T> {
 
   public Cache(T data) {
     this.data = data;
-    datesLastUpdated = LocalDate.now();
-  }
-
-  public Cache(T data, Callable<T> updateFunction) {
-    this.data = data;
-    datesLastUpdated = LocalDate.now();
+    // Causes the cache to update upon first get();
+    datesLastUpdated = LocalDate.now().minusDays(1);
   }
 
   protected abstract T update();
