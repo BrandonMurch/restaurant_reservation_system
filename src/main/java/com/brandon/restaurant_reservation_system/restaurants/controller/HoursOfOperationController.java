@@ -14,9 +14,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/hours-of-operation")
 public class HoursOfOperationController {
 
+  @Autowired
   private HoursOfOperation hoursOfOperation;
 
   @GetMapping()
@@ -32,31 +35,23 @@ public class HoursOfOperationController {
   }
 
   @PutMapping()
-  public ResponseEntity<?> updateHours(ReceivedHoursOfOperation newHours) {
-    hoursOfOperation.set(newHours.convert());
+  public ResponseEntity<?> updateHours(@RequestBody Map<String, List<String>> newHours) {
+    hoursOfOperation.set(convertToHoursOfOperation(newHours));
     return ResponseEntity.noContent().build();
   }
 
-  private static class ReceivedHoursOfOperation {
 
-    private final Map<String, List<String>> hours;
-
-    public ReceivedHoursOfOperation(
-        Map<String, List<String>> hours) {
-      this.hours = hours;
-    }
-
-    public Map<DayOfWeek, Day> convert() {
-      Map<DayOfWeek, Day> convertedHours = new HashMap<>();
-      for (Entry<String, List<String>> entry : hours.entrySet()) {
-        DayOfWeek dayOfWeek = DayOfWeek.valueOf(entry.getKey());
-        List<DateTimePair> timePairs = new ArrayList<>();
-        for (String pairString : entry.getValue()) {
-          var timePair = pairString.split(" - ");
-          timePairs.add(
-              new DateTimePair(
-                  LocalTime.parse(timePair[0]),
-                  LocalTime.parse(timePair[1])
+  public Map<DayOfWeek, Day> convertToHoursOfOperation(Map<String, List<String>> hours) {
+    Map<DayOfWeek, Day> convertedHours = new HashMap<>();
+    for (Entry<String, List<String>> entry : hours.entrySet()) {
+      DayOfWeek dayOfWeek = DayOfWeek.valueOf(entry.getKey().toUpperCase());
+      List<DateTimePair> timePairs = new ArrayList<>();
+      for (String pairString : entry.getValue()) {
+        var timePair = pairString.split(" - ");
+        timePairs.add(
+            new DateTimePair(
+                LocalTime.parse(timePair[0]),
+                LocalTime.parse(timePair[1])
               )
           );
         }
@@ -64,6 +59,5 @@ public class HoursOfOperationController {
       }
       return convertedHours;
     }
-  }
 }
 
