@@ -6,7 +6,7 @@ package com.brandon.restaurant_reservation_system.restaurants.services;
 
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
-import com.brandon.restaurant_reservation_system.restaurants.data.OpeningHours;
+import com.brandon.restaurant_reservation_system.restaurants.data.HoursOfOperation;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
 import com.brandon.restaurant_reservation_system.restaurants.data.TableRepository;
 import com.brandon.restaurant_reservation_system.restaurants.model.DateTimePair;
@@ -49,7 +49,7 @@ public class BookingTimes implements Serializable {
   @Autowired
   private BookingRepository bookingRepository;
   @Autowired
-  private OpeningHours openingHours;
+  private HoursOfOperation hoursOfOperation;
 
   public BookingTimes() {
   }
@@ -58,9 +58,9 @@ public class BookingTimes implements Serializable {
     lock.lock();
     bookingTimesByDay.clear();
     for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
-      if (openingHours.isOpen(dayOfWeek)) {
+      if (hoursOfOperation.isOpen(dayOfWeek)) {
         List<LocalTime> bookingTimes = new ArrayList<>();
-        List<DateTimePair> openClosePairs = openingHours.getOpenClosePairs(dayOfWeek);
+        List<DateTimePair> openClosePairs = hoursOfOperation.getOpenClosePairs(dayOfWeek);
         for (DateTimePair pair : openClosePairs) {
           LocalTime time = pair.getOpening();
           LocalTime closing = pair.getClosing();
@@ -122,7 +122,7 @@ public class BookingTimes implements Serializable {
   public List<LocalTime> getAll(LocalDate date) {
     lock.lock();
     try {
-      if (!openingHours.isOpen(date)) {
+      if (!hoursOfOperation.isOpen(date)) {
         return Collections.emptyList();
       } else if (bookingsAtCertainTimes) {
         return this.bookingTimes;

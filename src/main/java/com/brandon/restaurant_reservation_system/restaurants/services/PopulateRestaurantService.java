@@ -5,7 +5,7 @@
 package com.brandon.restaurant_reservation_system.restaurants.services;
 
 import com.brandon.restaurant_reservation_system.restaurants.data.BookingDateRange;
-import com.brandon.restaurant_reservation_system.restaurants.data.OpeningHours;
+import com.brandon.restaurant_reservation_system.restaurants.data.HoursOfOperation;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
 import com.brandon.restaurant_reservation_system.restaurants.model.Day;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
@@ -25,7 +25,7 @@ public class PopulateRestaurantService {
   @Autowired
   private RestaurantConfig config;
   @Autowired
-  private OpeningHours openingHours;
+  private HoursOfOperation hoursOfOperation;
   @Autowired
   private BookingDateRange dateRange;
   @Autowired
@@ -33,15 +33,26 @@ public class PopulateRestaurantService {
   @Autowired
   private BookingTimes bookingTimes;
 
-  public void populate() {
-    dateRange.set(30);
-    openingHours.set(
-        modifyOpeningHours(openingHours.get()));
-    config.setCapacity(40);
-    config.setStandardBookingDuration(120);
-    config.setCanABookingOccupyALargerTable(true);
-    config.setPeoplePerInterval(0);
-    bookingTimes.setBookingSlotInterval(15);
+  private static Map<DayOfWeek, Day> modifyOpeningHours(
+      Map<DayOfWeek, Day> map) {
+    Map<DayOfWeek, Day> newMap = new HashMap<>(map);
+
+    DayOfWeek[] days = {
+        DayOfWeek.WEDNESDAY,
+        DayOfWeek.THURSDAY,
+        DayOfWeek.FRIDAY,
+        DayOfWeek.SATURDAY
+    };
+
+    for (DayOfWeek day : days) {
+      LocalTime opening = LocalTime.of(18, 0);
+      LocalTime closing = LocalTime.of(23, 20);
+      newMap.computeIfPresent(day, (key, value) -> {
+        value.addOpeningAndClosing(opening, closing);
+        return value;
+      });
+    }
+    return newMap;
   }
 
   public void populateTables() {
@@ -77,25 +88,14 @@ public class PopulateRestaurantService {
         allTables.get(5)));
   }
 
-  private static Map<DayOfWeek, Day> modifyOpeningHours(
-      Map<DayOfWeek, Day> map) {
-    Map<DayOfWeek, Day> newMap = new HashMap<>(map);
-
-    DayOfWeek[] days = {
-        DayOfWeek.WEDNESDAY,
-        DayOfWeek.THURSDAY,
-        DayOfWeek.FRIDAY,
-        DayOfWeek.SATURDAY
-    };
-
-    for (DayOfWeek day : days) {
-      LocalTime opening = LocalTime.of(18, 0);
-      LocalTime closing = LocalTime.of(23, 20);
-      newMap.computeIfPresent(day, (key, val) -> {
-        val.addOpeningAndClosing(opening, closing);
-        return val;
-      });
-    }
-    return newMap;
+  public void populate() {
+    dateRange.set(30);
+    hoursOfOperation.set(
+        modifyOpeningHours(hoursOfOperation.get()));
+    config.setCapacity(40);
+    config.setStandardBookingDuration(120);
+    config.setCanABookingOccupyALargerTable(true);
+    config.setPeoplePerInterval(0);
+    bookingTimes.setBookingSlotInterval(15);
   }
 }

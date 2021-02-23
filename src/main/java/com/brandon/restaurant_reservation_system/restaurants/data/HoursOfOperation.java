@@ -15,19 +15,19 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OpeningHours implements Serializable {
+public class HoursOfOperation implements Serializable {
 
   private static final long serialVersionUID = 5359487224165569910L;
   private Map<DayOfWeek, Day> openingHours;
 
-  public OpeningHours() {
+  public HoursOfOperation() {
     this.openingHours = new HashMap<>();
     for (DayOfWeek day : DayOfWeek.values()) {
       this.openingHours.put(day, new Day(day));
     }
   }
 
-  public OpeningHours(
+  public HoursOfOperation(
       Map<DayOfWeek, Day> openingHours) {
     this.openingHours = openingHours;
   }

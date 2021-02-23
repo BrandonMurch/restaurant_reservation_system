@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.brandon.restaurant_reservation_system.restaurants.data.OpeningHours;
+import com.brandon.restaurant_reservation_system.restaurants.data.HoursOfOperation;
 import com.brandon.restaurant_reservation_system.restaurants.model.DateTimePair;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -31,7 +31,7 @@ class BookingTimesTest {
 
   DateTimePair openClosePair;
   @Mock
-  private OpeningHours openingHours;
+  private HoursOfOperation hoursOfOperation;
   @InjectMocks
   private BookingTimes bookingTimes;
 
@@ -47,7 +47,7 @@ class BookingTimesTest {
   @Test
   void settingUpFixedTimes() {
     Mockito
-        .when(openingHours.isOpen(Mockito.any(LocalDate.class)))
+        .when(hoursOfOperation.isOpen(Mockito.any(LocalDate.class)))
         .thenReturn(true);
     List<LocalTime> list = new ArrayList<>();
     list.add(LocalTime.now());
@@ -64,13 +64,13 @@ class BookingTimesTest {
   @Test
   void settingUpTimeIntervals() {
     Mockito
-        .when(openingHours.isOpen(Mockito.any(DayOfWeek.class)))
+        .when(hoursOfOperation.isOpen(Mockito.any(DayOfWeek.class)))
         .thenReturn(true);
     Mockito
-        .when(openingHours.isOpen(Mockito.any(LocalDate.class)))
+        .when(hoursOfOperation.isOpen(Mockito.any(LocalDate.class)))
         .thenReturn(true);
     Mockito
-        .when(openingHours.getOpenClosePairs(Mockito.any(DayOfWeek.class)))
+        .when(hoursOfOperation.getOpenClosePairs(Mockito.any(DayOfWeek.class)))
         .thenReturn(Collections.singletonList(openClosePair));
 
     bookingTimes.setBookingSlotInterval(30);
@@ -93,13 +93,13 @@ class BookingTimesTest {
   @Test
   void isBookingTime() {
     Mockito
-        .when(openingHours.isOpen(Mockito.any(LocalDate.class)))
+        .when(hoursOfOperation.isOpen(Mockito.any(LocalDate.class)))
         .thenReturn(true);
     Mockito
-        .when(openingHours.isOpen(Mockito.any(DayOfWeek.class)))
+        .when(hoursOfOperation.isOpen(Mockito.any(DayOfWeek.class)))
         .thenReturn(true);
     Mockito
-        .when(openingHours.getOpenClosePairs(Mockito.any(DayOfWeek.class)))
+        .when(hoursOfOperation.getOpenClosePairs(Mockito.any(DayOfWeek.class)))
         .thenReturn(Collections.singletonList(openClosePair));
 
     LocalDate today = LocalDate.now();
