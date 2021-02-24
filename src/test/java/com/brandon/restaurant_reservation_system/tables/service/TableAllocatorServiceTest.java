@@ -11,9 +11,9 @@ import static org.mockito.ArgumentMatchers.any;
 import com.brandon.restaurant_reservation_system.bookings.CreateBookingsForTest;
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
+import com.brandon.restaurant_reservation_system.restaurants.data.HoursOfOperation;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
-import com.brandon.restaurant_reservation_system.restaurants.services.BookingTimes;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -51,27 +51,8 @@ class TableAllocatorServiceTest {
       new RestaurantTable("24", 2, 3),
       new RestaurantTable("25", 2, 3)
   );
-  private final List<RestaurantTable> comboList = Arrays.asList(
-      new RestaurantTable(Arrays.asList(
-          new RestaurantTable("21", 2, 1),
-          new RestaurantTable("22", 2, 1)
-      ), 1),
-      new RestaurantTable(Arrays.asList(
-          new RestaurantTable("21", 2, 1),
-          new RestaurantTable("22", 2, 1),
-          new RestaurantTable("23", 2, 1)
-      ), 1),
-      new RestaurantTable(Arrays.asList(
-          new RestaurantTable("22", 2, 1),
-          new RestaurantTable("23", 2, 1)
-      ), 1),
-      new RestaurantTable(Arrays.asList(
-          new RestaurantTable("1", 4, 1),
-          new RestaurantTable("5", 4, 1)
-      ), 1)
-  );
   @Mock
-  private BookingTimes bookingTimes;
+  private HoursOfOperation bookingTimes;
   @Mock
   private BookingRepository bookingRepository;
   @Mock
