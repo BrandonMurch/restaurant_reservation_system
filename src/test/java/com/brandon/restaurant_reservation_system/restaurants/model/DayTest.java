@@ -19,12 +19,12 @@ class DayTest {
 
   final LocalTime now = LocalTime.now();
   final LocalTime oneHour = now.plusHours(1);
-  final DateTimePair pair = new DateTimePair(now, oneHour);
+  final TimePair pair = new TimePair(now, oneHour);
   private Day day;
 
   @BeforeEach
   void setup() {
-    day = new Day(DayOfWeek.WEDNESDAY, Collections.singletonList(pair));
+    day = Day.createDay(DayOfWeek.WEDNESDAY, Collections.singletonList(pair), 15);
   }
 
   @Test
@@ -35,7 +35,7 @@ class DayTest {
 
   @Test
   void getPairThatContainsTime() {
-    Optional<DateTimePair> optionalPair =
+    Optional<TimePair> optionalPair =
         day.getPairThatContainsTime(now.plusMinutes(30));
     if (optionalPair.isPresent()) {
       assertEquals(pair, optionalPair.get());

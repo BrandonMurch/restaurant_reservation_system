@@ -4,11 +4,13 @@
 
 package com.brandon.restaurant_reservation_system.restaurants.data;
 
-import com.brandon.restaurant_reservation_system.restaurants.model.DateTimePair;
 import com.brandon.restaurant_reservation_system.restaurants.model.Day;
+import com.brandon.restaurant_reservation_system.restaurants.model.TimePair;
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,27 +20,48 @@ import org.springframework.stereotype.Component;
 public class HoursOfOperation implements Serializable {
 
   private static final long serialVersionUID = 5359487224165569910L;
-  private Map<DayOfWeek, Day> openingHours;
+  private Map<DayOfWeek, Day> days;
 
   public HoursOfOperation() {
-    this.openingHours = new HashMap<>();
+    this.days = new HashMap<>();
     for (DayOfWeek day : DayOfWeek.values()) {
-      this.openingHours.put(day, new Day(day));
+      this.days.put(day, Day.createDay(day, null, 0));
     }
   }
 
-  public HoursOfOperation(
-      Map<DayOfWeek, Day> openingHours) {
-    this.openingHours = openingHours;
+  public Map<DayOfWeek, Day> get() {
+    return days;
   }
 
-  public Map<DayOfWeek, Day> get() {
-    return openingHours;
+  public List<LocalTime> getBookingTimes(LocalDate date) {
+    return days.get(date.getDayOfWeek()).getBookingTimes();
+  }
+
+  public void setOpeningHours(DayOfWeek day, List<TimePair> timePairs) {
+    days.computeIfPresent(day, (key, value) -> {
+      value.setOpeningHours(timePairs);
+      return value;
+    });
+
   }
 
   public void set(
       Map<DayOfWeek, Day> openingHours) {
-    this.openingHours = openingHours;
+    this.days = openingHours;
+  }
+
+  public void setTimes(DayOfWeek day, List<LocalTime> times) {
+    days.computeIfPresent(day, (key, value) -> {
+      value.setBookingTimes(times);
+      return value;
+    });
+  }
+
+  public void setTimes(DayOfWeek day, int interval) {
+    days.computeIfPresent(day, (key, value) -> {
+      value.setBookingSlotInterval(interval);
+      return value;
+    });
   }
 
   public boolean isOpen(LocalDate date) {
@@ -46,10 +69,14 @@ public class HoursOfOperation implements Serializable {
   }
 
   public boolean isOpen(DayOfWeek day) {
-    return openingHours.get(day).isOpen();
+    return days.get(day).isOpen();
   }
 
-  public List<DateTimePair> getOpenClosePairs(DayOfWeek day) {
-    return openingHours.get(day).getOpeningPairs();
+  public boolean isBookingTime(LocalDateTime dateTime) {
+    return days.get(dateTime.getDayOfWeek()).isOpen(dateTime.toLocalTime());
+  }
+
+  public List<TimePair> getOpenClosePairs(DayOfWeek day) {
+    return days.get(day).getOpeningPairs();
   }
 }

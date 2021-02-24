@@ -6,9 +6,9 @@ package com.brandon.restaurant_reservation_system.tables.service;
 
 import com.brandon.restaurant_reservation_system.bookings.data.BookingRepository;
 import com.brandon.restaurant_reservation_system.bookings.model.Booking;
+import com.brandon.restaurant_reservation_system.restaurants.data.HoursOfOperation;
 import com.brandon.restaurant_reservation_system.restaurants.data.RestaurantConfig;
 import com.brandon.restaurant_reservation_system.restaurants.model.RestaurantTable;
-import com.brandon.restaurant_reservation_system.restaurants.services.BookingTimes;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +30,7 @@ public class TableAllocatorService {
   @Autowired
   private RestaurantConfig config;
   @Autowired
-  private BookingTimes bookingTimes;
+  private HoursOfOperation hoursOfOperation;
   private Map<Integer, RestaurantTable> availableTables;
 
   public TableAllocatorService() {
@@ -64,7 +64,7 @@ public class TableAllocatorService {
     if (allTables == null || allTables.isEmpty()) {
       throw new IllegalStateException("Please ensure the restaurant is " +
           "set up with tables before trying to make a booking.");
-    } else if (!bookingTimes.isBookingTime(startTime)) {
+    } else if (!hoursOfOperation.isBookingTime(startTime)) {
       return Optional.empty();
     }
 

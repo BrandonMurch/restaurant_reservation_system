@@ -49,6 +49,7 @@ public class PopulateRestaurantService {
       LocalTime closing = LocalTime.of(23, 20);
       newMap.computeIfPresent(day, (key, value) -> {
         value.addOpeningAndClosing(opening, closing);
+        value.setBookingSlotInterval(15);
         return value;
       });
     }
@@ -96,6 +97,5 @@ public class PopulateRestaurantService {
     config.setStandardBookingDuration(120);
     config.setCanABookingOccupyALargerTable(true);
     config.setPeoplePerInterval(0);
-    bookingTimes.setBookingSlotInterval(15);
   }
 }
